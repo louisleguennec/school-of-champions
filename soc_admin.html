@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOC Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#e03030;--blue:#003366;--blue-light:#4488cc;
+  --bg:#0d0d0d;--surface:#141414;--surface2:#1c1c1c;--surface3:#242424;
+  --border:#272727;--border2:#333;
+  --text:#fff;--text2:#aaa;--text3:#666;
+  --green:#22c55e;--yellow:#fbbf24;--gold:#f59e0b;
+}
+html{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;-webkit-font-smoothing:antialiased}
+body{min-height:100vh}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:2rem}
+#loginScreen.hidden{display:none}
+.login-logo{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;text-transform:uppercase;letter-spacing:2px;text-align:center}
+.login-logo em{color:var(--blue-light);font-style:normal}
+.login-sub{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
+.login-input{width:100%;max-width:300px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-size:16px;outline:none;text-align:center;letter-spacing:3px}
+.login-input:focus{border-color:var(--blue)}
+.login-btn{width:100%;max-width:300px;padding:12px;border-radius:10px;border:none;background:var(--blue);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.login-error{font-size:12px;color:var(--red);display:none}
+
+/* LAYOUT */
+#app{display:none}
+#app.show{display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 0;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-logo{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:1px;padding:0 1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-logo em{color:var(--blue-light);font-style:normal}
+.sidebar-logo small{display:block;font-size:10px;letter-spacing:2px;color:var(--text3);font-weight:400;margin-top:2px}
+.nav-link{display:flex;align-items:center;gap:10px;padding:10px 1.25rem;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text2);cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:all 0.15s;border-left:3px solid transparent}
+.nav-link:hover{background:var(--surface2);color:var(--text)}
+.nav-link.active{background:var(--surface2);color:#fff;border-left-color:var(--blue)}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+
+.main-content{flex:1;padding:2rem;overflow-y:auto}
+.page{display:none}
+.page.active{display:block}
+
+/* CARDS */
+.page-title{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--text2);margin-bottom:1.5rem}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem}
+.stat-val{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;color:var(--text)}
+.stat-val.blue{color:var(--blue-light)}
+.stat-val.green{color:var(--green)}
+.stat-val.gold{color:var(--gold)}
+.stat-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-top:2px}
+
+/* TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border)}
+.table-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.table-search{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:6px 12px;color:var(--text);font-size:13px;outline:none;width:220px}
+.table-search:focus{border-color:var(--blue)}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+td{font-size:13px;padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+td:first-child{color:var(--text);font-weight:600}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+.badge{font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:2px 8px;border-radius:4px;display:inline-block}
+.badge.active{background:rgba(34,197,94,0.15);color:var(--green)}
+.badge.inactive{background:var(--surface3);color:var(--text3)}
+.badge.m{background:rgba(0,51,102,0.3);color:var(--blue-light)}
+.badge.f{background:rgba(74,28,60,0.3);color:#e87ab8}
+.action-btn{font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:4px 10px;border-radius:5px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer;transition:all 0.15s}
+.action-btn:hover{background:var(--surface3);color:var(--text)}
+.action-btn.danger{border-color:rgba(224,48,48,0.3);color:var(--red)}
+.action-btn.danger:hover{background:rgba(224,48,48,0.1)}
+.action-btn.primary{border-color:var(--blue);color:var(--blue-light);background:rgba(0,51,102,0.2)}
+
+/* CHARTS */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem}
+.chart-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-label{font-size:12px;color:var(--text2);width:160px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:8px;background:var(--surface3);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width 0.5s}
+.bar-val{font-size:12px;font-weight:700;color:var(--text);width:30px;text-align:right;flex-shrink:0}
+
+/* FATIGUE CHART */
+.fatigue-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.fatigue-row:last-child{border-bottom:none}
+.fatigue-name{font-size:13px;color:var(--text);width:140px;flex-shrink:0}
+.fatigue-dots{display:flex;gap:4px}
+.fatigue-dot{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif}
+
+/* LB CONFIG */
+.lb-config-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+.lb-config-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem}
+.lb-config-day{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;color:var(--blue-light)}
+.lb-toggle{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.lb-toggle:last-child{border-bottom:none}
+.toggle-switch{width:36px;height:20px;background:var(--surface3);border-radius:10px;border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0}
+.toggle-switch::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left 0.2s}
+.toggle-switch.on{background:var(--blue)}
+.toggle-switch.on::after{left:19px}
+
+/* ADD ATHLETE MODAL */
+#addModal{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;display:none;align-items:center;justify-content:center}
+#addModal.show{display:flex}
+.modal-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:1.5rem;width:100%;max-width:420px}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem}
+.modal-field{margin-bottom:12px}
+.modal-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
+.modal-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;outline:none}
+.modal-input:focus{border-color:var(--blue)}
+.modal-btns{display:flex;gap:8px;margin-top:1rem}
+.modal-cancel{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.modal-submit{flex:2;padding:10px;border-radius:8px;border:none;background:var(--blue);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#1c1c1c;border:1px solid var(--border2);color:var(--text);font-size:13px;font-weight:500;padding:9px 18px;border-radius:50px;opacity:0;transition:all 0.25s;pointer-events:none;white-space:nowrap;z-index:600}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-logo">SOC <em>Admin</em></div>
+  <div class="login-sub">School of Champions · Espace administrateur</div>
+  <input class="login-input" id="pwdInput" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPwd()">
+  <button class="login-btn" onclick="checkPwd()">Accéder →</button>
+  <div class="login-error" id="loginError">Mot de passe incorrect</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <nav class="sidebar">
+    <div class="sidebar-logo">SOC <em>Admin</em><small>School of Champions</small></div>
+    <button class="nav-link active" onclick="showPage('dashboard',this)"><span class="nav-icon">📊</span>Dashboard</button>
+    <button class="nav-link" onclick="showPage('athletes',this)"><span class="nav-icon">👥</span>Athlètes</button>
+    <button class="nav-link" onclick="showPage('feelings',this)"><span class="nav-icon">📈</span>Ressentis</button>
+    <button class="nav-link" onclick="showPage('fatigue',this)"><span class="nav-icon">⚡</span>Fatigue</button>
+    <button class="nav-link" onclick="showPage('leaderboard',this)"><span class="nav-icon">🏆</span>Leaderboard</button>
+    <button class="nav-link" onclick="showPage('config',this)"><span class="nav-icon">⚙️</span>Configuration</button>
+  </nav>
+
+  <div class="main-content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="pageDashboard">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Vue d'ensemble · Cycle Juin 2026</div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-val blue" id="statTotal">—</div><div class="stat-label">Athlètes total</div></div>
+        <div class="stat-card"><div class="stat-val green" id="statActive">—</div><div class="stat-label">Actifs ce cycle</div></div>
+        <div class="stat-card"><div class="stat-val gold" id="statScores">—</div><div class="stat-label">Scores soumis</div></div>
+        <div class="stat-card"><div class="stat-val" id="statFeelings">—</div><div class="stat-label">Ressentis</div></div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-title">Fatigue moyenne par semaine</div>
+          <div id="fatigueChart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Ressentis moyens (top exos)</div>
+          <div id="feelingsChart"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATHLETES -->
+    <div class="page" id="pageAthletes">
+      <div class="page-title">Athlètes</div>
+      <div class="page-sub">Gestion des accès · <span id="athleteCount">—</span> inscrits</div>
+      <div style="display:flex;gap:10px;margin-bottom:1rem">
+        <button class="action-btn primary" onclick="showAddModal()" style="padding:8px 16px;font-size:13px">+ Ajouter un athlète</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">Liste des athlètes</div>
+          <input class="table-search" placeholder="Rechercher..." oninput="filterAthletes(this.value)" id="athleteSearch">
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Pseudo</th>
+              <th>Email</th>
+              <th>Genre</th>
+              <th>Poids</th>
+              <th>Club</th>
+              <th>Pays</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="athleteTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FEELINGS -->
+    <div class="page" id="pageFeelings">
+      <div class="page-title">Ressentis</div>
+      <div class="page-sub">Note moyenne par exercice · 1=très dur · 5=facile</div>
+      <div style="display:flex;gap:8px;margin-bottom:1rem">
+        <select id="feelingWeek" onchange="loadFeelings()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
+          <option value="1">Semaine 1</option>
+          <option value="2">Semaine 2</option>
+          <option value="3">Semaine 3</option>
+          <option value="4">Semaine 4</option>
+        </select>
+      </div>
+      <div class="chart-card" style="max-width:700px">
+        <div class="chart-title">Ressentis moyens par exercice</div>
+        <div id="feelingsDetail"></div>
+      </div>
+    </div>
+
+    <!-- FATIGUE -->
+    <div class="page" id="pageFatigue">
+      <div class="page-title">Fatigue hebdomadaire</div>
+      <div class="page-sub">Score de fatigue par athlète · 1=épuisé · 10=en forme</div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">Scores de fatigue</div>
+          <select id="fatigueWeekSel" onchange="loadFatigueAdmin()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
+            <option value="1">Semaine 1</option>
+            <option value="2">Semaine 2</option>
+            <option value="3">Semaine 3</option>
+            <option value="4">Semaine 4</option>
+          </select>
+        </div>
+        <table>
+          <thead><tr><th>Athlète</th><th>Club</th><th>Début semaine</th><th>Fin semaine</th><th>Évolution</th></tr></thead>
+          <tbody id="fatigueTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div class="page" id="pageLeaderboard">
+      <div class="page-title">Leaderboard</div>
+      <div class="page-sub">Scores soumis par les athlètes</div>
+      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+        <select id="lbMovSel" onchange="loadLbAdmin()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
+          <option value="arr">Arraché</option>
+          <option value="ej">Épaulé-Jeté</option>
+          <option value="total">Total</option>
+          <option value="squat">Squat Nuque</option>
+          <option value="fs">Front Squat</option>
+        </select>
+        <select id="lbGenderSel" onchange="loadLbAdmin()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
+          <option value="H">Hommes</option>
+          <option value="F">Femmes</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title" id="lbAdminTitle">Classement</div></div>
+        <table>
+          <thead><tr><th>#</th><th>Athlète</th><th>Club</th><th>Poids corps</th><th>Charge</th><th>Sinclair</th><th>Actions</th></tr></thead>
+          <tbody id="lbAdminTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div class="page" id="pageConfig">
+      <div class="page-title">Configuration</div>
+      <div class="page-sub">Gérer les leaderboards actifs par semaine et par jour</div>
+      <div id="lbConfigGrid" class="lb-config-grid"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div id="addModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-card">
+    <div class="modal-title">Ajouter un athlète</div>
+    <div class="modal-field"><div class="modal-label">Pseudo</div><input class="modal-input" id="mPseudo" type="text" placeholder="Thomas V."></div>
+    <div class="modal-field"><div class="modal-label">Email</div><input class="modal-input" id="mEmail" type="email" placeholder="thomas@email.com"></div>
+    <div class="modal-field"><div class="modal-label">Genre</div>
+      <select class="modal-input" id="mGender"><option value="H">Homme</option><option value="F">Femme</option></select>
+    </div>
+    <div class="modal-field"><div class="modal-label">Poids de corps (kg)</div><input class="modal-input" id="mBW" type="number" placeholder="85"></div>
+    <div class="modal-field"><div class="modal-label">Club / Salle</div><input class="modal-input" id="mClub" type="text" placeholder="Powercamp Toulouse"></div>
+    <div class="modal-field"><div class="modal-label">Pays</div><input class="modal-input" id="mCountry" type="text" placeholder="🇫🇷" value="🇫🇷"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Annuler</button>
+      <button class="modal-submit" onclick="addAthlete()">Ajouter →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPA_URL = 'https://sexokzggfinzvgroqnes.supabase.co';
+const SUPA_KEY = 'sb_publishable_Lq6BcamJ5LTSKnR5t7Y2wQ_RhPv_YKX';
+const ADMIN_PWD = 'M!WA77s$';
+const CYCLE = 'juin26';
+
+const SINCLAIR_M = {A:0.722762521,b:175.508};
+const SINCLAIR_F = {A:0.787004341,b:153.655};
+function calcSinclair(total,bw,gender){
+  if(!total||!bw||total<=0||bw<=0) return 0;
+  const c=gender==='F'?SINCLAIR_F:SINCLAIR_M;
+  if(bw>=c.b) return total;
+  const X=Math.log10(bw/c.b);
+  return Math.round(total*Math.pow(10,c.A*X*X)*10)/10;
+}
+
+async function db(path,method='GET',body=null){
+  const opts={method,headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'}};
+  if(body) opts.body=JSON.stringify(body);
+  const r=await fetch(SUPA_URL+'/rest/v1/'+path,opts);
+  const t=await r.text();
+  return t?JSON.parse(t):null;
+}
+
+// AUTH
+function checkPwd(){
+  const val=document.getElementById('pwdInput').value;
+  if(val===ADMIN_PWD){
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('app').classList.add('show');
+    loadDashboard();
+  } else {
+    document.getElementById('loginError').style.display='block';
+    document.getElementById('pwdInput').value='';
+  }
+}
+document.getElementById('pwdInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkPwd()});
+
+// NAV
+function showPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page'+name.charAt(0).toUpperCase()+name.slice(1)).classList.add('active');
+  btn.classList.add('active');
+  if(name==='athletes') loadAthletes();
+  if(name==='feelings') loadFeelings();
+  if(name==='fatigue') loadFatigueAdmin();
+  if(name==='leaderboard') loadLbAdmin();
+  if(name==='config') loadConfig();
+}
+
+// DASHBOARD
+async function loadDashboard(){
+  try{
+    const athletes=await db('athletes?select=id,access_type');
+    document.getElementById('statTotal').textContent=athletes?.length||0;
+    document.getElementById('statActive').textContent=athletes?.filter(a=>a.access_type==='sub').length||0;
+
+    const scores=await db('rm_records?select=id');
+    document.getElementById('statScores').textContent=scores?.length||0;
+
+    const feelings=await db('exercise_feelings?select=id');
+    document.getElementById('statFeelings').textContent=feelings?.length||0;
+
+    // Fatigue chart
+    const fatigue=await db(`weekly_fatigue?cycle=eq.${CYCLE}&select=week_num,score_start,score_end`);
+    const fatigueEl=document.getElementById('fatigueChart');
+    const weeks={};
+    (fatigue||[]).forEach(f=>{
+      if(!weeks[f.week_num]) weeks[f.week_num]={start:[],end:[]};
+      if(f.score_start) weeks[f.week_num].start.push(f.score_start);
+      if(f.score_end) weeks[f.week_num].end.push(f.score_end);
+    });
+    fatigueEl.innerHTML=Object.entries(weeks).map(([w,d])=>{
+      const avgS=d.start.length?Math.round(d.start.reduce((a,b)=>a+b,0)/d.start.length*10)/10:null;
+      const avgE=d.end.length?Math.round(d.end.reduce((a,b)=>a+b,0)/d.end.length*10)/10:null;
+      const color=avgS&&avgS<5?'var(--red)':avgS&&avgS<7?'var(--yellow)':'var(--green)';
+      return `<div class="bar-row">
+        <span class="bar-label">S${w} — Début</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${avgS?avgS*10:0}%;background:${color}"></div></div>
+        <span class="bar-val">${avgS||'—'}</span>
+      </div>
+      ${avgE!==null?`<div class="bar-row">
+        <span class="bar-label" style="color:var(--text3)">S${w} — Fin</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${avgE*10}%;background:var(--blue-light)"></div></div>
+        <span class="bar-val">${avgE}</span>
+      </div>`:''}`;
+    }).join('')||'<div style="color:var(--text3);font-size:13px">Aucune donnée</div>';
+
+    // Feelings chart
+    const feel=await db(`exercise_feelings?cycle=eq.${CYCLE}&select=exercise_key,score`);
+    const feelEl=document.getElementById('feelingsChart');
+    const exScores={};
+    (feel||[]).forEach(f=>{
+      if(!exScores[f.exercise_key]) exScores[f.exercise_key]=[];
+      exScores[f.exercise_key].push(f.score);
+    });
+    const sorted=Object.entries(exScores)
+      .map(([k,scores])=>({k,avg:Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*10)/10,n:scores.length}))
+      .sort((a,b)=>a.avg-b.avg).slice(0,8);
+    feelEl.innerHTML=sorted.map(e=>{
+      const color=e.avg<2.5?'var(--red)':e.avg<3.5?'var(--yellow)':'var(--green)';
+      const label=e.k.split('_').slice(2).join('_').replace(/_/g,' ')||e.k;
+      return `<div class="bar-row">
+        <span class="bar-label" title="${e.k}">${label} (${e.n})</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${e.avg*20}%;background:${color}"></div></div>
+        <span class="bar-val">${e.avg}</span>
+      </div>`;
+    }).join('')||'<div style="color:var(--text3);font-size:13px">Aucun ressenti</div>';
+  } catch(e){ console.warn(e); }
+}
+
+// ATHLETES
+let allAthletes=[];
+async function loadAthletes(){
+  try{
+    allAthletes=await db('athletes?select=*&order=created_at.desc')||[];
+    document.getElementById('athleteCount').textContent=allAthletes.length;
+    renderAthletes(allAthletes);
+  } catch(e){ console.warn(e); }
+}
+
+function renderAthletes(list){
+  const tbody=document.getElementById('athleteTable');
+  tbody.innerHTML=list.map(a=>`
+    <tr>
+      <td>${a.pseudo}</td>
+      <td style="color:var(--text3);font-size:12px">${a.email}</td>
+      <td><span class="badge ${a.gender==='F'?'f':'m'}">${a.gender==='F'?'Femme':'Homme'}</span></td>
+      <td>${a.bodyweight}kg</td>
+      <td style="color:var(--text2)">${a.club||'—'}</td>
+      <td>${a.country||'🇫🇷'}</td>
+      <td><span class="badge ${a.access_type==='sub'?'active':'inactive'}">${a.access_type==='sub'?'Abonné':'One-shot'}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="action-btn" onclick="editClub('${a.id}','${a.club||''}')">Club</button>
+        <button class="action-btn ${a.access_type==='sub'?'danger':''}" onclick="toggleAccess('${a.id}','${a.access_type}')">${a.access_type==='sub'?'Désactiver':'Activer'}</button>
+        <button class="action-btn danger" onclick="deleteAthlete('${a.id}','${a.pseudo}')">Supprimer</button>
+      </td>
+    </tr>`).join('');
+}
+
+function filterAthletes(q){
+  const filtered=allAthletes.filter(a=>
+    a.pseudo.toLowerCase().includes(q.toLowerCase())||
+    a.email.toLowerCase().includes(q.toLowerCase())||
+    (a.club||'').toLowerCase().includes(q.toLowerCase())
+  );
+  renderAthletes(filtered);
+}
+
+async function toggleAccess(id,current){
+  const newType=current==='sub'?'once':'sub';
+  if(!confirm(`Changer l'accès ?`)) return;
+  try{
+    await db(`athletes?id=eq.${id}`,'PATCH',{access_type:newType});
+    toast('Accès mis à jour');
+    loadAthletes();
+  } catch(e){ toast('Erreur'); }
+}
+
+async function editClub(id,current){
+  const club=prompt('Club / Salle :',current);
+  if(club===null) return;
+  try{
+    await db(`athletes?id=eq.${id}`,'PATCH',{club});
+    toast('Club mis à jour');
+    loadAthletes();
+  } catch(e){ toast('Erreur'); }
+}
+
+async function deleteAthlete(id,pseudo){
+  if(!confirm(`Supprimer ${pseudo} ? Cette action est irréversible.`)) return;
+  try{
+    await db(`athletes?id=eq.${id}`,'DELETE');
+    toast(`${pseudo} supprimé`);
+    loadAthletes();
+  } catch(e){ toast('Erreur'); }
+}
+
+// ADD ATHLETE
+function showAddModal(){ document.getElementById('addModal').classList.add('show'); }
+function closeModal(){ document.getElementById('addModal').classList.remove('show'); }
+async function addAthlete(){
+  const pseudo=document.getElementById('mPseudo').value.trim();
+  const email=document.getElementById('mEmail').value.trim().toLowerCase();
+  const gender=document.getElementById('mGender').value;
+  const bodyweight=parseFloat(document.getElementById('mBW').value);
+  const club=document.getElementById('mClub').value.trim();
+  const country=document.getElementById('mCountry').value.trim()||'🇫🇷';
+  if(!pseudo||!email||!bodyweight){ alert('Remplis tous les champs obligatoires'); return; }
+  try{
+    await db('athletes','POST',{pseudo,email,gender,bodyweight,club,country,access_type:'sub',cycle:CYCLE});
+    toast(`${pseudo} ajouté !`);
+    closeModal();
+    loadAthletes();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
+
+// FEELINGS
+async function loadFeelings(){
+  const week=document.getElementById('feelingWeek').value;
+  try{
+    const feel=await db(`exercise_feelings?cycle=eq.${CYCLE}&week_num=eq.${week}&select=exercise_key,score`)||[];
+    const exScores={};
+    feel.forEach(f=>{
+      if(!exScores[f.exercise_key]) exScores[f.exercise_key]=[];
+      exScores[f.exercise_key].push(f.score);
+    });
+    const sorted=Object.entries(exScores)
+      .map(([k,scores])=>({k,avg:Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*10)/10,n:scores.length}))
+      .sort((a,b)=>a.avg-b.avg);
+    const el=document.getElementById('feelingsDetail');
+    el.innerHTML=sorted.map(e=>{
+      const color=e.avg<2?'var(--red)':e.avg<3?'var(--yellow)':e.avg<4?'var(--text)':'var(--green)';
+      const label=e.k.replace(/_/g,' ');
+      return `<div class="bar-row">
+        <span class="bar-label" title="${e.k}">${label}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${e.avg*20}%;background:${color}"></div></div>
+        <span class="bar-val" style="color:${color}">${e.avg} <span style="color:var(--text3);font-size:10px">(${e.n})</span></span>
+      </div>`;
+    }).join('')||'<div style="color:var(--text3);font-size:13px;padding:1rem 0">Aucun ressenti pour cette semaine</div>';
+  } catch(e){ console.warn(e); }
+}
+
+// FATIGUE ADMIN
+async function loadFatigueAdmin(){
+  const week=document.getElementById('fatigueWeekSel').value;
+  try{
+    const fatigue=await db(`weekly_fatigue?cycle=eq.${CYCLE}&week_num=eq.${week}&select=score_start,score_end,athletes(pseudo,club)`)||[];
+    const tbody=document.getElementById('fatigueTable');
+    tbody.innerHTML=fatigue.map(f=>{
+      const s=f.score_start, e=f.score_end;
+      const diff=s&&e?e-s:null;
+      const diffStr=diff!==null?`<span style="color:${diff>0?'var(--green)':diff<0?'var(--red)':'var(--text2)'}">${diff>0?'+':''}${diff}</span>`:'—';
+      const dotColor=(v)=>v<=3?'var(--red)':v<=6?'var(--yellow)':'var(--green)';
+      return `<tr>
+        <td>${f.athletes?.pseudo||'—'}</td>
+        <td style="color:var(--text3)">${f.athletes?.club||'—'}</td>
+        <td>${s?`<span style="color:${dotColor(s)};font-weight:700;font-size:16px">${s}/10</span>`:'—'}</td>
+        <td>${e?`<span style="color:${dotColor(e)};font-weight:700;font-size:16px">${e}/10</span>`:'—'}</td>
+        <td>${diffStr}</td>
+      </tr>`;
+    }).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1rem">Aucune donnée</td></tr>';
+  } catch(e){ console.warn(e); }
+}
+
+// LB ADMIN
+async function loadLbAdmin(){
+  const mov=document.getElementById('lbMovSel').value;
+  const gender=document.getElementById('lbGenderSel').value;
+  document.getElementById('lbAdminTitle').textContent=`Classement ${mov.toUpperCase()} · ${gender==='H'?'Hommes':'Femmes'}`;
+  try{
+    const records=await db(`rm_records?movement=eq.${mov}&select=weight,athletes(pseudo,gender,bodyweight,club,country)&athletes.gender=eq.${gender}`)||[];
+    const filtered=records.filter(r=>r.athletes&&r.athletes.gender===gender);
+    const pool=filtered.map(r=>({
+      name:r.athletes.pseudo,bw:r.athletes.bodyweight,
+      club:r.athletes.club||'',country:r.athletes.country||'🇫🇷',
+      weight:r.weight,
+      sinclair:calcSinclair(r.weight,r.athletes.bodyweight,gender)
+    })).sort((a,b)=>b.sinclair-a.sinclair);
+    const tbody=document.getElementById('lbAdminTable');
+    tbody.innerHTML=pool.map((a,i)=>`<tr>
+      <td style="color:${i===0?'var(--gold)':i===1?'var(--silver,#9ca3af)':i===2?'#b45309':'var(--text3)'};font-weight:900">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</td>
+      <td>${a.country} ${a.name}</td>
+      <td style="color:var(--text3)">${a.club||'—'}</td>
+      <td>${a.bw}kg</td>
+      <td style="font-weight:700;color:var(--yellow)">${a.weight}kg</td>
+      <td style="color:var(--blue-light)">${a.sinclair.toFixed(1)}</td>
+      <td><button class="action-btn danger" onclick="deleteScore('${a.name}','${mov}')">Supprimer</button></td>
+    </tr>`).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:1rem">Aucun score</td></tr>';
+  } catch(e){ console.warn(e); }
+}
+
+async function deleteScore(pseudo,movement){
+  if(!confirm(`Supprimer le score de ${pseudo} en ${movement} ?`)) return;
+  try{
+    const athlete=await db(`athletes?pseudo=eq.${encodeURIComponent(pseudo)}&select=id`);
+    if(!athlete||!athlete.length){ toast('Athlète non trouvé'); return; }
+    await db(`rm_records?athlete_id=eq.${athlete[0].id}&movement=eq.${movement}`,'DELETE');
+    toast('Score supprimé');
+    loadLbAdmin();
+  } catch(e){ toast('Erreur'); }
+}
+
+// CONFIG - Active leaderboards
+const LB_MOVEMENTS=[
+  {key:'arr',label:'Arraché'},{key:'arr_force',label:'Arr. Force'},
+  {key:'ej',label:'Épaulé-Jeté'},{key:'squat',label:'Squat Nuque'},
+  {key:'fs',label:'Front Squat'},{key:'tla',label:'TL Arraché'},
+  {key:'deadlift',label:'Deadlift'}
+];
+const DAYS_CONFIG=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+
+async function loadConfig(){
+  const active=await db(`active_leaderboards?cycle=eq.${CYCLE}&select=*`)||[];
+  const grid=document.getElementById('lbConfigGrid');
+  grid.innerHTML=DAYS_CONFIG.map((day,dIdx)=>`
+    <div class="lb-config-card">
+      <div class="lb-config-day">${day}</div>
+      ${LB_MOVEMENTS.map(m=>{
+        const isActive=active.some(a=>a.day_num===dIdx+1&&a.movement===m.key);
+        return `<div class="lb-toggle">
+          <span style="font-size:12px;color:var(--text2)">${m.label}</span>
+          <button class="toggle-switch ${isActive?'on':''}" onclick="toggleLb(this,${dIdx+1},'${m.key}','${m.label}')"></button>
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+async function toggleLb(btn,dayNum,movement,label){
+  const isOn=btn.classList.contains('on');
+  btn.classList.toggle('on');
+  try{
+    if(isOn){
+      await db(`active_leaderboards?cycle=eq.${CYCLE}&day_num=eq.${dayNum}&movement=eq.${movement}`,'DELETE');
+    } else {
+      await db('active_leaderboards','POST',{cycle:CYCLE,week_num:1,day_num:dayNum,movement,label});
+    }
+    toast(isOn?'Leaderboard désactivé':'Leaderboard activé');
+  } catch(e){ btn.classList.toggle('on'); toast('Erreur'); }
+}
+
+// TOAST
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+</script>
+</body>
+</html>

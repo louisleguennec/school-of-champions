@@ -144,6 +144,7 @@ tr:hover td{background:var(--surface2)}
     <button class="nav-link" onclick="showPage('fatigue',this)"><span class="nav-icon">⚡</span>Fatigue</button>
     <button class="nav-link" onclick="showPage('leaderboard',this)"><span class="nav-icon">🏆</span>Leaderboard</button>
     <button class="nav-link" onclick="showPage('config',this)"><span class="nav-icon">⚙️</span>Configuration</button>
+    <button class="nav-link" onclick="showPage('videos',this)"><span class="nav-icon">🎬</span>Vidéos</button>
   </nav>
 
   <div class="main-content">
@@ -272,6 +273,22 @@ tr:hover td{background:var(--surface2)}
       </div>
     </div>
 
+    <!-- VIDEOS -->
+    <div class="page" id="pageVideos">
+      <div class="page-title">Vidéos exercices</div>
+      <div class="page-sub">Gérer les liens vidéo sans toucher au code</div>
+      <div style="display:flex;gap:8px;margin-bottom:1rem">
+        <input id="videoSearch" class="table-search" placeholder="Rechercher un exercice..." oninput="filterVideos(this.value)" style="width:100%;max-width:400px">
+        <button class="action-btn primary" onclick="showAddVideoModal()" style="padding:8px 16px;font-size:13px;white-space:nowrap">+ Ajouter</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Exercice</th><th>URL Vidéo</th><th>Actions</th></tr></thead>
+          <tbody id="videosTable"></tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- CONFIG -->
     <div class="page" id="pageConfig">
       <div class="page-title">Configuration</div>
@@ -302,6 +319,25 @@ tr:hover td{background:var(--surface2)}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ADD VIDEO MODAL -->
+<div id="addVideoModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:1.5rem;width:100%;max-width:500px;margin:1rem">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;text-transform:uppercase;margin-bottom:1rem" id="videoModalTitle">Ajouter une vidéo</div>
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#999;margin-bottom:5px">Nom de l'exercice (clé unique)</div>
+      <input id="vKey" class="table-search" placeholder="ex: arraché_debout" style="width:100%">
+    </div>
+    <div style="margin-bottom:1rem">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#999;margin-bottom:5px">URL YouTube</div>
+      <input id="vUrl" class="table-search" placeholder="https://youtube.com/..." style="width:100%">
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="action-btn" onclick="closeVideoModal()" style="flex:1;padding:10px">Annuler</button>
+      <button class="action-btn primary" onclick="saveVideo()" style="flex:2;padding:10px">Enregistrer</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const SUPA_URL = 'https://sexokzggfinzvgroqnes.supabase.co';
@@ -349,6 +385,7 @@ function showPage(name,btn){
   btn.classList.add('active');
   if(name==='athletes') loadAthletes();
   if(name==='feelings') loadFeelings();
+  if(name==='videos') loadVideos();
   if(name==='fatigue') loadFatigueAdmin();
   if(name==='leaderboard') loadLbAdmin();
   if(name==='config') loadConfig();
@@ -659,6 +696,82 @@ async function toggleLb(btn,dayNum,movement,label){
     }
     toast(isOn?'Leaderboard désactivé':'Leaderboard activé');
   } catch(e){ btn.classList.toggle('on'); toast('Erreur'); }
+}
+
+// VIDEOS
+let allVideos = [];
+let editingVideoId = null;
+
+async function loadVideos(){
+  try{
+    allVideos = await db('exercise_videos?select=*&order=exercise_key.asc') || [];
+    renderVideos(allVideos);
+  } catch(e){ console.warn(e); }
+}
+
+function renderVideos(list){
+  const tbody = document.getElementById('videosTable');
+  if(!tbody) return;
+  tbody.innerHTML = list.map(v => `<tr>
+    <td style="font-weight:600">${v.exercise_key}</td>
+    <td><a href="${v.video_url}" target="_blank" style="color:#7aaee8;font-size:12px;word-break:break-all">${v.video_url}</a></td>
+    <td style="display:flex;gap:6px">
+      <button class="action-btn" onclick="editVideo('${v.id}','${v.exercise_key}','${v.video_url.replace(/'/g,"\'")}')">Modifier</button>
+      <button class="action-btn danger" onclick="deleteVideo('${v.id}','${v.exercise_key}')">Supprimer</button>
+    </td>
+  </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text3);padding:1rem">Aucune vidéo enregistrée</td></tr>';
+}
+
+function filterVideos(q){
+  const filtered = allVideos.filter(v => v.exercise_key.toLowerCase().includes(q.toLowerCase()));
+  renderVideos(filtered);
+}
+
+function showAddVideoModal(){
+  editingVideoId = null;
+  document.getElementById('videoModalTitle').textContent = 'Ajouter une vidéo';
+  document.getElementById('vKey').value = '';
+  document.getElementById('vUrl').value = '';
+  document.getElementById('addVideoModal').style.display = 'flex';
+}
+
+function editVideo(id, key, url){
+  editingVideoId = id;
+  document.getElementById('videoModalTitle').textContent = 'Modifier la vidéo';
+  document.getElementById('vKey').value = key;
+  document.getElementById('vUrl').value = url;
+  document.getElementById('addVideoModal').style.display = 'flex';
+}
+
+function closeVideoModal(){
+  document.getElementById('addVideoModal').style.display = 'none';
+  editingVideoId = null;
+}
+
+async function saveVideo(){
+  const key = document.getElementById('vKey').value.trim();
+  const url = document.getElementById('vUrl').value.trim();
+  if(!key || !url){ alert('Remplis les deux champs'); return; }
+  try{
+    if(editingVideoId){
+      await db(`exercise_videos?id=eq.${editingVideoId}`, 'PATCH', {exercise_key: key, video_url: url});
+      toast('Vidéo mise à jour');
+    } else {
+      await db('exercise_videos', 'POST', {exercise_key: key, video_url: url});
+      toast('Vidéo ajoutée');
+    }
+    closeVideoModal();
+    loadVideos();
+  } catch(e){ alert('Erreur : ' + e.message); }
+}
+
+async function deleteVideo(id, key){
+  if(!confirm(`Supprimer la vidéo "${key}" ?`)) return;
+  try{
+    await db(`exercise_videos?id=eq.${id}`, 'DELETE');
+    toast('Vidéo supprimée');
+    loadVideos();
+  } catch(e){ toast('Erreur'); }
 }
 
 // TOAST

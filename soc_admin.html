@@ -178,6 +178,9 @@ tr:hover td{background:var(--surface2)}
       <div id="levelStats" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem"></div>
       <div style="display:flex;gap:10px;margin-bottom:1rem">
         <button class="action-btn primary" onclick="showAddModal()" style="padding:8px 16px;font-size:13px">+ Ajouter un athlète</button>
+        <button class="action-btn" onclick="exportCSV('athletes')" style="padding:8px 16px;font-size:13px">⬇ Export CSV athlètes</button>
+        <button class="action-btn" onclick="exportCSV('scores')" style="padding:8px 16px;font-size:13px">⬇ Export CSV scores</button>
+        <button class="action-btn" onclick="exportCSV('feelings')" style="padding:8px 16px;font-size:13px">⬇ Export CSV ressentis</button>
       </div>
       <div class="table-wrap">
         <div class="table-header">
@@ -479,6 +482,7 @@ function renderAthletes(list){
       <td>${lvl}</td>
       <td><span class="badge ${a.access_type==='sub'?'active':'inactive'}">${a.access_type==='sub'?'Abonné':'One-shot'}</span></td>
       <td style="display:flex;gap:6px">
+        <button class="action-btn" onclick="editPseudo('${a.id}','${a.pseudo}')">Nom</button>
         <button class="action-btn" onclick="editClub('${a.id}','${a.club||''}')">Club</button>
         <button class="action-btn ${a.access_type==='sub'?'danger':''}" onclick="toggleAccess('${a.id}','${a.access_type}')">${a.access_type==='sub'?'Désactiver':'Activer'}</button>
         <button class="action-btn danger" onclick="deleteAthlete('${a.id}','${a.pseudo}')">Supprimer</button>
@@ -519,6 +523,17 @@ async function toggleAccess(id,current){
     toast('Accès mis à jour');
     loadAthletes();
   } catch(e){ toast('Erreur'); }
+}
+
+async function editPseudo(id,current){
+  const pseudo=prompt('Nouveau pseudo :',current);
+  if(!pseudo||pseudo===current) return;
+  if(pseudo.trim().length<2){toast('Pseudo trop court');return;}
+  try{
+    await db(`athletes?id=eq.${id}`,'PATCH',{pseudo:pseudo.trim()});
+    toast('Nom mis à jour');
+    loadAthletes();
+  } catch(e){ toast('Erreur : '+e.message); }
 }
 
 async function editClub(id,current){
@@ -772,6 +787,53 @@ async function deleteVideo(id, key){
     toast('Vidéo supprimée');
     loadVideos();
   } catch(e){ toast('Erreur'); }
+}
+
+// ─── EXPORT CSV ───────────────────────────────────────────
+async function exportCSV(type){
+  let data, filename, headers;
+  try{
+    if(type==='athletes'){
+      data = await db('athletes?select=pseudo,email,gender,bodyweight,club,country,level,access_type,created_at&order=created_at.desc') || [];
+      headers = ['Pseudo','Email','Genre','Poids','Club','Pays','Niveau','Accès','Inscription'];
+      filename = 'soc_athletes.csv';
+    } else if(type==='scores'){
+      data = await db(`cycle_scores?cycle=eq.${CYCLE}&select=weight,movement,week_num,created_at,athletes(pseudo,gender,bodyweight)&order=created_at.desc`) || [];
+      headers = ['Athlète','Genre','Poids','Mouvement','Charge (kg)','Sinclair','Semaine','Date'];
+      filename = 'soc_scores.csv';
+    } else if(type==='feelings'){
+      data = await db(`exercise_feelings?cycle=eq.${CYCLE}&select=exercise_key,score,week_num,day_num,created_at,athletes(pseudo)&order=created_at.desc`) || [];
+      headers = ['Athlète','Exercice','Score','Semaine','Jour','Date'];
+      filename = 'soc_ressentis.csv';
+    }
+
+    const rows = data.map(d => {
+      if(type==='athletes') return [
+        d.pseudo, d.email, d.gender==='F'?'Femme':'Homme',
+        d.bodyweight, d.club||'', d.country||'', d.level||'', d.access_type,
+        new Date(d.created_at).toLocaleDateString('fr-FR')
+      ];
+      if(type==='scores') return [
+        d.athletes?.pseudo||'', d.athletes?.gender||'', d.athletes?.bodyweight||'',
+        d.movement, d.weight,
+        calcSinclair(d.weight, d.athletes?.bodyweight||80, d.athletes?.gender||'H').toFixed(1),
+        'S'+d.week_num, new Date(d.created_at).toLocaleDateString('fr-FR')
+      ];
+      if(type==='feelings') return [
+        d.athletes?.pseudo||'', d.exercise_key, d.score,
+        'S'+d.week_num, 'J'+d.day_num,
+        new Date(d.created_at).toLocaleDateString('fr-FR')
+      ];
+    });
+
+    const csv = [headers, ...rows].map(r => r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download=filename; a.click();
+    URL.revokeObjectURL(url);
+    toast(`Export ${filename} téléchargé !`);
+  } catch(e){ toast('Erreur export : '+e.message); console.warn(e); }
 }
 
 // TOAST

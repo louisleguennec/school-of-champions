@@ -244,6 +244,29 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
   <div class="splash-bar"><div class="splash-fill" id="splashFill"></div></div>
 </div>
 
+
+<!-- ACCESS CODE SCREEN -->
+<div id="accessScreen" style="position:fixed;inset:0;background:var(--bg);z-index:996;display:none;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;gap:1.5rem">
+  <div style="font-family:'Barlow Condensed',sans-serif;font-size:42px;font-weight:900;text-transform:uppercase;letter-spacing:3px;line-height:1">School of<br><em style="color:#4488cc">Champions</em></div>
+  <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text2)">Cycle Juin 2026</div>
+  <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px">
+    <div style="font-size:13px;color:var(--text2);line-height:1.5">Entre ton email et le code d'accès reçu par email.</div>
+    <input id="accessEmail" type="email" inputmode="email" placeholder="ton@email.com" style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-size:15px;outline:none;text-align:center">
+    <input id="accessCode" type="text" placeholder="Code d'accès" style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-size:18px;font-weight:700;letter-spacing:4px;text-transform:uppercase;outline:none;text-align:center" oninput="this.value=this.value.toUpperCase()">
+    <button onclick="checkAccess()" style="width:100%;padding:14px;border-radius:10px;border:none;background:#003366;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer">Accéder →</button>
+    <div id="accessError" style="font-size:12px;color:var(--red);display:none"></div>
+  </div>
+</div>
+
+<!-- EXPIRED SCREEN -->
+<div id="expiredScreen" style="position:fixed;inset:0;background:var(--bg);z-index:996;display:none;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;gap:1.5rem">
+  <div style="font-size:48px">🔒</div>
+  <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;text-transform:uppercase;letter-spacing:1px">Accès expiré</div>
+  <div style="font-size:14px;color:var(--text2);line-height:1.7;max-width:300px">Ton abonnement est terminé ou ton code d'accès n'est plus valide.<br>Renouvelle ton abonnement pour continuer.</div>
+  <a href="https://powercamp.fr/products/school-of-champions" style="display:inline-block;padding:14px 28px;border-radius:10px;background:var(--red);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none">Renouveler mon abonnement →</a>
+  <button onclick="resetAccess()" style="font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;text-decoration:underline">J'ai un nouveau code</button>
+</div>
+
 <!-- ONBOARDING -->
 <div id="onboarding">
   <div class="onb-wrap">
@@ -276,6 +299,16 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
     <div class="onb-field">
       <div class="onb-label">Club / Salle (optionnel)</div>
       <input class="onb-input" id="onbClub" type="text" placeholder="ex: Powercamp Toulouse" maxlength="50">
+    </div>
+    <div class="onb-field">
+      <div class="onb-label">Niveau (optionnel)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="levelBtns">
+        <button class="onb-gender-btn" onclick="setLevel('regional',this)">Régional</button>
+        <button class="onb-gender-btn" onclick="setLevel('interregional',this)">Inter-régional</button>
+        <button class="onb-gender-btn" onclick="setLevel('honneur',this)">France Honneur</button>
+        <button class="onb-gender-btn" onclick="setLevel('elite',this)">France Élite</button>
+        <button class="onb-gender-btn" onclick="setLevel('international',this)" style="grid-column:span 2">International</button>
+      </div>
     </div>
     <div class="onb-error" id="onbError"></div>
     <button class="onb-btn" id="onbBtn" onclick="submitOnboarding()">Accéder au programme →</button>
@@ -474,6 +507,12 @@ function saveRPE(){localStorage.setItem('soc_rpe',JSON.stringify(rpeScores))}
 function saveAthlete(){localStorage.setItem('soc_athlete',JSON.stringify(athlete))}
 
 // ─── AUTH / ONBOARDING ────────────────────────────────────
+let onbLevel = null;
+function setLevel(l, btn){
+  onbLevel = l;
+  document.querySelectorAll('#levelBtns .onb-gender-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
 function setGender(g){
   onbGender=g;
   document.getElementById('btnH').classList.toggle('active',g==='H');
@@ -498,7 +537,7 @@ async function submitOnboarding(){
       athlete=existing[0];
     } else {
       const club=document.getElementById('onbClub').value.trim();
-    const created=await db('athletes','POST',{email,pseudo,gender:onbGender,bodyweight:bw,country,access_type:'sub',club});
+    const created=await db('athletes','POST',{email,pseudo,gender:onbGender,bodyweight:bw,country,access_type:'sub',club,level:onbLevel});
       athlete=created[0];
     }
     saveAthlete();
@@ -912,7 +951,7 @@ async function submitScore(){
 // ─── LEADERBOARD ──────────────────────────────────────────
 async function loadLeaderboards(){
   try{
-    const records=await db('rm_records?select=weight,movement,athletes(pseudo,gender,bodyweight,country,club)');
+    const records=await db('rm_records?select=weight,movement,athletes(pseudo,gender,bodyweight,country,club,level)');
     lbData={};
     (records||[]).forEach(r=>{
       if(!r.athletes) return;
@@ -921,6 +960,7 @@ async function loadLeaderboards(){
         name:r.athletes.pseudo,gender:r.athletes.gender,
         bw:r.athletes.bodyweight,country:r.athletes.country||'🇫🇷',
         club:r.athletes.club||'',
+        level:r.athletes.level||null,
         weight:r.weight,
         isMe:athlete&&r.athletes.pseudo===athlete.pseudo
       });
@@ -985,7 +1025,7 @@ function renderLb(){
       <div class="lb-rank ${rc}">${medal}</div>
       <div class="lb-avatar ${a.gender==='F'?'f':'m'}">${getInitials(a.name)}</div>
       <div class="lb-info">
-        <div class="lb-name">${a.country} ${a.name}</div>
+        <div class="lb-name">${a.country} ${a.name}${a.level?` <span style="font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:1px 5px;border-radius:3px;background:rgba(0,51,102,0.4);color:#6699cc;margin-left:4px">${{regional:"RÉG",interregional:"INT-RÉG",honneur:"HONNEUR",elite:"ÉLITE",international:"INTL"}[a.level]||""}</span>`:""}</div>
         <div class="lb-meta">${sub}${clubStr}</div>
       </div>
       <div>
@@ -1020,7 +1060,8 @@ function renderProfile(){
   if(athlete.gender==='F'){av.style.background='rgba(74,28,60,0.8)';av.style.color='#e87ab8'}
   else{av.style.background='rgba(28,46,74,0.8)';av.style.color='#7aaee8'}
   document.getElementById('profileName').textContent=athlete.pseudo;
-  document.getElementById('profileMeta').textContent=`${athlete.gender==='F'?'Femme':'Homme'} · ${athlete.bodyweight}kg · ${athlete.country||'🇫🇷'}${athlete.club?' · '+athlete.club:''}`;
+  const levelLabels={regional:'Régional',interregional:'Inter-régional',honneur:'France Honneur',elite:'France Élite',international:'International'};
+  document.getElementById('profileMeta').textContent=`${athlete.gender==='F'?'Femme':'Homme'} · ${athlete.bodyweight}kg · ${athlete.country||'🇫🇷'}${athlete.club?' · '+athlete.club:''}${athlete.level?' · '+levelLabels[athlete.level]:''}`;
   // My records
   const rec=document.getElementById('myRecords');
   rec.innerHTML=LB_ALLTIME.map(m=>{
@@ -1060,15 +1101,71 @@ function toast(msg){
 }
 
 // ─── INIT ─────────────────────────────────────────────────
+
+// ─── ACCESS CODE ──────────────────────────────────────────
+const VALID_CODE = 'JUIN0949';
+const SHOP_URL = 'https://powercamp.fr/products/school-of-champions';
+
+async function checkAccess(){
+  const email = document.getElementById('accessEmail').value.trim().toLowerCase();
+  const code = document.getElementById('accessCode').value.trim().toUpperCase();
+  const errEl = document.getElementById('accessError');
+  errEl.style.display='none';
+
+  if(!email || !code){ errEl.textContent='Remplis les deux champs.'; errEl.style.display='block'; return; }
+  if(code !== VALID_CODE){ errEl.textContent='Code d\'accès incorrect.'; errEl.style.display='block'; return; }
+
+  // Verify email exists in Supabase
+  try{
+    const existing = await db('athletes?email=eq.'+encodeURIComponent(email)+'&select=id,pseudo,gender,bodyweight,country,club,access_type,level');
+    if(existing && existing.length > 0){
+      // Existing athlete - load their profile
+      athlete = existing[0];
+      saveAthlete();
+      localStorage.setItem('soc_access_validated', '1');
+      localStorage.setItem('soc_access_email', email);
+      document.getElementById('accessScreen').style.display='none';
+      showApp();
+    } else {
+      // New athlete - go to onboarding
+      localStorage.setItem('soc_access_validated', '1');
+      localStorage.setItem('soc_access_email', email);
+      document.getElementById('accessScreen').style.display='none';
+      // Pre-fill email in onboarding
+      document.getElementById('onbEmail').value = email;
+      document.getElementById('onboarding').classList.add('show');
+    }
+  } catch(e){
+    errEl.textContent='Erreur de connexion. Réessaie.';
+    errEl.style.display='block';
+  }
+}
+
+function resetAccess(){
+  localStorage.removeItem('soc_access_validated');
+  localStorage.removeItem('soc_access_email');
+  localStorage.removeItem('soc_athlete');
+  athlete = null;
+  document.getElementById('expiredScreen').style.display='none';
+  document.getElementById('accessScreen').style.display='flex';
+}
+
 loadLocal();
 const splashFill=document.getElementById('splashFill');
 splashFill.style.width='100%';
 setTimeout(()=>{
   document.getElementById('splash').classList.add('out');
   setTimeout(()=>{
-    if(athlete){
+    const validated = localStorage.getItem('soc_access_validated');
+    if(!validated){
+      // Show access code screen
+      document.getElementById('accessScreen').style.display='flex';
+    } else if(athlete){
       showApp();
     } else {
+      // Validated but no profile yet
+      const savedEmail = localStorage.getItem('soc_access_email');
+      if(savedEmail) document.getElementById('onbEmail').value = savedEmail;
       document.getElementById('onboarding').classList.add('show');
     }
   },300);

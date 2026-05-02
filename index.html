@@ -132,10 +132,10 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .ex-check.done{background:#003366;border-color:#003366}
 .ex-check.done::after{content:'✓';font-size:12px;color:#fff;font-weight:700}
 .ex-content{flex:1;min-width:0}
-.ex-name{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px;line-height:1.3;transition:color 0.15s;color:#fff}
+.ex-name{font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;line-height:1.3;transition:color 0.15s;color:#fff}
 .ex-name.done{color:var(--text3);text-decoration:line-through}
-.ex-detail{font-size:12px;color:#bbb;line-height:1.5}
-.ex-kg{color:var(--yellow);font-weight:700;font-size:13px}
+.ex-detail{font-size:13px;color:#ccc;line-height:1.5}
+.ex-kg{color:var(--yellow);font-weight:900;font-size:16px}
 .ex-pct{color:var(--text3);font-size:10px}
 .ex-note{font-size:11px;color:var(--text3);font-style:italic;margin-top:3px;line-height:1.4}
 .ex-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center}
@@ -144,11 +144,22 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .ex-lb-badge:hover{background:rgba(245,158,11,0.18)}
 
 /* RPE */
-.rpe-row{display:flex;align-items:center;gap:6px;margin-top:8px}
+.rpe-row{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
 .rpe-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);white-space:nowrap}
 .rpe-stars{display:flex;gap:4px}
-.rpe-star{width:26px;height:26px;border-radius:5px;background:var(--surface3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:0;transition:all 0.15s;color:var(--text3)}
-.rpe-star.on{background:rgba(0,51,102,0.3);border-color:#003366;color:#fff}
+.rpe-star{width:28px;height:28px;border-radius:6px;background:var(--surface3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all 0.15s;opacity:0.35}
+.rpe-star.on{opacity:1;background:var(--surface2);border-color:var(--border2)}
+.rpe-star[data-v="1"].on{border-color:#e03030;background:rgba(224,48,48,0.15)}
+.rpe-star[data-v="2"].on{border-color:#f59e0b;background:rgba(245,158,11,0.15)}
+.rpe-star[data-v="3"].on{border-color:#aaaaaa;background:rgba(170,170,170,0.12)}
+.rpe-star[data-v="4"].on{border-color:#22c55e;background:rgba(34,197,94,0.15)}
+.rpe-star[data-v="5"].on{border-color:#22c55e;background:rgba(34,197,94,0.2)}
+.rpe-label{font-size:11px;font-weight:700;margin-left:4px}
+.rpe-label[data-v="1"]{color:#e03030}
+.rpe-label[data-v="2"]{color:#f59e0b}
+.rpe-label[data-v="3"]{color:#aaaaaa}
+.rpe-label[data-v="4"]{color:#22c55e}
+.rpe-label[data-v="5"]{color:#22c55e}
 
 /* SCORE SUBMIT MODAL */
 #scoreModal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;display:none;align-items:flex-end;justify-content:center}
@@ -803,12 +814,13 @@ const RPE_COLORS=['#e03030','#f59e0b','#aaaaaa','#22c55e','#22c55e'];
 function setRPE(key,val,el){
   rpeScores[key]=val;
   saveRPE();
+  const row=el.closest('.rpe-row');
   const stars=el.closest('.rpe-stars').querySelectorAll('.rpe-star');
-  stars.forEach((s,i)=>{
-    s.classList.toggle('on',i<val);
-    s.style.background=i<val?'rgba(0,51,102,0.3)':'';
-    s.style.borderColor=i<val?'#003366':'';
-  });
+  stars.forEach(s=>{s.classList.toggle('on',parseInt(s.dataset.v)<=val);});
+  let lbl=row.querySelector('.rpe-label');
+  if(!lbl){lbl=document.createElement('span');lbl.className='rpe-label';row.appendChild(lbl);}
+  lbl.textContent=RPE_LABELS[val-1];
+  lbl.dataset.v=val;
   toast(RPE_LABELS[val-1]);
   if(athlete) submitRPEToDb(key,val);
 }
@@ -852,9 +864,7 @@ function renderDays(){
         // RPE stars avec emojis et couleurs claires
         const starsHtml=[1,2,3,4,5].map(v=>{
           const isOn=rpeVal>=v;
-          const color=isOn?RPE_COLORS[v-1]:'';
-          return `<span class="rpe-star${isOn?' on':''}" 
-            style="${isOn?`background:rgba(0,51,102,0.2);border-color:${color};color:${color}`:''}" 
+          return `<span class="rpe-star${isOn?' on':''}" data-v="${v}"
             onclick="setRPE('${k}',${v},this)" 
             title="${RPE_LABELS[v-1]}">${RPE_EMOJIS[v-1]}</span>`;
         }).join('');
@@ -884,7 +894,7 @@ function renderDays(){
             ${sIdx===0?`<div class="rpe-row">
               <span class="rpe-lbl">Ressenti</span>
               <div class="rpe-stars">${starsHtml}</div>
-              ${rpeVal?`<span style="font-size:10px;color:${RPE_COLORS[rpeVal-1]};font-weight:700;margin-left:4px">${RPE_LABELS[rpeVal-1]}</span>`:''}
+              ${rpeVal?`<span class="rpe-label" data-v="${rpeVal}">${RPE_LABELS[rpeVal-1]}</span>`:''}
             </div>`:''}
           </div>
         </div>`;

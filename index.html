@@ -449,6 +449,18 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
       <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">Mes records all-time</div>
       <div id="myRecords" style="display:flex;flex-direction:column;gap:8px"></div>
     </div>
+    <div style="margin:1rem 1rem 0">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">📈 Évolution Sinclair</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem">
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <button onclick="setSinclairMov('arr',this)" class="lb-filter-btn active" id="sincBtn_arr" style="font-size:10px;padding:4px 10px">🎯 Arraché</button>
+          <button onclick="setSinclairMov('ej',this)" class="lb-filter-btn" id="sincBtn_ej" style="font-size:10px;padding:4px 10px">🏋️ Épaulé-Jeté</button>
+          <button onclick="setSinclairMov('total',this)" class="lb-filter-btn" id="sincBtn_total" style="font-size:10px;padding:4px 10px">⚡ Total</button>
+        </div>
+        <canvas id="sinclairChart" height="120" style="width:100%"></canvas>
+        <div id="sinclairEmpty" style="text-align:center;padding:1.5rem;font-size:12px;color:var(--text3);display:none">Soumets des scores au leaderboard pour voir ton évolution</div>
+      </div>
+    </div>
     <div style="padding:1rem">
       <div style="padding:0 0 8px">
         <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:8px">🧘 Mobilité & Warm-up</div>
@@ -982,13 +994,16 @@ function renderDays(){
             <div class="ex-actions">
               ${videoBtn}
               ${lbBtn}
-              ${ex.rm?`<div style="display:flex;align-items:center;gap:6px;margin-top:7px">
-                <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3)">Réalisé</span>
-                <div style="display:flex;align-items:center;gap:4px;background:var(--surface3);border:1px solid var(--border2);border-radius:7px;padding:5px 9px;flex:1;max-width:120px">
-                  <input type="number" inputmode="decimal" placeholder="—" value="${actualWeights[k]||''}" style="background:none;border:none;outline:none;color:var(--yellow);font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;width:100%;min-width:0" onchange="saveActual('${k}',${dIdx},this.value,'${ex.rm||''}','${ex.isLb?'1':'0'}')" onclick="event.stopPropagation()">
-                  <span style="font-size:11px;color:var(--text3)">kg</span>
+              ${ex.rm?`<div style="margin-top:7px">
+                <div style="display:flex;align-items:center;gap:6px">
+                  <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3)">Réalisé</span>
+                  <div style="display:flex;align-items:center;gap:4px;background:var(--surface3);border:1px solid var(--border2);border-radius:7px;padding:5px 9px;flex:1;max-width:120px">
+                    <input type="number" inputmode="decimal" placeholder="—" value="${actualWeights[k]||''}" style="background:none;border:none;outline:none;color:var(--yellow);font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;width:100%;min-width:0" onchange="saveActual('${k}',${dIdx},this.value,'${ex.rm||''}','${ex.isLb?'1':'0'}')" onclick="event.stopPropagation()">
+                    <span style="font-size:11px;color:var(--text3)">kg</span>
+                  </div>
+                  ${actualWeights[k]?'<span style="font-size:10px;color:var(--green);font-weight:700">✓</span>':''}
                 </div>
-                ${actualWeights[k]?'<span style="font-size:10px;color:var(--green);font-weight:700">✓</span>':''}
+                ${(()=>{const prevKey=`${currentWeek-1}_${dIdx}_${sIdx}_${eIdx}`;const prev=currentWeek>0&&actualWeights[prevKey];return prev?`<div style="font-size:10px;color:var(--text3);margin-top:3px;padding-left:2px">S. précédente : <span style="color:#7aaee8;font-weight:700">${prev}kg</span>${actualWeights[k]&&parseFloat(actualWeights[k])>parseFloat(prev)?'<span style="color:var(--green);margin-left:4px">▲ +'+Math.round((parseFloat(actualWeights[k])-parseFloat(prev))*10)/10+'kg</span>':actualWeights[k]&&parseFloat(actualWeights[k])<parseFloat(prev)?'<span style="color:var(--red);margin-left:4px">▼ '+Math.round((parseFloat(actualWeights[k])-parseFloat(prev))*10)/10+'kg</span>':''}</div>`:'';})()}
               </div>`:''}
             </div>
             ${sIdx===0?`<div class="rpe-row">
@@ -1256,6 +1271,103 @@ function renderProfile(){
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--yellow)">${val?val+'kg':'—'}</div>
     </div>`;
   }).join('');
+  loadSinclairChart('arr');
+}
+
+// ─── SINCLAIR CHART ───────────────────────────────────────
+let sinclairMov = 'arr';
+let sinclairHistory = [];
+
+async function loadSinclairChart(mov){
+  if(!athlete) return;
+  sinclairMov = mov;
+  try{
+    const scores = await db(`cycle_scores?athlete_id=eq.${athlete.id}&movement=eq.${mov}&select=weight,week_num,created_at&order=created_at.asc`) || [];
+    sinclairHistory = scores;
+    drawSinclairChart();
+  } catch(e){ console.warn('Sinclair chart failed',e); }
+}
+
+function setSinclairMov(mov, btn){
+  document.querySelectorAll('[id^="sincBtn_"]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadSinclairChart(mov);
+}
+
+function drawSinclairChart(){
+  const canvas = document.getElementById('sinclairChart');
+  const empty = document.getElementById('sinclairEmpty');
+  if(!canvas) return;
+  if(!sinclairHistory.length){ canvas.style.display='none'; empty.style.display='block'; return; }
+  canvas.style.display='block'; empty.style.display='none';
+  
+  const bw = athlete?.bodyweight || 80;
+  const gender = athlete?.gender || 'H';
+  const points = sinclairHistory.map(s=>({
+    w: s.week_num,
+    kg: s.weight,
+    sinc: calcSinclair(s.weight, bw, gender),
+    date: new Date(s.created_at)
+  }));
+
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 300;
+  const H = 120;
+  canvas.width = W;
+  canvas.height = H;
+  ctx.clearRect(0,0,W,H);
+
+  const pad = {t:10,r:10,b:24,l:40};
+  const minS = Math.min(...points.map(p=>p.sinc)) * 0.95;
+  const maxS = Math.max(...points.map(p=>p.sinc)) * 1.05;
+  const scaleX = p => pad.l + (p/(points.length-1||1)) * (W-pad.l-pad.r);
+  const scaleY = v => H-pad.b - ((v-minS)/(maxS-minS||1)) * (H-pad.t-pad.b);
+
+  // Grid lines
+  ctx.strokeStyle='rgba(255,255,255,0.05)';
+  ctx.lineWidth=1;
+  [0,0.5,1].forEach(r=>{
+    const y = pad.t + r*(H-pad.t-pad.b);
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+  });
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle='#4488cc';
+  ctx.lineWidth=2;
+  ctx.lineJoin='round';
+  points.forEach((p,i)=>{
+    const x=scaleX(i), y=scaleY(p.sinc);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // Fill
+  ctx.beginPath();
+  points.forEach((p,i)=>{ const x=scaleX(i),y=scaleY(p.sinc); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.lineTo(scaleX(points.length-1),H-pad.b);
+  ctx.lineTo(scaleX(0),H-pad.b);
+  ctx.closePath();
+  ctx.fillStyle='rgba(68,136,204,0.1)';
+  ctx.fill();
+
+  // Dots + labels
+  points.forEach((p,i)=>{
+    const x=scaleX(i), y=scaleY(p.sinc);
+    ctx.beginPath();
+    ctx.arc(x,y,4,0,Math.PI*2);
+    ctx.fillStyle='#4488cc';
+    ctx.fill();
+    // Value label
+    ctx.fillStyle='#fff';
+    ctx.font='bold 10px Barlow';
+    ctx.textAlign='center';
+    ctx.fillText(p.sinc.toFixed(1), x, y-8);
+    // Week label at bottom
+    ctx.fillStyle='rgba(255,255,255,0.35)';
+    ctx.font='9px Barlow';
+    ctx.fillText('S'+p.w, x, H-pad.b+12);
+  });
 }
 
 // WEEKLY FATIGUE
@@ -1309,7 +1421,7 @@ function switchPanel(name,btn){
     }
     renderLb();
   }
-  if(name==='Profile') renderProfile();
+  if(name==='Profile'){ renderProfile(); setTimeout(drawSinclairChart,300); }
 }
 
 // ─── TONNAGE ─────────────────────────────────────────────

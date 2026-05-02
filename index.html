@@ -418,6 +418,10 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:1px"><span class="live"></span>Leader<em style="color:var(--gold)">board</em></div>
       <div style="font-size:12px;color:var(--text2);margin-top:2px">Score Sinclair 2025–2028 · <span id="lbAthleteCount">—</span> athlètes</div>
     </div>
+    <div style="display:flex;gap:6px;margin:0.75rem 1rem 0">
+      <button class="lb-gender-btn active" id="lbModeAll" onclick="setLbMode('all',this)">🏅 Saison</button>
+      <button class="lb-gender-btn" id="lbModeCycle" onclick="setLbMode('cycle',this)">🔄 Ce cycle</button>
+    </div>
     <div class="lb-filter" id="lbMovementFilter"></div>
     <div class="lb-gender-filter">
       <button class="lb-gender-btn" data-gender="H" onclick="setLbGender('H',this)">Hommes</button>
@@ -523,7 +527,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 <div id="scoreModal" onclick="if(event.target===this)closeScoreModal()">
   <div class="score-sheet">
     <div class="score-sheet-title" id="scoreModalTitle">Soumettre un score</div>
-    <div class="score-sheet-sub" id="scoreModalSub">Entre ton 1RM du jour</div>
+    <div class="score-sheet-sub" id="scoreModalSub">Ta performance du jour</div>
     <div class="score-input-wrap">
       <input class="score-input" id="scoreInput" type="number" inputmode="decimal" placeholder="0">
       <span class="score-unit">kg</span>
@@ -577,6 +581,7 @@ let activeLeaderboards=[];
 let lbData={};
 let lbMovement='arr';
 let lbGender='all';
+let lbMode='all'; // 'all' = saison, 'cycle' = ce cycle
 let scoreModalCtx=null;
 let onbGender='H';
 
@@ -1143,7 +1148,7 @@ function completeDay(){
 function openScoreModal(exName,rmKey){
   scoreModalCtx={exName,rmKey};
   document.getElementById('scoreModalTitle').textContent=exName;
-  document.getElementById('scoreModalSub').textContent='Ton 1RM du jour — apparaîtra sur le leaderboard';
+  document.getElementById('scoreModalSub').textContent='Ta performance du jour — apparaîtra sur le leaderboard';
   document.getElementById('scoreInput').value=rms[rmKey]||'';
   document.getElementById('scoreModal').classList.add('show');
   setTimeout(()=>document.getElementById('scoreInput').focus(),100);
@@ -1177,26 +1182,58 @@ async function submitScore(){
 
 async function loadLeaderboards(){
   try{
-    const records=await db('rm_records?select=weight,movement,athletes(pseudo,gender,bodyweight,country,club,level)');
     lbData={};
-    (records||[]).forEach(r=>{
-      if(!r.athletes) return;
-      if(!lbData[r.movement]) lbData[r.movement]=[];
-      lbData[r.movement].push({
-        name:r.athletes.pseudo,gender:r.athletes.gender,
-        bw:r.athletes.bodyweight,country:r.athletes.country||'🇫🇷',
-        club:r.athletes.club||'',level:r.athletes.level||null,
-        weight:r.weight,isMe:athlete&&r.athletes.pseudo===athlete.pseudo
+    if(lbMode==='all'){
+      // All-time records
+      const records=await db('rm_records?select=weight,movement,athletes(pseudo,gender,bodyweight,country,club,level)');
+      (records||[]).forEach(r=>{
+        if(!r.athletes) return;
+        if(!lbData[r.movement]) lbData[r.movement]=[];
+        lbData[r.movement].push({
+          name:r.athletes.pseudo,gender:r.athletes.gender,
+          bw:r.athletes.bodyweight,country:r.athletes.country||'🇫🇷',
+          club:r.athletes.club||'',level:r.athletes.level||null,
+          weight:r.weight,isMe:athlete&&r.athletes.pseudo===athlete.pseudo
+        });
       });
-    });
-    const arrData=lbData['arr']||[];
-    const ejData=lbData['ej']||[];
-    lbData['total']=arrData.map(a=>{
-      const ej=ejData.find(e=>e.name===a.name);
-      if(!ej) return null;
-      return Object.assign({},a,{weight:a.weight+ej.weight});
-    }).filter(Boolean);
-    document.getElementById('lbAthleteCount').textContent=new Set((records||[]).filter(r=>r.athletes).map(r=>r.athletes.pseudo)).size;
+      const arrData=lbData['arr']||[];
+      const ejData=lbData['ej']||[];
+      lbData['total']=arrData.map(a=>{
+        const ej=ejData.find(e=>e.name===a.name);
+        if(!ej) return null;
+        return Object.assign({},a,{weight:a.weight+ej.weight});
+      }).filter(Boolean);
+      document.getElementById('lbAthleteCount').textContent=new Set((records||[]).filter(r=>r.athletes).map(r=>r.athletes.pseudo)).size;
+    } else {
+      // Cycle scores - best per athlete per movement
+      const scores=await db(`cycle_scores?cycle=eq.${CYCLE}&select=weight,movement,athletes(pseudo,gender,bodyweight,country,club,level)&order=weight.desc`)||[];
+      const best={};
+      scores.forEach(r=>{
+        if(!r.athletes) return;
+        const key=`${r.athletes.pseudo}_${r.movement}`;
+        if(!best[key]){
+          best[key]={
+            name:r.athletes.pseudo,gender:r.athletes.gender,
+            bw:r.athletes.bodyweight,country:r.athletes.country||'🇫🇷',
+            club:r.athletes.club||'',level:r.athletes.level||null,
+            weight:r.weight,isMe:athlete&&r.athletes.pseudo===athlete.pseudo,
+            movement:r.movement
+          };
+        }
+      });
+      Object.values(best).forEach(e=>{
+        if(!lbData[e.movement]) lbData[e.movement]=[];
+        lbData[e.movement].push(e);
+      });
+      const arrData=lbData['arr']||[];
+      const ejData=lbData['ej']||[];
+      lbData['total']=arrData.map(a=>{
+        const ej=ejData.find(e=>e.name===a.name);
+        if(!ej) return null;
+        return Object.assign({},a,{weight:a.weight+ej.weight});
+      }).filter(Boolean);
+      document.getElementById('lbAthleteCount').textContent=new Set(Object.values(best).map(e=>e.name)).size;
+    }
     renderLb();
   } catch(e){console.warn('LB load failed',e);}
 }
@@ -1213,9 +1250,16 @@ function buildLbMovementFilter(){
   });
 }
 
+function setLbMode(mode, btn){
+  lbMode = mode;
+  document.getElementById('lbModeAll').classList.toggle('active', mode==='all');
+  document.getElementById('lbModeCycle').classList.toggle('active', mode==='cycle');
+  loadLeaderboards();
+}
+
 function setLbGender(g,btn){
   lbGender=g;
-  document.querySelectorAll('.lb-gender-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.lb-gender-btn[data-gender]').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderLb();
 }
@@ -1225,7 +1269,7 @@ function getInitials(name){return name.split(' ').map(w=>w[0]).join('').substrin
 function renderLb(){
   buildLbMovementFilter();
   const mov=LB_ALLTIME.find(m=>m.key===lbMovement)||LB_ALLTIME[0];
-  document.getElementById('lbMovTitle').innerHTML=`${mov.icon} ${mov.label} ${mov.isSinclair?'<span class="lb-cycle-badge">Sinclair</span>':''}`;
+  document.getElementById('lbMovTitle').innerHTML=`${mov.icon} ${mov.label} ${mov.isSinclair?'<span class="lb-cycle-badge">Sinclair</span>':''} <span style="font-size:10px;color:var(--text3);font-weight:400">${lbMode==='cycle'?'· Ce cycle':'· Saison'}</span>`;
   let pool=(lbData[lbMovement]||[]).filter(a=>lbGender==='all'||a.gender===lbGender);
   pool=pool.map(a=>({...a,displayScore:calcSinclair(a.weight,a.bw,a.gender),rawWeight:a.weight}));
   pool.sort((a,b)=>b.displayScore-a.displayScore);

@@ -174,6 +174,7 @@ tr:hover td{background:var(--surface2)}
     <div class="page" id="pageAthletes">
       <div class="page-title">Athlètes</div>
       <div class="page-sub">Gestion des accès · <span id="athleteCount">—</span> inscrits</div>
+      <div id="levelStats" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem"></div>
       <div style="display:flex;gap:10px;margin-bottom:1rem">
         <button class="action-btn primary" onclick="showAddModal()" style="padding:8px 16px;font-size:13px">+ Ajouter un athlète</button>
       </div>
@@ -191,6 +192,7 @@ tr:hover td{background:var(--surface2)}
               <th>Poids</th>
               <th>Club</th>
               <th>Pays</th>
+              <th>Niveau</th>
               <th>Statut</th>
               <th>Actions</th>
             </tr>
@@ -204,13 +206,18 @@ tr:hover td{background:var(--surface2)}
     <div class="page" id="pageFeelings">
       <div class="page-title">Ressentis</div>
       <div class="page-sub">Note moyenne par exercice · 1=très dur · 5=facile</div>
-      <div style="display:flex;gap:8px;margin-bottom:1rem">
+      <div style="display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap">
         <select id="feelingWeek" onchange="loadFeelings()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
           <option value="1">Semaine 1</option>
           <option value="2">Semaine 2</option>
           <option value="3">Semaine 3</option>
           <option value="4">Semaine 4</option>
         </select>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer">
+          <input type="checkbox" id="feelingShowAll" onchange="loadFeelings()" style="accent-color:#003366">
+          Inclure prépa physique
+        </label>
+        <span style="font-size:11px;color:var(--text3)">— Par défaut : training uniquement</span>
       </div>
       <div class="chart-card" style="max-width:700px">
         <div class="chart-title">Ressentis moyens par exercice</div>
@@ -418,23 +425,44 @@ async function loadAthletes(){
   } catch(e){ console.warn(e); }
 }
 
+const LEVEL_LABELS={regional:'Régional',interregional:'Inter-Rég.',honneur:'Honneur',elite:'Élite',international:'Intl'};
+const LEVEL_COLORS={regional:'#4488cc',interregional:'#7aaee8',honneur:'#fbbf24',elite:'#f59e0b',international:'#e03030'};
+
 function renderAthletes(list){
   const tbody=document.getElementById('athleteTable');
-  tbody.innerHTML=list.map(a=>`
-    <tr>
+  tbody.innerHTML=list.map(a=>{
+    const lvl=a.level?`<span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;background:rgba(0,51,102,0.3);color:${LEVEL_COLORS[a.level]||'#6699cc'}">${LEVEL_LABELS[a.level]||a.level}</span>`:'—';
+    return `<tr>
       <td>${a.pseudo}</td>
       <td style="color:var(--text3);font-size:12px">${a.email}</td>
       <td><span class="badge ${a.gender==='F'?'f':'m'}">${a.gender==='F'?'Femme':'Homme'}</span></td>
       <td>${a.bodyweight}kg</td>
       <td style="color:var(--text2)">${a.club||'—'}</td>
       <td>${a.country||'🇫🇷'}</td>
+      <td>${lvl}</td>
       <td><span class="badge ${a.access_type==='sub'?'active':'inactive'}">${a.access_type==='sub'?'Abonné':'One-shot'}</span></td>
       <td style="display:flex;gap:6px">
         <button class="action-btn" onclick="editClub('${a.id}','${a.club||''}')">Club</button>
         <button class="action-btn ${a.access_type==='sub'?'danger':''}" onclick="toggleAccess('${a.id}','${a.access_type}')">${a.access_type==='sub'?'Désactiver':'Activer'}</button>
         <button class="action-btn danger" onclick="deleteAthlete('${a.id}','${a.pseudo}')">Supprimer</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
+
+  // Update level stats widget
+  const levelCounts={};
+  list.forEach(a=>{
+    const l=a.level||'non_renseigné';
+    levelCounts[l]=(levelCounts[l]||0)+1;
+  });
+  const el=document.getElementById('levelStats');
+  if(el){
+    el.innerHTML=Object.entries(levelCounts).map(([k,v])=>`
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 12px;display:flex;align-items:center;gap:8px">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:${LEVEL_COLORS[k]||'var(--text3)'}">${v}</span>
+        <span style="font-size:11px;color:var(--text2)">${LEVEL_LABELS[k]||'Non renseigné'}</span>
+      </div>`).join('');
+  }
 }
 
 function filterAthletes(q){
@@ -495,12 +523,24 @@ async function addAthlete(){
 }
 
 // FEELINGS
+// Noms lisibles des exercices de training
+const EX_NAMES = {
+  '0_0_0_0':'Arraché debout','0_0_0_1':'Tirage haut arraché','0_0_0_2':'Front squat','0_0_0_3':'Appel de jeté',
+  '0_2_0_0':'Épaulé debout + jeté force','0_2_0_1':'Tirage lourd épaulé',
+  '0_4_0_0':'Arraché','0_4_0_1':'Tirage lourd arraché',
+  '0_5_0_0':'Épaulé-Jeté','0_5_0_1':'Squat nuque'
+};
+
 async function loadFeelings(){
   const week=document.getElementById('feelingWeek').value;
+  const showAll=document.getElementById('feelingShowAll')?.checked;
   try{
     const feel=await db(`exercise_feelings?cycle=eq.${CYCLE}&week_num=eq.${week}&select=exercise_key,score`)||[];
     const exScores={};
     feel.forEach(f=>{
+      // Filter: only training exos (sectionIdx=0, i.e. 3rd segment of key is "0")
+      const parts=f.exercise_key.split('_');
+      if(!showAll && parts[2]!=='0') return;
       if(!exScores[f.exercise_key]) exScores[f.exercise_key]=[];
       exScores[f.exercise_key].push(f.score);
     });
@@ -510,9 +550,12 @@ async function loadFeelings(){
     const el=document.getElementById('feelingsDetail');
     el.innerHTML=sorted.map(e=>{
       const color=e.avg<2?'var(--red)':e.avg<3?'var(--yellow)':e.avg<4?'var(--text)':'var(--green)';
-      const label=e.k.replace(/_/g,' ');
+      const label=EX_NAMES[e.k]||e.k.split('_').slice(2).join('_').replace(/_/g,' ')||e.k;
+      const parts=e.k.split('_');
+      const dayNames=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+      const dayLabel=dayNames[parseInt(parts[1])]||'';
       return `<div class="bar-row">
-        <span class="bar-label" title="${e.k}">${label}</span>
+        <span class="bar-label" title="${e.k}" style="width:180px"><span style="color:var(--text3);font-size:10px">${dayLabel} · </span>${label}</span>
         <div class="bar-track"><div class="bar-fill" style="width:${e.avg*20}%;background:${color}"></div></div>
         <span class="bar-val" style="color:${color}">${e.avg} <span style="color:var(--text3);font-size:10px">(${e.n})</span></span>
       </div>`;

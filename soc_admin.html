@@ -145,6 +145,8 @@ tr:hover td{background:var(--surface2)}
     <button class="nav-link" onclick="showPage('leaderboard',this)"><span class="nav-icon">🏆</span>Leaderboard</button>
     <button class="nav-link" onclick="showPage('config',this)"><span class="nav-icon">⚙️</span>Configuration</button>
     <button class="nav-link" onclick="showPage('videos',this)"><span class="nav-icon">🎬</span>Vidéos</button>
+    <button class="nav-link" onclick="showPage('coach',this)"><span class="nav-icon">🏋️</span>Vue Coach</button>
+    <button class="nav-link" onclick="showPage('programme',this)"><span class="nav-icon">✏️</span>Programme</button>
   </nav>
 
   <div class="main-content">
@@ -292,6 +294,78 @@ tr:hover td{background:var(--surface2)}
       </div>
     </div>
 
+    <!-- COACH VIEW -->
+    <div class="page" id="pageCoach">
+      <div class="page-title">Vue Coach</div>
+      <div class="page-sub">Charges réalisées par les athlètes · Semaine en cours</div>
+      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
+        <select id="coachWeekSel" onchange="loadCoachView()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
+          <option value="1">Semaine 1</option>
+          <option value="2">Semaine 2</option>
+          <option value="3">Semaine 3</option>
+          <option value="4">Semaine 4</option>
+        </select>
+        <select id="coachDaySel" onchange="loadCoachView()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
+          <option value="all">Tous les jours</option>
+          <option value="0">Lundi</option>
+          <option value="2">Mercredi</option>
+          <option value="4">Vendredi</option>
+          <option value="5">Samedi</option>
+        </select>
+        <select id="coachMovSel" onchange="loadCoachView()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
+          <option value="all">Tous les mouvements</option>
+          <option value="arr">Arraché</option>
+          <option value="ej">Épaulé-Jeté</option>
+          <option value="squat">Squat</option>
+          <option value="fs">Front Squat</option>
+          <option value="tla">TL Arraché</option>
+        </select>
+        <button class="action-btn" onclick="exportCSV('coach')" style="padding:8px 16px;font-size:13px">⬇ Export</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Athlète</th>
+              <th>Mouvement</th>
+              <th>Charge</th>
+              <th>Sinclair</th>
+              <th>% RM</th>
+              <th>Semaine</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="coachTable"></tbody>
+        </table>
+      </div>
+      <!-- FATIGUE POST-SEANCE -->
+      <div style="margin-top:1.5rem">
+        <div class="page-title" style="font-size:18px">⚡ Fatigue post-séance</div>
+        <div class="page-sub">Score de fatigue enregistré par les athlètes cette semaine</div>
+        <div class="table-wrap" style="margin-top:0.75rem">
+          <table>
+            <thead><tr><th>Athlète</th><th>Club</th><th>Début sem.</th><th>Fin sem.</th><th>Évolution</th></tr></thead>
+            <tbody id="coachFatigueTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRAMME EDITOR -->
+    <div class="page" id="pageProgramme">
+      <div class="page-title">Éditeur de programme</div>
+      <div class="page-sub">Modifier les %, charges et RM de référence par exo · Les changements s'appliquent immédiatement</div>
+      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+        <select id="progDaySel" onchange="loadProgEditor()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
+          <option value="0">Lundi</option>
+          <option value="2">Mercredi</option>
+          <option value="4">Vendredi</option>
+          <option value="5">Samedi</option>
+        </select>
+      </div>
+      <div id="progEditorList" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+
     <!-- CONFIG -->
     <div class="page" id="pageConfig">
       <div class="page-title">Configuration</div>
@@ -389,6 +463,8 @@ function showPage(name,btn){
   if(name==='athletes') loadAthletes();
   if(name==='feelings') loadFeelings();
   if(name==='videos') loadVideos();
+  if(name==='coach') loadCoachView();
+  if(name==='programme') loadProgEditor();
   if(name==='fatigue') loadFatigueAdmin();
   if(name==='leaderboard') loadLbAdmin();
   if(name==='config') loadConfig();
@@ -676,41 +752,68 @@ async function deleteScore(pseudo,movement){
 }
 
 // CONFIG - Active leaderboards
-const LB_MOVEMENTS=[
-  {key:'arr',label:'Arraché'},{key:'arr_force',label:'Arr. Force'},
-  {key:'ej',label:'Épaulé-Jeté'},{key:'squat',label:'Squat Nuque'},
-  {key:'fs',label:'Front Squat'},{key:'tla',label:'TL Arraché'},
-  {key:'deadlift',label:'Deadlift'}
+// Exos de training par jour (copié du programme, section main uniquement)
+const PROG_DAYS = [
+  { label:'Lundi', exos:[
+    {key:'arr_debout', label:'Arraché debout', rm:'arr'},
+    {key:'tla_haut', label:'Tirage haut arraché', rm:'tla_haut'},
+    {key:'fs', label:'Front squat', rm:'fs'},
+    {key:'appel_jete', label:'Appel de jeté', rm:'fs'},
+  ]},
+  { label:'Mardi', exos:[] },
+  { label:'Mercredi', exos:[
+    {key:'ep_debout_jete_force', label:'Épaulé debout + jeté force', rm:'jet_force'},
+    {key:'tirage_epaulé', label:'Tirage lourd épaulé', rm:'ej'},
+  ]},
+  { label:'Jeudi', exos:[] },
+  { label:'Vendredi', exos:[
+    {key:'arr', label:'Arraché RM', rm:'arr'},
+    {key:'tla', label:'Tirage lourd arraché', rm:'tla'},
+  ]},
+  { label:'Samedi', exos:[
+    {key:'ej', label:'Épaulé-Jeté RM', rm:'ej'},
+    {key:'squat', label:'Squat nuque (light)', rm:'squat'},
+  ]},
 ];
-const DAYS_CONFIG=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 
 async function loadConfig(){
-  const active=await db(`active_leaderboards?cycle=eq.${CYCLE}&select=*`)||[];
-  const grid=document.getElementById('lbConfigGrid');
-  grid.innerHTML=DAYS_CONFIG.map((day,dIdx)=>`
-    <div class="lb-config-card">
-      <div class="lb-config-day">${day}</div>
-      ${LB_MOVEMENTS.map(m=>{
-        const isActive=active.some(a=>a.day_num===dIdx+1&&a.movement===m.key);
-        return `<div class="lb-toggle">
-          <span style="font-size:12px;color:var(--text2)">${m.label}</span>
-          <button class="toggle-switch ${isActive?'on':''}" onclick="toggleLb(this,${dIdx+1},'${m.key}','${m.label}')"></button>
-        </div>`;
-      }).join('')}
-    </div>`).join('');
+  const active = await db(`active_leaderboards?cycle=eq.${CYCLE}&select=*`) || [];
+  const grid = document.getElementById('lbConfigGrid');
+  grid.innerHTML = PROG_DAYS.map((day, dIdx) => {
+    if(!day.exos.length) return `
+      <div class="lb-config-card" style="opacity:0.4">
+        <div class="lb-config-day">${day.label}</div>
+        <div style="font-size:11px;color:var(--text3);font-style:italic">Repos — pas d'exo LB</div>
+      </div>`;
+    return `
+      <div class="lb-config-card">
+        <div class="lb-config-day">${day.label}</div>
+        ${day.exos.map(ex => {
+          const isActive = active.some(a => a.day_num === dIdx+1 && a.movement === ex.key);
+          return `<div class="lb-toggle">
+            <div>
+              <div style="font-size:12px;color:var(--text);font-weight:600">${ex.label}</div>
+              <div style="font-size:10px;color:var(--text3)">RM: ${ex.rm}</div>
+            </div>
+            <button class="toggle-switch ${isActive?'on':''}" onclick="toggleLb(this,${dIdx+1},'${ex.key}','${ex.label}','${ex.rm}')"></button>
+          </div>`;
+        }).join('')}
+      </div>`;
+  }).join('');
 }
 
-async function toggleLb(btn,dayNum,movement,label){
-  const isOn=btn.classList.contains('on');
+async function toggleLb(btn, dayNum, movement, label, rm){
+  const isOn = btn.classList.contains('on');
   btn.classList.toggle('on');
   try{
     if(isOn){
-      await db(`active_leaderboards?cycle=eq.${CYCLE}&day_num=eq.${dayNum}&movement=eq.${movement}`,'DELETE');
+      await db(`active_leaderboards?cycle=eq.${CYCLE}&day_num=eq.${dayNum}&movement=eq.${movement}`, 'DELETE');
+      toast('Leaderboard désactivé');
     } else {
-      await db('active_leaderboards','POST',{cycle:CYCLE,week_num:1,day_num:dayNum,movement,label});
+      await db('active_leaderboards', 'POST', {cycle:CYCLE, week_num:1, day_num:dayNum, movement, label, rm_key:rm});
+      toast('🏆 Leaderboard activé : '+label);
     }
-    toast(isOn?'Leaderboard désactivé':'Leaderboard activé');
-  } catch(e){ btn.classList.toggle('on'); toast('Erreur'); }
+  } catch(e){ btn.classList.toggle('on'); toast('Erreur : '+e.message); }
 }
 
 // VIDEOS
@@ -793,6 +896,24 @@ async function deleteVideo(id, key){
 async function exportCSV(type){
   let data, filename, headers;
   try{
+    if(type==='coach'){
+      const movLabels={arr:'Arraché',ej:'Épaulé-Jeté',squat:'Squat',fs:'Front Squat',tla:'TL Arraché'};
+      data = coachData;
+      headers = ['Athlète','Club','Mouvement','Charge (kg)','Sinclair','Date'];
+      filename = 'soc_coach_charges.csv';
+      const rows2 = data.map(s=>{
+        const sinc = calcSinclair(s.weight, s.athletes?.bodyweight||80, s.athletes?.gender||'H');
+        return [s.athletes?.pseudo||'',s.athletes?.club||'',movLabels[s.movement]||s.movement,s.weight,sinc.toFixed(1),new Date(s.created_at).toLocaleDateString('fr-FR')];
+      });
+      const csv2 = [headers,...rows2].map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob2=new Blob(['\uFEFF'+csv2],{type:'text/csv;charset=utf-8'});
+      const url2=URL.createObjectURL(blob2);
+      const a2=document.createElement('a');
+      a2.href=url2;a2.download=filename;a2.click();
+      URL.revokeObjectURL(url2);
+      toast('Export téléchargé !');
+      return;
+    }
     if(type==='athletes'){
       data = await db('athletes?select=pseudo,email,gender,bodyweight,club,country,level,access_type,created_at&order=created_at.desc') || [];
       headers = ['Pseudo','Email','Genre','Poids','Club','Pays','Niveau','Accès','Inscription'];
@@ -834,6 +955,180 @@ async function exportCSV(type){
     URL.revokeObjectURL(url);
     toast(`Export ${filename} téléchargé !`);
   } catch(e){ toast('Erreur export : '+e.message); console.warn(e); }
+}
+
+// ─── COACH VIEW ───────────────────────────────────────────
+let coachData = [];
+
+async function loadCoachView(){
+  const week = document.getElementById('coachWeekSel').value;
+  const day = document.getElementById('coachDaySel').value;
+  const mov = document.getElementById('coachMovSel').value;
+
+  try{
+    // Load scores
+    let url = `cycle_scores?cycle=eq.${CYCLE}&week_num=eq.${week}&select=weight,movement,created_at,athletes(pseudo,gender,bodyweight,club)&order=created_at.desc`;
+    if(mov!=='all') url += `&movement=eq.${mov}`;
+    const scores = await db(url) || [];
+    coachData = scores;
+
+    const tbody = document.getElementById('coachTable');
+    if(!scores.length){
+      tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:1rem">Aucune charge enregistrée</td></tr>';
+    } else {
+      tbody.innerHTML = scores.map(s=>{
+        const bw = s.athletes?.bodyweight || 80;
+        const gender = s.athletes?.gender || 'H';
+        const sinc = calcSinclair(s.weight, bw, gender);
+        // Get RM for % calculation - we don't have it here so skip
+        const date = new Date(s.created_at).toLocaleDateString('fr-FR');
+        const movLabels={arr:'Arraché',ej:'Épaulé-Jeté',squat:'Squat',fs:'Front Squat',tla:'TL Arraché',tla_haut:'TH Arraché',jet_force:'Jeté Force'};
+        const dotColor = sinc>250?'var(--gold)':sinc>200?'var(--green)':'var(--text)';
+        return `<tr>
+          <td><strong>${s.athletes?.pseudo||'—'}</strong><br><span style="font-size:11px;color:var(--text3)">${s.athletes?.club||''}</span></td>
+          <td>${movLabels[s.movement]||s.movement}</td>
+          <td style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:var(--yellow)">${s.weight}kg</td>
+          <td style="color:${dotColor};font-weight:700">${sinc.toFixed(1)}</td>
+          <td style="color:var(--text3)">—</td>
+          <td>S${week}</td>
+          <td style="color:var(--text3);font-size:12px">${date}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    // Load fatigue for this week
+    const fatigue = await db(`weekly_fatigue?cycle=eq.${CYCLE}&week_num=eq.${week}&select=score_start,score_end,athletes(pseudo,club)`) || [];
+    const ftbody = document.getElementById('coachFatigueTable');
+    ftbody.innerHTML = fatigue.map(f=>{
+      const s=f.score_start, e=f.score_end;
+      const diff=s&&e?e-s:null;
+      const diffStr=diff!==null?`<span style="color:${diff>0?'var(--green)':diff<0?'var(--red)':'var(--text2)'};font-weight:700">${diff>0?'+':''}${diff}</span>`:'—';
+      const dot=v=>v<=3?'var(--red)':v<=6?'var(--yellow)':'var(--green)';
+      return `<tr>
+        <td><strong>${f.athletes?.pseudo||'—'}</strong></td>
+        <td style="color:var(--text3)">${f.athletes?.club||'—'}</td>
+        <td>${s?`<span style="color:${dot(s)};font-weight:700;font-size:16px">${s}/10</span>`:'—'}</td>
+        <td>${e?`<span style="color:${dot(e)};font-weight:700;font-size:16px">${e}/10</span>`:'—'}</td>
+        <td>${diffStr}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1rem">Aucune fatigue enregistrée</td></tr>';
+
+  } catch(e){ console.warn('Coach view failed',e); }
+}
+
+// ─── PROGRAMME EDITOR ────────────────────────────────────
+const RM_KEYS = [
+  {key:'arr',label:'Arraché'},
+  {key:'ej',label:'Épaulé-Jeté'},
+  {key:'fs',label:'Front Squat'},
+  {key:'squat',label:'Squat Nuque'},
+  {key:'tla',label:'TL Arraché'},
+  {key:'tla_haut',label:'TH Arraché'},
+  {key:'jet_force',label:'Jeté Force'},
+  {key:'arr_force',label:'Arr. Force'},
+  {key:'ep_debout',label:'Épa. Debout'},
+  {key:'deadlift',label:'Deadlift'},
+];
+
+const PROG_MAIN = [
+  { dayIdx:0, label:'Lundi', exos:[
+    {idx:0, name:'Arraché debout',        detail:'2×2/70% · 1×2/80% · 1×1/85% · 4×1/90+%', rm:'arr'},
+    {idx:1, name:'Tirage haut arraché',   detail:'4×2 / 80–85%',                             rm:'tla_haut'},
+    {idx:2, name:'Front squat',            detail:'4×2 / 90%',                                rm:'fs'},
+    {idx:3, name:'Appel de jeté',          detail:'6×4 (même charge que le front squat)',      rm:'fs'},
+  ]},
+  { dayIdx:2, label:'Mercredi', exos:[
+    {idx:0, name:'Épaulé debout + jeté force', detail:'6×2 / 85–90+%',                        rm:'jet_force'},
+    {idx:1, name:'Tirage lourd épaulé',       detail:'4×2 / 100+% (du RM épaulé)',            rm:'ej'},
+  ]},
+  { dayIdx:4, label:'Vendredi', exos:[
+    {idx:0, name:'Arraché',                 detail:'RM du jour (max 3 échecs)',                rm:'arr'},
+    {idx:1, name:'Tirage lourd arraché',   detail:'6×2–3 reps / 100–110%',                   rm:'arr'},
+  ]},
+  { dayIdx:5, label:'Samedi', exos:[
+    {idx:0, name:'Épaulé-Jeté',        detail:'RM du jour (max 2 échecs)',                     rm:'ej'},
+    {idx:1, name:'Squat nuque (light)', detail:'3×3 / 70–75%',                                rm:'squat'},
+  ]},
+];
+
+let progOverrides = {};
+
+async function loadProgEditor(){
+  const dayIdx = parseInt(document.getElementById('progDaySel').value);
+  const day = PROG_MAIN.find(d => d.dayIdx === dayIdx);
+  if(!day) return;
+
+  // Load overrides from Supabase
+  try{
+    const ov = await db(`programme_overrides?cycle=eq.${CYCLE}&day_idx=eq.${dayIdx}&select=*`) || [];
+    progOverrides = {};
+    ov.forEach(o => { progOverrides[o.ex_idx] = o; });
+  } catch(e){ console.warn('Overrides load failed',e); }
+
+  const list = document.getElementById('progEditorList');
+  list.innerHTML = day.exos.map(ex => {
+    const ov = progOverrides[ex.idx];
+    const currentDetail = ov?.detail || ex.detail;
+    const currentRm = ov?.rm_key || ex.rm;
+    const rmOptions = RM_KEYS.map(r =>
+      `<option value="${r.key}" ${currentRm===r.key?'selected':''}>${r.label}</option>`
+    ).join('');
+    const isModified = !!ov;
+
+    return `<div style="background:var(--surface);border:1px solid ${isModified?'#003366':'var(--border)'};border-radius:12px;padding:1rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;color:${isModified?'#7aaee8':'var(--text)'}">${ex.name}</div>
+        ${isModified?'<span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#4488cc;background:rgba(68,136,204,0.1);border:1px solid rgba(68,136,204,0.3);border-radius:4px;padding:2px 7px">MODIFIÉ</span>':''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#999;margin-bottom:4px">Séries / % / description</div>
+          <input id="prog_detail_${dayIdx}_${ex.idx}" value="${currentDetail}" 
+            style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:'Barlow',sans-serif">
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#999;margin-bottom:4px">RM de référence</div>
+          <select id="prog_rm_${dayIdx}_${ex.idx}" 
+            style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none">
+            ${rmOptions}
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="action-btn primary" onclick="saveProgOverride(${dayIdx},${ex.idx},this)" style="flex:2;padding:9px">💾 Enregistrer</button>
+          ${isModified?`<button class="action-btn danger" onclick="resetProgOverride(${dayIdx},${ex.idx})" style="flex:1;padding:9px">↺ Réinitialiser</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function saveProgOverride(dayIdx, exIdx, btn){
+  const day = PROG_MAIN.find(d=>d.dayIdx===dayIdx);
+  const ex = day?.exos.find(e=>e.idx===exIdx);
+  const exName = ex?.name || '';
+  const detail = document.getElementById(`prog_detail_${dayIdx}_${exIdx}`).value.trim();
+  const rmKey = document.getElementById(`prog_rm_${dayIdx}_${exIdx}`).value;
+  if(!detail){ toast('Le champ description est vide'); return; }
+  try{
+    const existing = progOverrides[exIdx];
+    if(existing){
+      await db(`programme_overrides?id=eq.${existing.id}`, 'PATCH', {detail, rm_key:rmKey, updated_at:new Date().toISOString()});
+    } else {
+      await db('programme_overrides', 'POST', {cycle:CYCLE, day_idx:dayIdx, ex_idx:exIdx, ex_name:exName, detail, rm_key:rmKey});
+    }
+    toast('✅ Modif enregistrée !');
+    loadProgEditor();
+  } catch(e){ toast('Erreur : '+e.message); console.warn(e); }
+}
+
+async function resetProgOverride(dayIdx, exIdx){
+  if(!confirm('Remettre les valeurs par défaut ?')) return;
+  try{
+    const existing = progOverrides[exIdx];
+    if(existing) await db(`programme_overrides?id=eq.${existing.id}`, 'DELETE');
+    toast('Valeurs remises par défaut');
+    loadProgEditor();
+  } catch(e){ toast('Erreur'); }
 }
 
 // TOAST

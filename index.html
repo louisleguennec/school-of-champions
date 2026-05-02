@@ -76,13 +76,18 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .panel.active{display:block}
 
 /* BANNER */
-.banner{width:100%;height:200px;overflow:hidden;position:relative;background:#0d0d0d}
-.banner img{width:100%;height:100%;object-fit:cover;object-position:center 38%;filter:brightness(0.72) contrast(1.05)}
-.banner-grad{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,#0d0d0d 100%)}
+.banner{width:100%;height:220px;overflow:hidden;position:relative;background:#0d0d0d}
+.banner-slides{display:flex;width:100%;height:100%;transition:transform 0.8s cubic-bezier(0.4,0,0.2,1)}
+.banner-slide{flex-shrink:0;width:100%;height:100%;position:relative}
+.banner-slide img{width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(0.65) contrast(1.05)}
+.banner-grad{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 20%,#0d0d0d 100%)}
 .banner-text{position:absolute;bottom:14px;left:1rem;right:1rem}
 .banner-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:3px}
 .banner-title{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:#fff;line-height:1}
 .banner-title em{color:#4488cc;font-style:normal}
+.banner-dots{position:absolute;bottom:8px;right:1rem;display:flex;gap:5px}
+.banner-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.3);transition:background 0.3s;cursor:pointer}
+.banner-dot.active{background:#fff}
 
 /* WEEK SELECTOR */
 .week-sel{display:flex;gap:8px;padding:1rem 1rem 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
@@ -341,12 +346,37 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 
   <!-- PROG PANEL -->
   <div class="panel active" id="panelProg">
-    <div class="banner">
-      <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80" alt="">
-      <div class="banner-grad"></div>
-      <div class="banner-text">
-        <div class="banner-eyebrow">Cycle Juin 2026</div>
-        <div class="banner-title">School of <em>Champions</em></div>
+    <div class="banner" id="bannerEl">
+      <div class="banner-slides" id="bannerSlides">
+        <div class="banner-slide">
+          <img src="https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/DSC_9914.jpg" alt="">
+          <div class="banner-grad"></div>
+          <div class="banner-text">
+            <div class="banner-eyebrow">Cycle Juin 2026</div>
+            <div class="banner-title">School of <em>Champions</em></div>
+          </div>
+        </div>
+        <div class="banner-slide">
+          <img src="https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/IMG_3134.jpg" alt="">
+          <div class="banner-grad"></div>
+          <div class="banner-text">
+            <div class="banner-eyebrow">Cycle Juin 2026</div>
+            <div class="banner-title">School of <em>Champions</em></div>
+          </div>
+        </div>
+        <div class="banner-slide">
+          <img src="https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/Capture%20d%E2%80%99e%CC%81cran%202024-09-12%20a%CC%80%2019.13.39.png" alt="">
+          <div class="banner-grad"></div>
+          <div class="banner-text">
+            <div class="banner-eyebrow">Cycle Juin 2026</div>
+            <div class="banner-title">School of <em>Champions</em></div>
+          </div>
+        </div>
+      </div>
+      <div class="banner-dots" id="bannerDots">
+        <div class="banner-dot active" onclick="goSlide(0)"></div>
+        <div class="banner-dot" onclick="goSlide(1)"></div>
+        <div class="banner-dot" onclick="goSlide(2)"></div>
       </div>
     </div>
     <div class="week-sel" id="weekSel"></div>
@@ -622,6 +652,7 @@ function showApp(){
   loadLeaderboards();
   loadFatigue();
   renderProfile();
+  initCarousel();
 }
 
 // ─── RM GRID ─────────────────────────────────────────────
@@ -1399,6 +1430,23 @@ function resetAccess(){
 function renderProfileLinks(){
   const profilePanel=document.getElementById('panelProfile');
   // Already in HTML
+}
+
+// ─── BANNER CAROUSEL ─────────────────────────────────────
+let bannerIdx = 0;
+const BANNER_COUNT = 3;
+
+function goSlide(idx){
+  bannerIdx = idx;
+  const slides = document.getElementById('bannerSlides');
+  if(slides) slides.style.transform = `translateX(-${idx * 100}%)`;
+  document.querySelectorAll('.banner-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
+}
+
+function initCarousel(){
+  setInterval(()=>{
+    goSlide((bannerIdx + 1) % BANNER_COUNT);
+  }, 4000);
 }
 
 // INIT

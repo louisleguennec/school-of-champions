@@ -554,13 +554,31 @@ async function submitOnboarding(){
   }
 }
 
+// Cache vidéos depuis Supabase
+let remoteVideos = {};
+
+async function loadRemoteVideos(){
+  try{
+    const videos = await db('exercise_videos?select=exercise_key,video_url') || [];
+    videos.forEach(v => { remoteVideos[v.exercise_key] = v.video_url; });
+  } catch(e){ console.warn('Remote videos load failed', e); }
+}
+
+function getVideoUrl(ex){
+  // Priorité : Supabase > hardcodé dans le programme
+  const remoteKey = ex.n.toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+  return remoteVideos[remoteKey] || remoteVideos[ex.n] || ex.video || null;
+}
+
 function showApp(){
   document.getElementById('onboarding').classList.remove('show');
   document.getElementById('app').style.display='block';
   document.getElementById('bottomNav').style.display='block';
   buildRMGrid();
   buildWeekSel();
-  renderDays();
+  loadRemoteVideos().then(()=>renderDays());
   loadLeaderboards();
   loadFatigue();
   renderProfile();
@@ -579,12 +597,10 @@ const RM_DEFS=[
   {key:'tla_haut',label:'TH Arraché'},
   {key:'ep_debout',label:'Épa. Debout'},
   {key:'deadlift',label:'Deadlift'},
-  {key:'total',label:'Total (Arr+EJ)',computed:true},
+  {key:'total',label:'Total officiel',note:'Max arraché + max épaulé-jeté réalisés le même jour'},
 ];
 function getTotal(){
-  const arr=parseFloat(rms['arr'])||0;
-  const ej=parseFloat(rms['ej'])||0;
-  return (arr&&ej) ? arr+ej : null;
+  return rms['total'] ? parseFloat(rms['total']) : null;
 }
 
 function buildRMGrid(){
@@ -593,10 +609,19 @@ function buildRMGrid(){
   RM_DEFS.forEach(r=>{
     const f=document.createElement('div');
     f.className='rm-field';
-    if(r.computed){
-      const total=getTotal();
-      f.style.cssText+='border-color:rgba(0,51,102,0.5);background:rgba(0,51,102,0.08)';
-      f.innerHTML=`<div class="rm-field-label" style="color:#6699cc">${r.label}</div><div class="rm-field-row"><span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--yellow)">${total ? total+'kg' : '—'}</span></div>`;
+    if(r.note){
+      // Manual total field with note
+      f.style.cssText+='border-color:rgba(0,51,102,0.5);background:rgba(0,51,102,0.08);grid-column:span 2';
+      f.innerHTML=`<div class="rm-field-label" style="color:#6699cc">${r.label}</div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:6px;font-style:italic">${r.note}</div>
+        <div class="rm-field-row">
+          <input type="number" inputmode="decimal" placeholder="—" value="${rms[r.key]||''}" data-key="${r.key}" style="font-size:22px">
+          <span class="rm-field-unit">kg</span>
+        </div>`;
+      f.querySelector('input').addEventListener('change',function(){
+        if(this.value) rms[r.key]=parseFloat(this.value); else delete rms[r.key];
+        saveRMs(); buildRMGrid();
+      });
     } else {
       f.innerHTML=`<div class="rm-field-label">${r.label}</div><div class="rm-field-row"><input type="number" inputmode="decimal" placeholder="—" value="${rms[r.key]||''}" data-key="${r.key}"><span class="rm-field-unit">kg</span></div>`;
       f.querySelector('input').addEventListener('change',function(){
@@ -620,10 +645,10 @@ const WEEKS=[{id:"w1",label:"S1 · 18/05",title:"Semaine 1",days:[
       {n:"Triple broad jumps",d:"2–3 séries",video:"https://www.youtube.com/watch?v=CuXErkWUo1k"}
     ],
     main:[
-      {n:"Arraché debout",d:"2×2/70% · 1×2/80% · 1×1/85% · 4×1/90+%",rm:"arr",isLb:true,note:"Si arraché debout >> RM arraché → faire arraché demi-flexion à la place"},
+      {n:"Arraché debout",d:"2×2/70% · 1×2/80% · 1×1/85% · 4×1/90+%",rm:"arr",isLb:true,note:"Si arraché debout >> RM arraché → faire arraché demi-flexion à la place",video:"https://www.youtube.com/shorts/szLFnjevo4k"},
       {n:"Tirage haut d'arraché",d:"4×2 / 80–85%",rm:"tla_haut",video:"https://youtu.be/iYBcBMu8zrA"},
       {n:"Front squat",d:"4×2 / 90%",rm:"fs",isLb:true,video:"https://www.youtube.com/watch?v=g8uV9X_KN_I"},
-      {n:"Appel de jeté",d:"6×4 (même charge que le front squat)",rm:"fs",note:"Sans pause en haut, reps enchaînées"}
+      {n:"Appel de jeté",d:"6×4 (même charge que le front squat)",rm:"fs",note:"Sans pause en haut, reps enchaînées",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}
     ],
     prepa:[
       {n:"Squat bulgare",d:"3×6–8 reps par côté — RPE 7–8",note:"1'30\" de récupération",video:"https://youtube.com/shorts/_nXMctwsUAU"},
@@ -634,8 +659,8 @@ const WEEKS=[{id:"w1",label:"S1 · 18/05",title:"Semaine 1",days:[
     warmup:[],
     main:[{n:"Repos",d:"30 min cardio light + rehab + mobilité",note:"Lien : session mobilité complète",video:"https://www.youtube.com/watch?v=Ysk4bkyIl1s"}],
     prepa:[
-      {n:"Overhead triceps extensions",d:"2×12 proche de l'échec"},
-      {n:"DB curl biceps",d:"2×12 proche de l'échec"}
+      {n:"Overhead triceps extensions",d:"2×12 proche de l'échec",video:"https://www.youtube.com/shorts/T3e390Dl3XU"},
+      {n:"DB curl biceps",d:"2×12 proche de l'échec",video:"https://www.youtube.com/watch?v=HnHuhf4hEWY"}
     ],
     restNote:"Optionnel : renfo plage"
   },
@@ -652,8 +677,8 @@ const WEEKS=[{id:"w1",label:"S1 · 18/05",title:"Semaine 1",days:[
     ],
     prepa:[
       {n:"Tractions",d:"4×3 lestées si possible · 1×8–10 à vide",note:"2 min de récup",video:"https://www.youtube.com/watch?v=pHtPSleYquw"},
-      {n:"Dips",d:"1×6 RPE 7–8 lestés · 1×8–10 light",note:"2 min de récup"},
-      {n:"Élévations latérales",d:"2×10 reps proche de l'échec",note:"2 min de récup"}
+      {n:"Dips",d:"1×6 RPE 7–8 lestés · 1×8–10 light",note:"2 min de récup",video:"https://www.youtube.com/watch?v=2z8JmcrW-As"},
+      {n:"Élévations latérales",d:"2×10 reps proche de l'échec",note:"2 min de récup",video:"https://www.youtube.com/shorts/xyK8UiC-BUw"}
     ]
   },
   {type:"rest",label:"Jeudi",sub:"Repos · Cardio · Mobilité",
@@ -672,7 +697,7 @@ const WEEKS=[{id:"w1",label:"S1 · 18/05",title:"Semaine 1",days:[
       {n:"Tirage lourd d'arraché",d:"6×2–3 reps / 100–110%",rm:"tla",video:"https://youtube.com/shorts/Dqr52cwYdfY?feature=share"}
     ],
     prepa:[
-      {n:"Adducteurs au rameur ou Copenhagen dips",d:"4×10 par côté"},
+      {n:"Adducteurs au rameur ou Copenhagen dips",d:"4×10 par côté",video:"https://www.youtube.com/shorts/3yh6AVeYGqg"},
       {n:"Leg extension",d:"2×10–15 reps proche de l'échec",video:"https://youtu.be/rCJNVrpvWeI"},
       {n:"Mollets assis",d:"2×10–15 reps pause 1'' en haut",video:"https://www.youtube.com/shorts/NwA1N_EFTtk"}
     ]
@@ -689,8 +714,8 @@ const WEEKS=[{id:"w1",label:"S1 · 18/05",title:"Semaine 1",days:[
       {n:"Squat nuque (light)",d:"3×3 / 70–75%",rm:"squat",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ"}
     ],
     prepa:[
-      {n:"Strict press",d:"3×6 / 70% du RM strict press",video:"https://www.youtube.com/watch?v=2yjwXTZQDDI"},
-      {n:"Rowing Pendlay",d:"3×5 reps RPE 7–8",video:"https://www.youtube.com/watch?v=_5-j5bBKHZM"},
+      {n:"Strict press",d:"3×6 / 70% du RM strict press",video:"https://www.youtube.com/watch?v=_aISMzimYEA"},
+      {n:"Rowing Pendlay",d:"3×5 reps RPE 7–8",video:"https://www.youtube.com/watch?v=EzFkN5ge5_k"},
       {n:"Reverse hyper",d:"4×20 reps",video:"https://www.youtube.com/shorts/_9ybN0ToY4I"}
     ]
   }
@@ -834,8 +859,9 @@ function renderDays(){
             title="${RPE_LABELS[v-1]}">${RPE_EMOJIS[v-1]}</span>`;
         }).join('');
         const lbBtn=ex.isLb?`<span class="ex-lb-badge" onclick="openScoreModal('${ex.n}','${ex.rm||'total'}')">🏆 Soumettre score</span>`:'';
-        const videoBtn=ex.video
-          ?`<a class="ex-lb-badge" href="${ex.video}" target="_blank" style="color:#7aaee8;background:rgba(119,174,232,0.1);border-color:rgba(119,174,232,0.25)">▶ Vidéo</a>`
+        const _videoUrl=getVideoUrl(ex);
+        const videoBtn=_videoUrl
+          ?`<a class="ex-lb-badge" href="${_videoUrl}" target="_blank" style="color:#7aaee8;background:rgba(119,174,232,0.1);border-color:rgba(119,174,232,0.25)">▶ Vidéo</a>`
           :(sIdx===0?`<span class="ex-video-ph" style="color:var(--red);border-color:rgba(224,48,48,0.3);background:rgba(224,48,48,0.08)">⚠ Vidéo manquante</span>`:`<span class="ex-video-ph">▶ Bientôt</span>`);
         return `<div class="ex-row">
           <div class="ex-check${isDone?' done':''}" onclick="toggleCheck('${k}',this,${dIdx})"></div>

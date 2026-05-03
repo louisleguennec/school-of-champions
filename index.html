@@ -727,7 +727,7 @@ const RM_DEFS=[
   {key:'ej',label:'Épaulé-Jeté'},
   {key:'jet',label:'Jeté'},
   {key:'jet_force',label:'Jeté Force'},
-  {key:'squat',label:'Squat Nuque'},
+  {key:'squat',label:'Back squat'},
   {key:'fs',label:'Front Squat'},
   {key:'tla',label:'TL Arraché'},
   {key:'tla_haut',label:'TH Arraché'},
@@ -789,7 +789,7 @@ const WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
     warmup:[],
     main:[
       {n:"Jeté force",d:"8×3 / 70–80%",rm:"jet_force",note:"Du RM jeté force",video:"https://www.youtube.com/watch?v=ngjhO8CJvQg"},
-      {n:"Squat nuque",d:"6×2 / 80–90%",rm:"squat"},
+      {n:"Back squat",d:"6×2 / 80–90%",rm:"squat"},
       {n:"Appel de jeté",d:"6×4 / 110+%",rm:"fs",note:"Du RM FS",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}
     ],
     prepa:[
@@ -865,11 +865,11 @@ const WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
       {n:"Adducteurs au rameur ou à la machine",d:"3–4×10–15 reps / jambe"}
     ]
   },
-  {type:"opt",label:"Mercredi",sub:"Jeté des Plots · Squat Nuque · Appel (optionnel)",
+  {type:"opt",label:"Mercredi",sub:"Jeté des Plots · Back squat · Appel (optionnel)",
     warmup:[],
     main:[
       {n:"Jeté des plots",d:"2×3 / 70% · 5×2 / 80–85%",rm:"ej",note:"Du RM épaulé"},
-      {n:"Squat nuque",d:"3×3 / 70–75% · 3×2 / 80–85%",rm:"squat"},
+      {n:"Back squat",d:"3×3 / 70–75% · 3×2 / 80–85%",rm:"squat"},
       {n:"Appel de jeté",d:"6×5 reps tempo lent 90+%",rm:"fs",note:"Du RM FS",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}
     ],
     prepa:[
@@ -921,7 +921,7 @@ const LB_ALLTIME=[
   {key:'arr',label:'Arraché',icon:'🎯'},
   {key:'ej',label:'Épaulé-Jeté',icon:'🏋️'},
   {key:'total',label:'Total',icon:'⚡',isSinclair:true},
-  {key:'squat',label:'Squat Nuque',icon:'🦵'},
+  {key:'squat',label:'Back squat',icon:'🦵'},
   {key:'fs',label:'Front Squat',icon:'💪'},
 ];
 
@@ -1326,13 +1326,20 @@ async function loadLeaderboards(){
     (records||[]).forEach(r=>{
       if(!r.athletes) return;
       if(!lbData[r.movement]) lbData[r.movement]=[];
-      lbData[r.movement].push({
-        name:r.athletes.pseudo,gender:r.athletes.gender,
-        bw:r.athletes.bodyweight,country:r.athletes.country||'🇫🇷',
-        club:r.athletes.club||'',level:r.athletes.level||null,
-        weight:r.weight,isMe:athlete&&r.athletes.pseudo===athlete.pseudo
-      });
+      // Keep only best score per athlete per movement
+      const existing=lbData[r.movement].find(a=>a.name===r.athletes.pseudo);
+      if(existing){
+        if(r.weight>existing.weight) existing.weight=r.weight;
+      } else {
+        lbData[r.movement].push({
+          name:r.athletes.pseudo,gender:r.athletes.gender,
+          bw:r.athletes.bodyweight,country:r.athletes.country||'🇫🇷',
+          club:r.athletes.club||'',level:r.athletes.level||null,
+          weight:r.weight,isMe:athlete&&r.athletes.pseudo===athlete.pseudo
+        });
+      }
     });
+    // Total: only athletes with both arr AND ej
     const arrData=lbData['arr']||[];
     const ejData=lbData['ej']||[];
     lbData['total']=arrData.map(a=>{

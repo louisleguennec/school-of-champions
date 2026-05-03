@@ -246,6 +246,16 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 /* CONFETTI */
 #confettiCanvas{position:fixed;inset:0;pointer-events:none;z-index:9999;display:none}
 
+/* MINI LEADERBOARD MODAL */
+#miniLbModal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;display:none;align-items:flex-end;justify-content:center}
+#miniLbModal.show{display:flex}
+.mini-lb-sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom,0px));max-height:80vh;overflow-y:auto}
+.mini-lb-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.mini-lb-sub{font-size:11px;color:var(--text2);margin-bottom:1rem}
+.mini-lb-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+.mini-lb-row:last-child{border-bottom:none}
+.mini-lb-row.is-me{background:rgba(0,51,102,0.1);border-radius:6px;padding:7px 6px;margin:0 -6px}
+
 /* TOAST */
 .toast{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%) translateY(12px);background:#1c1c1c;border:1px solid var(--border2);color:var(--text);font-size:13px;font-weight:500;padding:9px 18px;border-radius:50px;opacity:0;transition:all 0.25s;pointer-events:none;white-space:nowrap;z-index:600}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -418,10 +428,6 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:1px"><span class="live"></span>Leader<em style="color:var(--gold)">board</em></div>
       <div style="font-size:12px;color:var(--text2);margin-top:2px">Score Sinclair 2025–2028 · <span id="lbAthleteCount">—</span> athlètes</div>
     </div>
-    <div style="display:flex;gap:6px;margin:0.75rem 1rem 0">
-      <button class="lb-gender-btn active" id="lbModeAll" onclick="setLbMode('all',this)">🏅 Saison</button>
-      <button class="lb-gender-btn" id="lbModeCycle" onclick="setLbMode('cycle',this)">🔄 Ce cycle</button>
-    </div>
     <div class="lb-filter" id="lbMovementFilter"></div>
     <div class="lb-gender-filter">
       <button class="lb-gender-btn" data-gender="H" onclick="setLbGender('H',this)">Hommes</button>
@@ -506,6 +512,18 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 
 </div><!-- /app -->
 
+<!-- MINI LEADERBOARD MODAL -->
+<div id="miniLbModal" onclick="if(event.target===this)closeMiniLb()">
+  <div class="mini-lb-sheet">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div class="mini-lb-title" id="miniLbTitle">—</div>
+      <button onclick="closeMiniLb();switchPanel('Lb',document.querySelector('.nav-item:nth-child(2)'))" style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#4488cc;background:none;border:none;cursor:pointer">Voir complet →</button>
+    </div>
+    <div class="mini-lb-sub" id="miniLbSub">Leaderboard all-time</div>
+    <div id="miniLbList"></div>
+  </div>
+</div>
+
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav" id="bottomNav" style="display:none">
   <div class="bottom-nav-inner">
@@ -582,7 +600,6 @@ let activeLeaderboards=[];
 let lbData={};
 let lbMovement='arr';
 let lbGender='all';
-let lbMode='all'; // 'all' = saison, 'cycle' = ce cycle
 let scoreModalCtx=null;
 let onbGender='H';
 
@@ -748,92 +765,6 @@ function buildRMGrid(){
 // ─── PROGRAMME DATA ───────────────────────────────────────
 // ✅ 6 vidéos intégrées : Leg curl, Leg extension, Tirage épaulé, Tirage arraché, Strict HLR, Echo bike HIIT
 const WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
-  {type:"main",label:"Lundi",sub:"Arraché Debout · Front Squat · Appel",
-    warmup:[
-      {n:"Echo bike",d:"3 min light intensité"},
-      {n:"Echo bike",d:"5×(10'' @ 90% / 50'' off)",video:"https://www.youtube.com/watch?v=9xfUu652CMg"},
-      {n:"GHD sit-ups",d:"2×6–10 reps",video:"https://www.youtube.com/watch?v=1pbZ8mX2D1U"},
-      {n:"Banded wood choppers",d:"2×10 reps par côté",video:"https://www.youtube.com/watch?v=ivziZev2BzA"},
-      {n:"Triple broad jumps",d:"2–3 séries",video:"https://www.youtube.com/watch?v=CuXErkWUo1k"}
-    ],
-    main:[
-      {n:"Arraché debout",d:"2×2/70% · 1×2/80% · 1×1/85% · 4×1/90+%",rm:"arr",isLb:true,note:"Si arraché debout >> RM arraché → faire arraché demi-flexion à la place",video:"https://www.youtube.com/shorts/szLFnjevo4k"},
-      {n:"Tirage haut d'arraché",d:"4×2 / 80–85%",rm:"tla_haut",video:"https://youtu.be/iYBcBMu8zrA"},
-      {n:"Front squat",d:"4×2 / 90%",rm:"fs",isLb:true,video:"https://www.youtube.com/watch?v=g8uV9X_KN_I"},
-      {n:"Appel de jeté",d:"6×4 (même charge que le front squat)",rm:"fs",note:"Sans pause en haut, reps enchaînées",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}
-    ],
-    prepa:[
-      {n:"Squat bulgare",d:"3×6–8 reps par côté — RPE 7–8",note:"1'30\" de récupération",video:"https://youtube.com/shorts/_nXMctwsUAU"},
-      {n:"Leg curl",d:"2×8–10 reps (lourd !)",note:"Si élastique → unilatéral",video:"https://youtu.be/n6qRAUu16vc"}
-    ]
-  },
-  {type:"rest",label:"Mardi",sub:"Repos · Cardio · Mobilité",
-    warmup:[],
-    main:[{n:"Repos",d:"30 min cardio light + rehab + mobilité",note:"Lien : session mobilité complète",video:"https://www.youtube.com/watch?v=Ysk4bkyIl1s"}],
-    prepa:[
-      {n:"Overhead triceps extensions",d:"2×12 proche de l'échec",video:"https://www.youtube.com/shorts/T3e390Dl3XU"},
-      {n:"DB curl biceps",d:"2×12 proche de l'échec",video:"https://www.youtube.com/watch?v=HnHuhf4hEWY"}
-    ],
-    restNote:"Optionnel : renfo plage"
-  },
-  {type:"opt",label:"Mercredi",sub:"Épaulé Debout · Jeté Force (optionnel)",
-    warmup:[
-      {n:"Echo bike",d:"50 cal light intensité"},
-      {n:"Strict HLR",d:"3×10",video:"https://www.youtube.com/shorts/pMaETAZqkGM"},
-      {n:"Plyo push-ups",d:"3×10 reps",video:"https://www.youtube.com/shorts/iO0sT5FDgj4"},
-      {n:"Side bends",d:"2×10 reps par côté",note:"Gros stretch en bas, reps contrôlées",video:"https://www.youtube.com/shorts/TDPOyEW_q3M"}
-    ],
-    main:[
-      {n:"Épaulé debout + jeté force",d:"6×2 / 85–90+%",rm:"jet_force",video:"https://www.youtube.com/watch?v=4ws-kHR5NaU"},
-      {n:"Tirage lourd d'épaulé",d:"4×2 / 100+% (du RM épaulé)",rm:"ej",note:"Sans les sangles",video:"https://youtube.com/shorts/a0t8wcFDeRg?feature=share"}
-    ],
-    prepa:[
-      {n:"Tractions",d:"4×3 lestées si possible · 1×8–10 à vide",note:"2 min de récup",video:"https://www.youtube.com/watch?v=pHtPSleYquw"},
-      {n:"Dips",d:"1×6 RPE 7–8 lestés · 1×8–10 light",note:"2 min de récup",video:"https://www.youtube.com/watch?v=2z8JmcrW-As"},
-      {n:"Élévations latérales",d:"2×10 reps proche de l'échec",note:"2 min de récup",video:"https://www.youtube.com/shorts/xyK8UiC-BUw"}
-    ]
-  },
-  {type:"rest",label:"Jeudi",sub:"Repos · Cardio · Mobilité",
-    warmup:[],
-    main:[{n:"Repos",d:"30 min cardio light + rehab + mobilité",video:"https://www.youtube.com/watch?v=Ysk4bkyIl1s"}],
-    prepa:[]
-  },
-  {type:"main",label:"Vendredi",sub:"Arraché RM · Tirage Lourd",
-    warmup:[
-      {n:"Echo bike",d:"50 cal light intensité"},
-      {n:"GHD sit-ups",d:"3×6–8 reps",video:"https://www.youtube.com/watch?v=1pbZ8mX2D1U"},
-      {n:"Reverse snow angels",d:"2×10 reps tempo lent, grosse amplitude",video:"https://www.youtube.com/watch?v=UO1dBrJXKUM"}
-    ],
-    main:[
-      {n:"Arraché",d:"RM du jour (max 3 échecs)",rm:"arr",isLb:true},
-      {n:"Tirage lourd d'arraché",d:"6×2–3 reps / 100–110%",rm:"arr",video:"https://youtube.com/shorts/Dqr52cwYdfY?feature=share"}
-    ],
-    prepa:[
-      {n:"Adducteurs au rameur ou Copenhagen dips",d:"4×10 par côté",video:"https://www.youtube.com/shorts/3yh6AVeYGqg"},
-      {n:"Leg extension",d:"2×10–15 reps proche de l'échec",video:"https://youtu.be/rCJNVrpvWeI"},
-      {n:"Mollets assis",d:"2×10–15 reps pause 1'' en haut",video:"https://www.youtube.com/shorts/NwA1N_EFTtk"}
-    ]
-  },
-  {type:"main",label:"Samedi",sub:"Épaulé-Jeté RM · Squat",
-    warmup:[
-      {n:"Echo bike",d:"3 min 6/10 intensité"},
-      {n:"Banded T-spine extensions",d:"2×8 reps (pause 2'' en haut)",video:"https://www.youtube.com/shorts/Y55vGz9NpdA"},
-      {n:"DB Pull Over",d:"3×8 reps — grosse amplitude, tempo lent",video:"https://www.youtube.com/shorts/E--MAZcNgRA"},
-      {n:"Swiss ball side plank",d:"2×20–30'' par côté",video:"https://www.youtube.com/shorts/dtpYM3kwqWM"}
-    ],
-    main:[
-      {n:"Épaulé-Jeté",d:"RM du jour (max 2 échecs)",rm:"ej",isLb:true},
-      {n:"Squat nuque (light)",d:"3×3 / 70–75%",rm:"squat",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ"}
-    ],
-    prepa:[
-      {n:"Strict press",d:"3×6 / 70% du RM strict press",video:"https://www.youtube.com/watch?v=_aISMzimYEA"},
-      {n:"Rowing Pendlay",d:"3×5 reps RPE 7–8",video:"https://www.youtube.com/watch?v=EzFkN5ge5_k"},
-      {n:"Reverse hyper",d:"4×20 reps",video:"https://www.youtube.com/shorts/_9ybN0ToY4I"}
-    ]
-  }
-]}
-,
-{id:"w2",label:"S2 · 11/05",title:"Semaine 2",days:[
   {type:"main",label:"Lundi",sub:"Arraché Force · Tirage Haut · Prépa",
     warmup:[],
     main:[
@@ -900,7 +831,7 @@ const WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
     ]
   }
 ]},
-{id:"w3",label:"S3 · 18/05",title:"Semaine 3",days:[
+{id:"w2",label:"S2 · 11/05",title:"Semaine 2",days:[
   {type:"main",label:"Lundi",sub:"CMJ · Arraché · Tirage Lourd",
     warmup:[],
     main:[
@@ -968,6 +899,14 @@ const WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
       {n:"Tirage poulie basse (ou élastique)",d:"3–4×12–15 reps"}
     ]
   }
+]},
+{id:"w3",label:"S3 · 18/05",title:"Semaine 3",days:[
+  {type:"rest",label:"À venir",sub:"Nouveau bloc — bientôt disponible",warmup:[],main:[{n:"À venir",d:"Le programme de la semaine 3 sera disponible prochainement."}],prepa:[]},
+  {type:"rest",label:"—",sub:"",warmup:[],main:[],prepa:[]},
+  {type:"rest",label:"—",sub:"",warmup:[],main:[],prepa:[]},
+  {type:"rest",label:"—",sub:"",warmup:[],main:[],prepa:[]},
+  {type:"rest",label:"—",sub:"",warmup:[],main:[],prepa:[]},
+  {type:"rest",label:"—",sub:"",warmup:[],main:[],prepa:[]}
 ]}
 ];
 
@@ -1177,7 +1116,7 @@ function renderDays(){
             onclick="setRPE('${k}',${v},this)" 
             title="${RPE_LABELS[v-1]}">${RPE_EMOJIS[v-1]}</span>`;
         }).join('');
-        const lbBtn=ex.isLb?`<span class="ex-lb-badge" onclick="openScoreModal('${ex.n}','${ex.rm||'total'}')">🏆 Soumettre score</span>`:'';
+        const lbBtn=ex.isLb?`<span class="ex-lb-badge" onclick="openScoreModal('${ex.n}','${effectiveRm||ex.rm||'total'}')">🏆 Soumettre</span><span class="ex-lb-badge" onclick="openMiniLb('${effectiveRm||ex.rm||'total'}','${ex.n}')" style="color:#7aaee8;background:rgba(119,174,232,0.1);border-color:rgba(119,174,232,0.25)">📊 Classement</span>`:'';
         const _videoUrl=getVideoUrl(ex);
         const videoBtn=_videoUrl
           ?`<a class="ex-lb-badge" href="${_videoUrl}" target="_blank" style="color:#7aaee8;background:rgba(119,174,232,0.1);border-color:rgba(119,174,232,0.25)">▶ Vidéo</a>`
@@ -1367,7 +1306,8 @@ async function submitScore(){
       } else if(w>existing[0].weight){
         await db(`rm_records?id=eq.${existing[0].id}`,'PATCH',{weight:w});
       }
-      loadLeaderboards();
+      await loadLeaderboards();
+      openMiniLb(_ctx?.rmKey||'arr', _ctx?.exName||'');
     } catch(e){console.warn('Score save failed',e);}
   }
 }
@@ -1375,57 +1315,25 @@ async function submitScore(){
 async function loadLeaderboards(){
   try{
     lbData={};
-    if(lbMode==='all'){
-      // All-time records
-      const records=await db('rm_records?select=weight,movement,athletes(pseudo,gender,bodyweight,country,club,level)');
-      (records||[]).forEach(r=>{
-        if(!r.athletes) return;
-        if(!lbData[r.movement]) lbData[r.movement]=[];
-        lbData[r.movement].push({
-          name:r.athletes.pseudo,gender:r.athletes.gender,
-          bw:r.athletes.bodyweight,country:r.athletes.country||'🇫🇷',
-          club:r.athletes.club||'',level:r.athletes.level||null,
-          weight:r.weight,isMe:athlete&&r.athletes.pseudo===athlete.pseudo
-        });
+    const records=await db('rm_records?select=weight,movement,athletes(pseudo,gender,bodyweight,country,club,level)');
+    (records||[]).forEach(r=>{
+      if(!r.athletes) return;
+      if(!lbData[r.movement]) lbData[r.movement]=[];
+      lbData[r.movement].push({
+        name:r.athletes.pseudo,gender:r.athletes.gender,
+        bw:r.athletes.bodyweight,country:r.athletes.country||'🇫🇷',
+        club:r.athletes.club||'',level:r.athletes.level||null,
+        weight:r.weight,isMe:athlete&&r.athletes.pseudo===athlete.pseudo
       });
-      const arrData=lbData['arr']||[];
-      const ejData=lbData['ej']||[];
-      lbData['total']=arrData.map(a=>{
-        const ej=ejData.find(e=>e.name===a.name);
-        if(!ej) return null;
-        return Object.assign({},a,{weight:a.weight+ej.weight});
-      }).filter(Boolean);
-      document.getElementById('lbAthleteCount').textContent=new Set((records||[]).filter(r=>r.athletes).map(r=>r.athletes.pseudo)).size;
-    } else {
-      // Cycle scores - best per athlete per movement
-      const scores=await db(`cycle_scores?cycle=eq.${CYCLE}&select=weight,movement,athletes(pseudo,gender,bodyweight,country,club,level)&order=weight.desc`)||[];
-      const best={};
-      scores.forEach(r=>{
-        if(!r.athletes) return;
-        const key=`${r.athletes.pseudo}_${r.movement}`;
-        if(!best[key]){
-          best[key]={
-            name:r.athletes.pseudo,gender:r.athletes.gender,
-            bw:r.athletes.bodyweight,country:r.athletes.country||'🇫🇷',
-            club:r.athletes.club||'',level:r.athletes.level||null,
-            weight:r.weight,isMe:athlete&&r.athletes.pseudo===athlete.pseudo,
-            movement:r.movement
-          };
-        }
-      });
-      Object.values(best).forEach(e=>{
-        if(!lbData[e.movement]) lbData[e.movement]=[];
-        lbData[e.movement].push(e);
-      });
-      const arrData=lbData['arr']||[];
-      const ejData=lbData['ej']||[];
-      lbData['total']=arrData.map(a=>{
-        const ej=ejData.find(e=>e.name===a.name);
-        if(!ej) return null;
-        return Object.assign({},a,{weight:a.weight+ej.weight});
-      }).filter(Boolean);
-      document.getElementById('lbAthleteCount').textContent=new Set(Object.values(best).map(e=>e.name)).size;
-    }
+    });
+    const arrData=lbData['arr']||[];
+    const ejData=lbData['ej']||[];
+    lbData['total']=arrData.map(a=>{
+      const ej=ejData.find(e=>e.name===a.name);
+      if(!ej) return null;
+      return Object.assign({},a,{weight:a.weight+ej.weight});
+    }).filter(Boolean);
+    document.getElementById('lbAthleteCount').textContent=new Set((records||[]).filter(r=>r.athletes).map(r=>r.athletes.pseudo)).size;
     renderLb();
   } catch(e){console.warn('LB load failed',e);}
 }
@@ -1440,13 +1348,6 @@ function buildLbMovementFilter(){
     btn.onclick=()=>{lbMovement=m.key;buildLbMovementFilter();renderLb()};
     f.appendChild(btn);
   });
-}
-
-function setLbMode(mode, btn){
-  lbMode = mode;
-  document.getElementById('lbModeAll').classList.toggle('active', mode==='all');
-  document.getElementById('lbModeCycle').classList.toggle('active', mode==='cycle');
-  loadLeaderboards();
 }
 
 function setLbGender(g,btn){
@@ -1743,6 +1644,53 @@ async function editMyPseudo(){
     renderProfile();
     toast('✅ Nom mis à jour !');
   } catch(e){ toast('Erreur : ' + e.message); }
+}
+
+// ─── MINI LEADERBOARD ────────────────────────────────────
+function openMiniLb(rmKey, exName){
+  if(!lbData || !Object.keys(lbData).length){
+    loadLeaderboards().then(()=>_showMiniLb(rmKey, exName));
+  } else {
+    _showMiniLb(rmKey, exName);
+  }
+}
+
+function _showMiniLb(rmKey, exName){
+  const mov = LB_ALLTIME.find(m=>m.key===rmKey) || {label:exName,icon:'🏆'};
+  document.getElementById('miniLbTitle').textContent = mov.icon+' '+exName;
+  
+  let pool = (lbData[rmKey]||[]).filter(a=>a.gender===(athlete?.gender||'H'));
+  pool = pool.map(a=>({...a, displayScore:calcSinclair(a.weight,a.bw,a.gender)}))
+             .sort((a,b)=>b.displayScore-a.displayScore)
+             .slice(0,10);
+
+  const list = document.getElementById('miniLbList');
+  if(!pool.length){
+    list.innerHTML='<div style="text-align:center;padding:1.5rem;font-size:13px;color:var(--text3)">Pas encore de score — sois le premier ! 🏆</div>';
+  } else {
+    list.innerHTML = pool.map((a,i)=>{
+      const r=i+1;
+      const medal=r===1?'🥇':r===2?'🥈':r===3?'🥉':r+'.';
+      const rc=r===1?'var(--gold)':r===2?'var(--silver)':r===3?'var(--bronze)':'var(--text2)';
+      return `<div class="mini-lb-row${a.isMe?' is-me':''}">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;width:28px;color:${rc}">${medal}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;color:${a.isMe?'#7aaee8':'#fff'}">${a.country} ${a.name}</div>
+          <div style="font-size:10px;color:var(--text3)">${a.bw}kg${a.club?' · '+a.club:''}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:${a.isMe?'var(--yellow)':rc}">${a.weight}kg</div>
+          <div style="font-size:9px;color:var(--text3)">Sinc. ${a.displayScore.toFixed(1)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  
+  document.getElementById('miniLbModal').classList.add('show');
+}
+
+function closeMiniLb(){
+  document.getElementById('miniLbModal').classList.remove('show');
 }
 
 // TOAST

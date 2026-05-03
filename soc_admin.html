@@ -284,17 +284,9 @@ tr:hover td{background:var(--surface2)}
       <div class="page-title">Vidéos exercices</div>
       <div class="page-sub">Gérer les liens vidéo sans toucher au code</div>
       <!-- ALERTE vidéos à vérifier -->
-      <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px 14px;margin-bottom:1rem">
-        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--yellow);margin-bottom:8px">⚠ Vidéos à vérifier manuellement</div>
-        <div style="font-size:12px;color:var(--text2);line-height:1.8">
-          Ces vidéos ont été associées par approximation — vérifie qu'elles correspondent bien :<br>
-          <span style="color:var(--yellow)">•</span> <strong>Leg raises</strong> → vidéo GHD sit-ups utilisée<br>
-          <span style="color:var(--yellow)">•</span> <strong>Tractions (ou tirage poulie haute)</strong> → vidéo tirage prise mixte<br>
-          <span style="color:var(--yellow)">•</span> <strong>Pompes</strong> → vidéo push up générique<br>
-          <span style="color:var(--yellow)">•</span> <strong>Adducteurs au rameur ou à la machine</strong> → vidéo adducteurs rameur<br>
-          <span style="color:var(--yellow)">•</span> <strong>Tirage poulie basse (ou élastique)</strong> → vidéo tirage poulie basse<br>
-          <span style="font-size:11px;color:var(--text3)">Pour corriger : utilise le bouton "+ Ajouter" ci-dessous avec la clé exacte de l'exo.</span>
-        </div>
+      <div id="videoAlertBox" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px 14px;margin-bottom:1rem">
+        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--yellow);margin-bottom:10px">⚠ Vidéos à vérifier</div>
+        <div id="videoAlertList" style="display:flex;flex-direction:column;gap:10px"></div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:1rem">
         <input id="videoSearch" class="table-search" placeholder="Rechercher un exercice..." oninput="filterVideos(this.value)" style="width:100%;max-width:400px">
@@ -888,11 +880,67 @@ async function toggleLb(btn, dayNum, movement, label, rm){
 let allVideos = [];
 let editingVideoId = null;
 
+// Vidéos à vérifier manuellement (clé exercice → description du doute)
+const VIDEOS_TO_CHECK = [
+  {key:'leg_raises',          label:'Leg raises',                          note:'Pas de vidéo — à ajouter'},
+  {key:'tractions_ou_tirage_poulie_haute', label:'Tractions (ou tirage poulie haute)', note:'Pas de vidéo — à ajouter'},
+  {key:'pompes',              label:'Pompes',                              note:'Pas de vidéo — à ajouter'},
+  {key:'adducteurs_au_rameur_ou_a_la_machine', label:'Adducteurs au rameur ou à la machine', note:'Pas de vidéo — à ajouter'},
+  {key:'tirage_poulie_basse_ou_elastique', label:'Tirage poulie basse (ou élastique)', note:'Pas de vidéo — à ajouter'},
+  {key:'trapbar_deadlift',    label:'Trapbar deadlift',                    note:'Pas de vidéo — à ajouter'},
+  {key:'gainage_copenhague',  label:'Gainage Copenhague',                  note:'Pas de vidéo — à ajouter'},
+  {key:'face_pulls',          label:'Face pulls',                          note:'Pas de vidéo — à ajouter'},
+  {key:'landmine_barbell_rotations', label:'Landmine barbell rotations',   note:'Pas de vidéo — à ajouter'},
+];
+
 async function loadVideos(){
   try{
     allVideos = await db('exercise_videos?select=*&order=exercise_key.asc') || [];
     renderVideos(allVideos);
+    renderVideoAlerts();
   } catch(e){ console.warn(e); }
+}
+
+function renderVideoAlerts(){
+  const box = document.getElementById('videoAlertBox');
+  const list = document.getElementById('videoAlertList');
+  if(!box || !list) return;
+  // Filter out already corrected (exist in allVideos)
+  const correctedKeys = allVideos.map(v=>v.exercise_key);
+  const remaining = VIDEOS_TO_CHECK.filter(v=>!correctedKeys.includes(v.key));
+  if(!remaining.length){ box.style.display='none'; return; }
+  box.style.display='block';
+  list.innerHTML = remaining.map(v=>`
+    <div style="background:var(--surface2);border-radius:8px;padding:10px 12px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">${v.label}</div>
+          <div style="font-size:11px;color:var(--yellow);margin-top:2px">⚠ ${v.note}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <input id="fix_${v.key}" type="text" placeholder="Colle le lien YouTube correct ici..." 
+          style="flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;color:var(--text);font-size:13px;outline:none">
+        <button class="action-btn primary" onclick="fixVideoAlert('${v.key}','${v.label}')" style="padding:7px 14px;white-space:nowrap">✓ Corriger</button>
+      </div>
+    </div>`).join('');
+}
+
+async function fixVideoAlert(key, label){
+  const url = document.getElementById('fix_'+key)?.value.trim();
+  if(!url){ toast('Colle un lien YouTube'); return; }
+  try{
+    await db('exercise_videos','POST',{exercise_key:key, video_url:url});
+    toast('✅ Vidéo corrigée !');
+    loadVideos();
+  } catch(e){
+    // Try update if already exists
+    try{
+      await db(`exercise_videos?exercise_key=eq.${key}`,'PATCH',{video_url:url});
+      toast('✅ Vidéo mise à jour !');
+      loadVideos();
+    } catch(e2){ toast('Erreur : '+e2.message); }
+  }
 }
 
 function renderVideos(list){

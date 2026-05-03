@@ -288,10 +288,12 @@ tr:hover td{background:var(--surface2)}
         <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--yellow);margin-bottom:10px">⚠ Vidéos à vérifier</div>
         <div id="videoAlertList" style="display:flex;flex-direction:column;gap:10px"></div>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:1rem">
-        <input id="videoSearch" class="table-search" placeholder="Rechercher un exercice..." oninput="filterVideos(this.value)" style="width:100%;max-width:400px">
+      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
+        <input id="videoSearch" class="table-search" placeholder="Rechercher un exercice..." oninput="filterVideos(this.value)" style="flex:1;min-width:200px;max-width:400px">
+        <button class="action-btn" onclick="loadVideos()" style="padding:8px 14px;font-size:13px">↺ Rafraîchir</button>
         <button class="action-btn primary" onclick="showAddVideoModal()" style="padding:8px 16px;font-size:13px;white-space:nowrap">+ Ajouter</button>
       </div>
+      <div id="videoCount" style="font-size:12px;color:var(--text3);margin-bottom:8px"></div>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Exercice</th><th>URL Vidéo</th><th>Actions</th></tr></thead>
@@ -951,7 +953,6 @@ const VIDEOS_TO_CHECK = [
   {key:'epaule_debout',                          label:'Épaulé debout',                          note:'Pas de vidéo'},
   {key:'squat_nuque',                            label:'Back squat',                            note:'Pas de vidéo'},
   {key:'front_squat',                            label:'Front squat',                            note:'Pas de vidéo'},
-  {key:'tirage_lourd_d_arrache',                 label:"Tirage lourd d'arraché",                note:'Pas de vidéo'},
   {key:'jete_des_plots',                         label:'Jeté des plots',                         note:'Pas de vidéo'},
   {key:'trapbar_deadlift',                       label:'Trapbar deadlift',                       note:'Pas de vidéo'},
   {key:'leg_raises',                             label:'Leg raises',                             note:'Pas de vidéo'},
@@ -976,9 +977,16 @@ function renderVideoAlerts(){
   const box = document.getElementById('videoAlertBox');
   const list = document.getElementById('videoAlertList');
   if(!box || !list) return;
-  // Filter out already corrected (exist in allVideos)
-  const correctedKeys = allVideos.map(v=>v.exercise_key);
-  const remaining = VIDEOS_TO_CHECK.filter(v=>!correctedKeys.includes(v.key));
+  // Filter out already corrected — check exact key OR partial match on exercise name
+  const correctedKeys = allVideos.map(v=>v.exercise_key.toLowerCase());
+  const remaining = VIDEOS_TO_CHECK.filter(v=>{
+    // Exact match
+    if(correctedKeys.includes(v.key)) return false;
+    // Partial match — if any stored key contains the first meaningful word
+    const firstWord = v.key.split('_')[0];
+    if(correctedKeys.some(k=>k.includes(v.key) || v.key.includes(k))) return false;
+    return true;
+  });
   if(!remaining.length){ box.style.display='none'; return; }
   box.style.display='block';
   list.innerHTML = remaining.map(v=>`
@@ -1017,6 +1025,8 @@ async function fixVideoAlert(key, label){
 function renderVideos(list){
   const tbody = document.getElementById('videosTable');
   if(!tbody) return;
+  const countEl = document.getElementById('videoCount');
+  if(countEl) countEl.textContent = `${list.length} vidéo(s) enregistrée(s) dans Supabase`;
   tbody.innerHTML = list.map(v => `<tr>
     <td style="font-weight:600">${v.exercise_key}</td>
     <td><a href="${v.video_url}" target="_blank" style="color:#7aaee8;font-size:12px;word-break:break-all">${v.video_url}</a></td>

@@ -788,8 +788,8 @@ async function loadWeekUnlocks(){
     const unlocks = await db('week_unlocks?cycle=eq.'+CYCLE+'&select=*') || [];
     const grid = document.getElementById('weekUnlockGrid');
     if(!grid) return;
-    const WEEK_LABELS = ['S1 · 04/05','S2 · 11/05','S3 · 18/05','S4 · 25/05'];
-    const WEEK_DATES = ['2026-05-03','2026-05-10','2026-05-17','2026-05-24']; // samedi unlock
+    const WEEK_LABELS = ['S1 · 04/05','S2 · 11/05','S3 · 18/05'];
+    const WEEK_DATES = ['2026-05-03','2026-05-10','2026-05-17']; // samedi unlock
     grid.innerHTML = WEEK_LABELS.map((label,i) => {
       const forced = unlocks.find(u=>u.week_num===i+1);
       const autoUnlock = new Date() >= new Date(WEEK_DATES[i]);

@@ -664,6 +664,44 @@ async function loadActiveRMDefs(){
   buildRMGrid();
 }
 
+// ─── SESSION LOG SYNC ─────────────────────────────────────
+async function syncSessionLog(type, data){
+  if(!athlete) return;
+  try{
+    const key = `${type}_w${currentWeek+1}`;
+    const value = JSON.stringify(data);
+    const existing = await db(`session_logs?athlete_id=eq.${athlete.id}&cycle=eq.${CYCLE}&week_num=eq.${currentWeek+1}&key=eq.${key}&select=id`);
+    if(existing && existing.length){
+      await db(`session_logs?id=eq.${existing[0].id}`,'PATCH',{value, updated_at:new Date().toISOString()});
+    } else {
+      await db('session_logs','POST',{athlete_id:athlete.id,cycle:CYCLE,week_num:currentWeek+1,key,value});
+    }
+  } catch(e){ console.warn('Session sync failed',e); }
+}
+
+async function loadSessionLogs(){
+  if(!athlete) return;
+  try{
+    const logs = await db(`session_logs?athlete_id=eq.${athlete.id}&cycle=eq.${CYCLE}&select=key,value`) || [];
+    logs.forEach(log=>{
+      try{
+        const data = JSON.parse(log.value);
+        if(log.key.startsWith('chk_w')){
+          Object.assign(checked, data);
+        } else if(log.key.startsWith('actual_w')){
+          Object.assign(actualWeights, data);
+        } else if(log.key.startsWith('rpe_w')){
+          Object.assign(rpeScores, data);
+        }
+      } catch(e){}
+    });
+    // Save to localStorage too
+    localStorage.setItem('soc_chk', JSON.stringify(checked));
+    localStorage.setItem('soc_actual', JSON.stringify(actualWeights));
+    localStorage.setItem('soc_rpe', JSON.stringify(rpeScores));
+  } catch(e){ console.warn('Session load failed',e); }
+}
+
 async function loadRMsFromSupabase(){
   if(!athlete) return;
   try{
@@ -679,8 +717,14 @@ async function loadRMsFromSupabase(){
     renderDays();
   } catch(e){ console.warn('RM load failed',e); }
 }
-function saveChecked(){localStorage.setItem('soc_chk',JSON.stringify(checked))}
-function saveRPE(){localStorage.setItem('soc_rpe',JSON.stringify(rpeScores))}
+function saveChecked(){
+  localStorage.setItem('soc_chk',JSON.stringify(checked));
+  if(athlete) syncSessionLog('chk', checked);
+}
+function saveRPE(){
+  localStorage.setItem('soc_rpe',JSON.stringify(rpeScores));
+  if(athlete) syncSessionLog('rpe', rpeScores);
+}
 function saveAthlete(){localStorage.setItem('soc_athlete',JSON.stringify(athlete))}
 
 // ─── AUTH / ONBOARDING ────────────────────────────────────
@@ -780,6 +824,7 @@ function showApp(){
   renderProfile();
   initCarousel();
   loadActiveRMDefs().then(()=>loadRMsFromSupabase());
+  loadSessionLogs().then(()=>{ renderDays(); updateTonnage(); });
 }
 
 // ─── RM GRID ─────────────────────────────────────────────
@@ -1019,6 +1064,7 @@ function saveActual(key,dIdx,val,rmKey,isLb){
   const w=parseFloat(val);
   actualWeights[key]=w;
   localStorage.setItem('soc_actual',JSON.stringify(actualWeights));
+  if(athlete) syncSessionLog('actual', actualWeights);
   if(rmKey&&w>(parseFloat(rms[rmKey])||0)){
     rms[rmKey]=w;
     saveRMs();

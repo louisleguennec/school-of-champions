@@ -356,21 +356,7 @@ tr:hover td{background:var(--surface2)}
     <div class="page" id="pageProgramme">
       <div class="page-title">Éditeur de programme</div>
       <div class="page-sub">Modifier les %, charges et RM de référence par exo · Les changements s'appliquent immédiatement</div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1rem">
-        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:8px">📋 Import Google Sheets</div>
-        <div style="font-size:12px;color:var(--text3);margin-bottom:8px">Colle ici le contenu copié depuis Sheets (colonnes : Nom | Séries/% | RM)</div>
-        <textarea id="sheetsImport" placeholder="Arraché debout&#10;2×2/70% · 1×2/80%&#10;arr&#10;---&#10;Front squat&#10;4×2 / 90%&#10;fs" style="width:100%;height:120px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px;color:var(--text);font-size:13px;font-family:monospace;outline:none;resize:vertical"></textarea>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <select id="sheetsDay" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
-            <option value="0">Lundi</option>
-            <option value="2">Mercredi</option>
-            <option value="4">Vendredi</option>
-            <option value="5">Samedi</option>
-          </select>
-          <button class="action-btn primary" onclick="importFromSheets()" style="padding:8px 16px">⬆ Importer</button>
-        </div>
-        <div id="sheetsImportResult" style="font-size:12px;margin-top:8px;color:var(--green);display:none"></div>
-      </div>
+
       <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
         <select id="progDaySel" onchange="loadProgEditor()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
           <option value="0">Lundi</option>
@@ -802,8 +788,8 @@ async function loadWeekUnlocks(){
     const unlocks = await db('week_unlocks?cycle=eq.'+CYCLE+'&select=*') || [];
     const grid = document.getElementById('weekUnlockGrid');
     if(!grid) return;
-    const WEEK_LABELS = ['S1 · 18/05','S2 · 25/05','S3 · 01/06','S4 · 08/06'];
-    const WEEK_DATES = ['2026-05-16','2026-05-23','2026-05-30','2026-06-06']; // samedi unlock
+    const WEEK_LABELS = ['S1 · 04/05','S2 · 11/05','S3 · 18/05','S4 · 25/05'];
+    const WEEK_DATES = ['2026-05-03','2026-05-10','2026-05-17','2026-05-24']; // samedi unlock
     grid.innerHTML = WEEK_LABELS.map((label,i) => {
       const forced = unlocks.find(u=>u.week_num===i+1);
       const autoUnlock = new Date() >= new Date(WEEK_DATES[i]);
@@ -1169,41 +1155,6 @@ async function loadProgEditor(){
       </div>
     </div>`;
   }).join('');
-}
-
-async function importFromSheets(){
-  const text = document.getElementById('sheetsImport').value.trim();
-  const dayIdx = parseInt(document.getElementById('sheetsDay').value);
-  const result = document.getElementById('sheetsImportResult');
-  if(!text){ toast('Colle du contenu à importer'); return; }
-
-  // Parse format: each exo = 3 lines: name | detail | rm_key, separated by ---
-  const blocks = text.split('---').map(b=>b.trim()).filter(Boolean);
-  let saved = 0, errors = 0;
-
-  for(let exIdx=0; exIdx<blocks.length; exIdx++){
-    const lines = blocks[exIdx].split('\n').map(l=>l.trim()).filter(Boolean);
-    if(lines.length < 2){ errors++; continue; }
-    const [exName, detail, rmKey] = lines;
-    if(!exName || !detail){ errors++; continue; }
-    const rm = rmKey || 'arr';
-    try{
-      const existing = await db(`programme_overrides?cycle=eq.${CYCLE}&day_idx=eq.${dayIdx}&ex_idx=eq.${exIdx}&select=id`);
-      if(existing && existing.length){
-        await db(`programme_overrides?id=eq.${existing[0].id}`,'PATCH',{detail,rm_key:rm,ex_name:exName,updated_at:new Date().toISOString()});
-      } else {
-        await db('programme_overrides','POST',{cycle:CYCLE,day_idx:dayIdx,ex_idx:exIdx,ex_name:exName,detail,rm_key:rm});
-      }
-      saved++;
-    } catch(e){ errors++; }
-  }
-
-  result.style.display='block';
-  result.style.color = errors ? 'var(--yellow)' : 'var(--green)';
-  result.textContent = `✅ ${saved} exo(s) importé(s)${errors?` · ⚠ ${errors} erreur(s)`:''}`;
-  toast(`Import terminé : ${saved} exos`);
-  document.getElementById('sheetsImport').value='';
-  loadProgEditor();
 }
 
 async function saveProgOverride(dayIdx, exIdx, btn){

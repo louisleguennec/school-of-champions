@@ -468,7 +468,8 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
       <div class="profile-avatar m" id="profileAvatar" style="background:rgba(28,46,74,0.8);color:#7aaee8"></div>
       <div class="profile-name" id="profileName" style="cursor:pointer" onclick="editMyPseudo()" title="Modifier mon nom">—</div>
       <div style="font-size:10px;color:var(--text3);margin-top:2px;cursor:pointer" onclick="editMyPseudo()">✏️ Modifier mon nom</div>
-      <div class="profile-meta" id="profileMeta">—</div>
+      <div class="profile-meta" id="profileMeta" style="cursor:pointer" onclick="editMyBodyweight()" title="Modifier mon poids de corps">—</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px;cursor:pointer" onclick="editMyBodyweight()">✏️ Modifier mon poids</div>
     </div>
     <div style="margin:0 1rem">
       <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">Mes records all-time</div>
@@ -623,7 +624,61 @@ function loadLocal(){
   try{actualWeights=JSON.parse(localStorage.getItem('soc_actual')||'{}')}catch(e){}
   try{athlete=JSON.parse(localStorage.getItem('soc_athlete')||'null')}catch(e){}
 }
-function saveRMs(){localStorage.setItem('soc_rms',JSON.stringify(rms))}
+function saveRMs(){
+  localStorage.setItem('soc_rms',JSON.stringify(rms));
+  if(athlete) syncRMsToSupabase();
+}
+
+async function syncRMsToSupabase(){
+  try{
+    for(const [movement, weight] of Object.entries(rms)){
+      if(!weight) continue;
+      const existing = await db(`rm_records?athlete_id=eq.${athlete.id}&movement=eq.${movement}&select=id,weight`);
+      if(existing && existing.length){
+        if(parseFloat(weight) > existing[0].weight){
+          await db(`rm_records?id=eq.${existing[0].id}`,'PATCH',{weight:parseFloat(weight)});
+        }
+      } else {
+        await db('rm_records','POST',{athlete_id:athlete.id,movement,weight:parseFloat(weight),cycle:CYCLE});
+      }
+    }
+  } catch(e){ console.warn('RM sync failed',e); }
+}
+
+async function loadActiveRMDefs(){
+  try{
+    const active = await db('active_rm_keys?select=key') || [];
+    const activeKeys = active.map(a=>a.key);
+    // Merge: fixed + active optional
+    RM_DEFS = [
+      ...RM_FIXED,
+      ...RM_OPTIONAL.filter(r=>activeKeys.includes(r.key))
+    ];
+    // Move total to end
+    const totalIdx = RM_DEFS.findIndex(r=>r.key==='total');
+    if(totalIdx>-1){ const t=RM_DEFS.splice(totalIdx,1)[0]; RM_DEFS.push(t); }
+  } catch(e){
+    // Fallback: show all
+    RM_DEFS = [...RM_FIXED, ...RM_OPTIONAL];
+  }
+  buildRMGrid();
+}
+
+async function loadRMsFromSupabase(){
+  if(!athlete) return;
+  try{
+    const records = await db(`rm_records?athlete_id=eq.${athlete.id}&select=movement,weight`) || [];
+    records.forEach(r=>{
+      // Only update if Supabase value is higher (best perf wins)
+      if(!rms[r.movement] || parseFloat(r.weight) > parseFloat(rms[r.movement])){
+        rms[r.movement] = r.weight;
+      }
+    });
+    localStorage.setItem('soc_rms', JSON.stringify(rms));
+    buildRMGrid();
+    renderDays();
+  } catch(e){ console.warn('RM load failed',e); }
+}
 function saveChecked(){localStorage.setItem('soc_chk',JSON.stringify(checked))}
 function saveRPE(){localStorage.setItem('soc_rpe',JSON.stringify(rpeScores))}
 function saveAthlete(){localStorage.setItem('soc_athlete',JSON.stringify(athlete))}
@@ -724,10 +779,29 @@ function showApp(){
   loadFatigue();
   renderProfile();
   initCarousel();
+  loadActiveRMDefs().then(()=>loadRMsFromSupabase());
 }
 
 // ─── RM GRID ─────────────────────────────────────────────
-const RM_DEFS=[
+// Fixed RMs — always shown
+const RM_FIXED=[
+  {key:'arr',label:'Arraché'},
+  {key:'ej',label:'Épaulé-Jeté'},
+  {key:'squat',label:'Back squat'},
+  {key:'fs',label:'Front Squat'},
+  {key:'total',label:'Total officiel',note:'Max arraché + max épaulé-jeté de compétition'},
+];
+// Optional RMs — shown if active in Supabase
+const RM_OPTIONAL=[
+  {key:'arr_force',label:'Arr. Force'},
+  {key:'arr_debout',label:'Arraché debout'},
+  {key:'jet',label:'Jeté'},
+  {key:'jet_force',label:'Jeté Force'},
+  {key:'ep_debout',label:'Épa. Debout'},
+  {key:'ep',label:'Épaulé'},
+  {key:'deadlift',label:'Deadlift'},
+];
+let RM_DEFS=[
   {key:'arr',label:'Arraché'},
   {key:'arr_force',label:'Arr. Force'},
   {key:'ej',label:'Épaulé-Jeté'},
@@ -735,8 +809,6 @@ const RM_DEFS=[
   {key:'jet_force',label:'Jeté Force'},
   {key:'squat',label:'Back squat'},
   {key:'fs',label:'Front Squat'},
-  {key:'tla',label:'TL Arraché'},
-  {key:'tla_haut',label:'TH Arraché'},
   {key:'ep_debout',label:'Épa. Debout'},
   {key:'deadlift',label:'Deadlift'},
   {key:'total',label:'Total officiel',note:'Max arraché + max épaulé-jeté réalisés le même jour'},
@@ -1667,6 +1739,21 @@ async function editMyPseudo(){
   } catch(e){ toast('Erreur : ' + e.message); }
 }
 
+async function editMyBodyweight(){
+  if(!athlete) return;
+  const newBw = prompt('Ton poids de corps (kg) :', athlete.bodyweight);
+  if(!newBw || newBw.trim() === String(athlete.bodyweight)) return;
+  const bw = parseFloat(newBw);
+  if(isNaN(bw) || bw < 30 || bw > 200){ toast('Poids invalide'); return; }
+  try{
+    await db(`athletes?id=eq.${athlete.id}`, 'PATCH', {bodyweight: bw});
+    athlete.bodyweight = bw;
+    saveAthlete();
+    renderProfile();
+    toast('✅ Poids mis à jour !');
+  } catch(e){ toast('Erreur : ' + e.message); }
+}
+
 // ─── VIDEO MODAL ─────────────────────────────────────────
 function openVideo(url, title){
   if(!url) return;
@@ -1695,26 +1782,28 @@ function closeVideoModal(){
 
 // ─── MINI LEADERBOARD ────────────────────────────────────
 async function openMiniLb(rmKey, exName){
-  // Load scores specific to this exercise from cycle_scores
   try{
+    // 1. Try cycle scores for this specific exercise
     const scores = await db(`cycle_scores?movement=eq.${rmKey}&select=weight,exercise_name,athletes(pseudo,gender,bodyweight,country,club,level)&order=weight.desc`) || [];
-    // Filter by exact exercise name if available
     const filtered = scores.filter(s => !s.exercise_name || s.exercise_name === exName || s.exercise_name === '');
-    _showMiniLb(rmKey, exName, filtered);
-  } catch(e){
-    // Fallback to lbData
-    if(!lbData || !Object.keys(lbData).length){
-      loadLeaderboards().then(()=>_showMiniLb(rmKey, exName, null));
+    
+    if(filtered.length > 0){
+      _showMiniLb(rmKey, exName, filtered, false);
     } else {
-      _showMiniLb(rmKey, exName, null);
+      // 2. Fallback: show all-time best from rm_records
+      if(!lbData || !Object.keys(lbData).length) await loadLeaderboards();
+      _showMiniLb(rmKey, exName, null, true);
     }
+  } catch(e){
+    if(!lbData || !Object.keys(lbData).length) await loadLeaderboards();
+    _showMiniLb(rmKey, exName, null, true);
   }
 }
 
-function _showMiniLb(rmKey, exName, exScores){
+function _showMiniLb(rmKey, exName, exScores, isAllTime){
   const mov = LB_ALLTIME.find(m=>m.key===rmKey) || {label:exName,icon:'🏆'};
   document.getElementById('miniLbTitle').textContent = mov.icon+' '+exName;
-  document.getElementById('miniLbSub').textContent = exScores ? 'Perfs soumises sur cet exercice' : 'Leaderboard all-time';
+  document.getElementById('miniLbSub').textContent = isAllTime ? 'Meilleures perfs all-time' : 'Perfs soumises sur cet exercice';
 
   let pool;
   if(exScores){
@@ -1858,11 +1947,13 @@ setTimeout(()=>{
 </script>
 <script>
 if('serviceWorker' in navigator){
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(r => console.log('SW registered'))
-      .catch(e => console.warn('SW failed', e));
-  });
+  // Skip on Safari iOS (app-bound domain restriction)
+  const isSafariIOS = /iP(hone|ad|od)/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent) && !/CriOS/.test(navigator.userAgent);
+  if(!isSafariIOS){
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(()=>{});
+    });
+  }
 }
 </script>
 </body>

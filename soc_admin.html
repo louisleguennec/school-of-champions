@@ -283,6 +283,19 @@ tr:hover td{background:var(--surface2)}
     <div class="page" id="pageVideos">
       <div class="page-title">Vidéos exercices</div>
       <div class="page-sub">Gérer les liens vidéo sans toucher au code</div>
+      <!-- ALERTE vidéos à vérifier -->
+      <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px 14px;margin-bottom:1rem">
+        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--yellow);margin-bottom:8px">⚠ Vidéos à vérifier manuellement</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.8">
+          Ces vidéos ont été associées par approximation — vérifie qu'elles correspondent bien :<br>
+          <span style="color:var(--yellow)">•</span> <strong>Leg raises</strong> → vidéo GHD sit-ups utilisée<br>
+          <span style="color:var(--yellow)">•</span> <strong>Tractions (ou tirage poulie haute)</strong> → vidéo tirage prise mixte<br>
+          <span style="color:var(--yellow)">•</span> <strong>Pompes</strong> → vidéo push up générique<br>
+          <span style="color:var(--yellow)">•</span> <strong>Adducteurs au rameur ou à la machine</strong> → vidéo adducteurs rameur<br>
+          <span style="color:var(--yellow)">•</span> <strong>Tirage poulie basse (ou élastique)</strong> → vidéo tirage poulie basse<br>
+          <span style="font-size:11px;color:var(--text3)">Pour corriger : utilise le bouton "+ Ajouter" ci-dessous avec la clé exacte de l'exo.</span>
+        </div>
+      </div>
       <div style="display:flex;gap:8px;margin-bottom:1rem">
         <input id="videoSearch" class="table-search" placeholder="Rechercher un exercice..." oninput="filterVideos(this.value)" style="width:100%;max-width:400px">
         <button class="action-btn primary" onclick="showAddVideoModal()" style="padding:8px 16px;font-size:13px;white-space:nowrap">+ Ajouter</button>

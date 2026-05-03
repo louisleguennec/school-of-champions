@@ -378,6 +378,11 @@ tr:hover td{background:var(--surface2)}
       <div class="page-title">Configuration</div>
       <div class="page-sub">Gérer les leaderboards actifs par semaine et par jour</div>
       <div style="margin-bottom:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem">
+        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">💪 RM supplémentaires visibles</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:12px">Arraché · Épaulé-Jeté · Back squat · Front squat · Total sont toujours affichés</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="rmKeysGrid"></div>
+      </div>
+      <div style="margin-bottom:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem">
         <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:12px">🔓 Déblocage des semaines</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="weekUnlockGrid"></div>
       </div>
@@ -486,7 +491,7 @@ function showPage(name,btn){
   if(name==='programme') loadProgEditor();
   if(name==='fatigue') loadFatigueAdmin();
   if(name==='leaderboard') loadLbAdmin();
-  if(name==='config'){ loadConfig(); loadWeekUnlocks(); }
+  if(name==='config'){ loadConfig(); loadWeekUnlocks(); loadRMKeys(); }
 }
 
 // DASHBOARD
@@ -851,6 +856,46 @@ function setConfigWeek(week, btn){
   document.querySelectorAll('[id^="cfgWeek"]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   loadConfig();
+}
+
+const RM_OPTIONAL_ADMIN = [
+  {key:'arr_force',  label:'Arr. Force'},
+  {key:'arr_debout', label:'Arraché debout'},
+  {key:'jet',        label:'Jeté'},
+  {key:'jet_force',  label:'Jeté Force'},
+  {key:'ep_debout',  label:'Épa. Debout'},
+  {key:'ep',         label:'Épaulé'},
+  {key:'deadlift',   label:'Deadlift'},
+];
+
+async function loadRMKeys(){
+  try{
+    const active = await db('active_rm_keys?select=key') || [];
+    const activeKeys = active.map(a=>a.key);
+    const grid = document.getElementById('rmKeysGrid');
+    if(!grid) return;
+    grid.innerHTML = RM_OPTIONAL_ADMIN.map(rm=>{
+      const isOn = activeKeys.includes(rm.key);
+      return `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px">
+        <span style="font-size:13px;font-weight:600">${rm.label}</span>
+        <button class="toggle-switch ${isOn?'on':''}" onclick="toggleRMKey('${rm.key}',${!isOn},this)"></button>
+      </div>`;
+    }).join('');
+  } catch(e){ console.warn('RM keys load failed',e); }
+}
+
+async function toggleRMKey(key, activate, btn){
+  btn.classList.toggle('on', activate);
+  try{
+    if(activate){
+      await db('active_rm_keys','POST',{key});
+      toast('💪 '+key+' activé');
+    } else {
+      await db(`active_rm_keys?key=eq.${key}`,'DELETE');
+      toast('RM désactivé');
+    }
+    loadRMKeys();
+  } catch(e){ btn.classList.toggle('on',!activate); toast('Erreur : '+e.message); }
 }
 
 async function loadConfig(){

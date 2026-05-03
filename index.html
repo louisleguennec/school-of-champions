@@ -1306,7 +1306,8 @@ async function submitScore(){
   renderDays();
   if(athlete){
     try{
-      await db('cycle_scores','POST',{athlete_id:athlete.id,movement:rmKey,weight:w,cycle:CYCLE,week_num:currentWeek+1});
+      const exName = scoreModalCtx?.exName||'';
+      await db('cycle_scores','POST',{athlete_id:athlete.id,movement:rmKey,weight:w,cycle:CYCLE,week_num:currentWeek+1,exercise_name:exName});
       const existing=await db(`rm_records?athlete_id=eq.${athlete.id}&movement=eq.${rmKey}&select=weight,id`);
       if(!existing||existing.length===0){
         await db('rm_records','POST',{athlete_id:athlete.id,movement:rmKey,weight:w,cycle:CYCLE});
@@ -1687,20 +1688,49 @@ function closeVideoModal(){
 }
 
 // ─── MINI LEADERBOARD ────────────────────────────────────
-function openMiniLb(rmKey, exName){
-  if(!lbData || !Object.keys(lbData).length){
-    loadLeaderboards().then(()=>_showMiniLb(rmKey, exName));
-  } else {
-    _showMiniLb(rmKey, exName);
+async function openMiniLb(rmKey, exName){
+  // Load scores specific to this exercise from cycle_scores
+  try{
+    const scores = await db(`cycle_scores?movement=eq.${rmKey}&select=weight,exercise_name,athletes(pseudo,gender,bodyweight,country,club,level)&order=weight.desc`) || [];
+    // Filter by exact exercise name if available
+    const filtered = scores.filter(s => !s.exercise_name || s.exercise_name === exName || s.exercise_name === '');
+    _showMiniLb(rmKey, exName, filtered);
+  } catch(e){
+    // Fallback to lbData
+    if(!lbData || !Object.keys(lbData).length){
+      loadLeaderboards().then(()=>_showMiniLb(rmKey, exName, null));
+    } else {
+      _showMiniLb(rmKey, exName, null);
+    }
   }
 }
 
-function _showMiniLb(rmKey, exName){
+function _showMiniLb(rmKey, exName, exScores){
   const mov = LB_ALLTIME.find(m=>m.key===rmKey) || {label:exName,icon:'🏆'};
   document.getElementById('miniLbTitle').textContent = mov.icon+' '+exName;
-  
-  let pool = (lbData[rmKey]||[]).filter(a=>a.gender===(athlete?.gender||'H'));
-  pool = pool.map(a=>({...a, displayScore:calcSinclair(a.weight,a.bw,a.gender)}))
+  document.getElementById('miniLbSub').textContent = exScores ? 'Perfs soumises sur cet exercice' : 'Leaderboard all-time';
+
+  let pool;
+  if(exScores){
+    // Build from cycle_scores: best per athlete
+    const best={};
+    exScores.forEach(s=>{
+      if(!s.athletes) return;
+      const name=s.athletes.pseudo;
+      if(!best[name]||s.weight>best[name].weight){
+        best[name]={
+          name,gender:s.athletes.gender,bw:s.athletes.bodyweight,
+          country:'🇫🇷',club:s.athletes.club||'',
+          weight:s.weight,isMe:athlete&&name===athlete.pseudo
+        };
+      }
+    });
+    pool = Object.values(best).filter(a=>a.gender===(athlete?.gender||'H'));
+  } else {
+    pool = (lbData[rmKey]||[]).filter(a=>a.gender===(athlete?.gender||'H'));
+  }
+
+  pool = pool.map(a=>({...a, displayScore:mov.isSinclair!==false?calcSinclair(a.weight,a.bw,a.gender):a.weight}))
              .sort((a,b)=>b.displayScore-a.displayScore)
              .slice(0,10);
 

@@ -137,7 +137,8 @@ tr:hover td{background:var(--surface2)}
 <!-- APP -->
 <div id="app">
   <nav class="sidebar">
-    <div class="sidebar-logo">SOC <em>Admin</em><small>School of Champions</small></div>
+    <button onclick="toggleSidebar()" id="sidebarToggle" style="position:absolute;top:8px;right:-14px;width:28px;height:28px;background:var(--surface);border:1px solid var(--border);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;z-index:10;color:var(--text2)" title="Réduire">◀</button>
+  <div class="sidebar-logo">SOC <em>Admin</em><small>School of Champions</small></div>
     <button class="nav-link active" onclick="showPage('dashboard',this)"><span class="nav-icon">📊</span>Dashboard</button>
     <button class="nav-link" onclick="showPage('athletes',this)"><span class="nav-icon">👥</span>Athlètes</button>
     <button class="nav-link" onclick="showPage('feelings',this)"><span class="nav-icon">📈</span>Ressentis</button>
@@ -355,6 +356,21 @@ tr:hover td{background:var(--surface2)}
     <div class="page" id="pageProgramme">
       <div class="page-title">Éditeur de programme</div>
       <div class="page-sub">Modifier les %, charges et RM de référence par exo · Les changements s'appliquent immédiatement</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1rem">
+        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:8px">📋 Import Google Sheets</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px">Colle ici le contenu copié depuis Sheets (colonnes : Nom | Séries/% | RM)</div>
+        <textarea id="sheetsImport" placeholder="Arraché debout&#10;2×2/70% · 1×2/80%&#10;arr&#10;---&#10;Front squat&#10;4×2 / 90%&#10;fs" style="width:100%;height:120px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px;color:var(--text);font-size:13px;font-family:monospace;outline:none;resize:vertical"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <select id="sheetsDay" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
+            <option value="0">Lundi</option>
+            <option value="2">Mercredi</option>
+            <option value="4">Vendredi</option>
+            <option value="5">Samedi</option>
+          </select>
+          <button class="action-btn primary" onclick="importFromSheets()" style="padding:8px 16px">⬆ Importer</button>
+        </div>
+        <div id="sheetsImportResult" style="font-size:12px;margin-top:8px;color:var(--green);display:none"></div>
+      </div>
       <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
         <select id="progDaySel" onchange="loadProgEditor()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
           <option value="0">Lundi</option>
@@ -370,6 +386,10 @@ tr:hover td{background:var(--surface2)}
     <div class="page" id="pageConfig">
       <div class="page-title">Configuration</div>
       <div class="page-sub">Gérer les leaderboards actifs par semaine et par jour</div>
+      <div style="margin-bottom:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem">
+        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:12px">🔓 Déblocage des semaines</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="weekUnlockGrid"></div>
+      </div>
       <div id="lbConfigGrid" class="lb-config-grid"></div>
     </div>
 
@@ -467,7 +487,7 @@ function showPage(name,btn){
   if(name==='programme') loadProgEditor();
   if(name==='fatigue') loadFatigueAdmin();
   if(name==='leaderboard') loadLbAdmin();
-  if(name==='config') loadConfig();
+  if(name==='config'){ loadConfig(); loadWeekUnlocks(); }
 }
 
 // DASHBOARD
@@ -775,6 +795,55 @@ const PROG_DAYS = [
     {key:'squat', label:'Squat nuque (light)', rm:'squat'},
   ]},
 ];
+
+async function loadWeekUnlocks(){
+  // Load manual overrides from Supabase (if any)
+  try{
+    const unlocks = await db('week_unlocks?cycle=eq.'+CYCLE+'&select=*') || [];
+    const grid = document.getElementById('weekUnlockGrid');
+    if(!grid) return;
+    const WEEK_LABELS = ['S1 · 18/05','S2 · 25/05','S3 · 01/06','S4 · 08/06'];
+    const WEEK_DATES = ['2026-05-16','2026-05-23','2026-05-30','2026-06-06']; // samedi unlock
+    grid.innerHTML = WEEK_LABELS.map((label,i) => {
+      const forced = unlocks.find(u=>u.week_num===i+1);
+      const autoUnlock = new Date() >= new Date(WEEK_DATES[i]);
+      const isUnlocked = forced ? forced.unlocked : autoUnlock;
+      const isManual = !!forced;
+      return `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px">
+        <div>
+          <div style="font-size:13px;font-weight:700">${label}</div>
+          <div style="font-size:10px;color:var(--text3)">${isManual?'Manuel':'Auto · sam. '+WEEK_DATES[i].slice(5)}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          ${isManual?`<button class="action-btn danger" onclick="resetWeekUnlock(${i+1})" style="padding:4px 8px;font-size:11px">↺</button>`:''}
+          <button class="toggle-switch ${isUnlocked?'on':''}" onclick="toggleWeekUnlock(${i+1},${!isUnlocked},this)"></button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e){ console.warn('Week unlocks failed',e); }
+}
+
+async function toggleWeekUnlock(weekNum, unlock, btn){
+  btn.classList.toggle('on', unlock);
+  try{
+    const existing = await db(`week_unlocks?cycle=eq.${CYCLE}&week_num=eq.${weekNum}&select=id`);
+    if(existing && existing.length){
+      await db(`week_unlocks?id=eq.${existing[0].id}`,'PATCH',{unlocked:unlock});
+    } else {
+      await db('week_unlocks','POST',{cycle:CYCLE,week_num:weekNum,unlocked:unlock});
+    }
+    toast(unlock?'🔓 Semaine débloquée':'🔒 Semaine verrouillée');
+    loadWeekUnlocks();
+  } catch(e){ toast('Erreur : '+e.message); }
+}
+
+async function resetWeekUnlock(weekNum){
+  try{
+    await db(`week_unlocks?cycle=eq.${CYCLE}&week_num=eq.${weekNum}`,'DELETE');
+    toast('Remis en auto');
+    loadWeekUnlocks();
+  } catch(e){ toast('Erreur'); }
+}
 
 async function loadConfig(){
   const active = await db(`active_leaderboards?cycle=eq.${CYCLE}&select=*`) || [];
@@ -1102,6 +1171,41 @@ async function loadProgEditor(){
   }).join('');
 }
 
+async function importFromSheets(){
+  const text = document.getElementById('sheetsImport').value.trim();
+  const dayIdx = parseInt(document.getElementById('sheetsDay').value);
+  const result = document.getElementById('sheetsImportResult');
+  if(!text){ toast('Colle du contenu à importer'); return; }
+
+  // Parse format: each exo = 3 lines: name | detail | rm_key, separated by ---
+  const blocks = text.split('---').map(b=>b.trim()).filter(Boolean);
+  let saved = 0, errors = 0;
+
+  for(let exIdx=0; exIdx<blocks.length; exIdx++){
+    const lines = blocks[exIdx].split('\n').map(l=>l.trim()).filter(Boolean);
+    if(lines.length < 2){ errors++; continue; }
+    const [exName, detail, rmKey] = lines;
+    if(!exName || !detail){ errors++; continue; }
+    const rm = rmKey || 'arr';
+    try{
+      const existing = await db(`programme_overrides?cycle=eq.${CYCLE}&day_idx=eq.${dayIdx}&ex_idx=eq.${exIdx}&select=id`);
+      if(existing && existing.length){
+        await db(`programme_overrides?id=eq.${existing[0].id}`,'PATCH',{detail,rm_key:rm,ex_name:exName,updated_at:new Date().toISOString()});
+      } else {
+        await db('programme_overrides','POST',{cycle:CYCLE,day_idx:dayIdx,ex_idx:exIdx,ex_name:exName,detail,rm_key:rm});
+      }
+      saved++;
+    } catch(e){ errors++; }
+  }
+
+  result.style.display='block';
+  result.style.color = errors ? 'var(--yellow)' : 'var(--green)';
+  result.textContent = `✅ ${saved} exo(s) importé(s)${errors?` · ⚠ ${errors} erreur(s)`:''}`;
+  toast(`Import terminé : ${saved} exos`);
+  document.getElementById('sheetsImport').value='';
+  loadProgEditor();
+}
+
 async function saveProgOverride(dayIdx, exIdx, btn){
   const day = PROG_MAIN.find(d=>d.dayIdx===dayIdx);
   const ex = day?.exos.find(e=>e.idx===exIdx);
@@ -1130,6 +1234,26 @@ async function resetProgOverride(dayIdx, exIdx){
     loadProgEditor();
   } catch(e){ toast('Erreur'); }
 }
+
+// SIDEBAR TOGGLE
+function toggleSidebar(){
+  const sb = document.querySelector('.sidebar');
+  const btn = document.getElementById('sidebarToggle');
+  sb.classList.toggle('collapsed');
+  const isCollapsed = sb.classList.contains('collapsed');
+  btn.textContent = isCollapsed ? '▶' : '◀';
+  localStorage.setItem('soc_admin_sidebar', isCollapsed ? '1' : '0');
+}
+// Restore sidebar state
+(function(){
+  if(localStorage.getItem('soc_admin_sidebar')==='1'){
+    document.addEventListener('DOMContentLoaded',()=>{
+      const sb=document.querySelector('.sidebar');
+      const btn=document.getElementById('sidebarToggle');
+      if(sb){sb.classList.add('collapsed');if(btn)btn.textContent='▶';}
+    });
+  }
+})();
 
 // TOAST
 function toast(msg){

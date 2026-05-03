@@ -1,0 +1,24 @@
+{
+  "name": "School of Champions",
+  "short_name": "SOC",
+  "description": "Powercamp Toulouse — Programme haltérophilie",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d0d",
+  "theme_color": "#003366",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/DSC_9914.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/DSC_9914.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

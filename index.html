@@ -246,6 +246,14 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 /* CONFETTI */
 #confettiCanvas{position:fixed;inset:0;pointer-events:none;z-index:9999;display:none}
 
+/* VIDEO MODAL */
+#videoModal{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:600;display:none;flex-direction:column;align-items:center;justify-content:center;padding:1rem}
+#videoModal.show{display:flex}
+.video-modal-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#fff;margin-bottom:10px;text-align:center}
+.video-modal-close{position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:22px;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.video-iframe-wrap{width:100%;max-width:600px;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000}
+.video-iframe-wrap iframe{width:100%;height:100%;border:none}
+
 /* MINI LEADERBOARD MODAL */
 #miniLbModal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;display:none;align-items:flex-end;justify-content:center}
 #miniLbModal.show{display:flex}
@@ -475,11 +483,11 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
     <div style="padding:1rem">
       <div style="padding:0 0 8px">
         <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:8px">🧘 Mobilité & Warm-up</div>
-        <a href="https://www.youtube.com/watch?v=ebCD8CE1Ubo" target="_blank" style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;text-decoration:none;margin-bottom:8px">
+        <div onclick="openVideo('https://www.youtube.com/watch?v=ebCD8CE1Ubo','Warm-up Powercamp')" style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer;margin-bottom:8px">
           <span style="font-size:22px">🧘</span>
           <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;color:#7aaee8">Warm-up Powercamp</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Session mobilité complète</div></div>
           <span style="margin-left:auto;color:var(--text3)">▶</span>
-        </a>
+        </div>
       </div>
       <a href="https://chat.whatsapp.com/LMW0sEpnRSSJtXikMDIXR8" target="_blank" style="display:flex;align-items:center;gap:10px;background:#1a2e1a;border:1px solid #2a4a2a;border-radius:12px;padding:12px 14px;text-decoration:none;margin-bottom:10px">
         <span style="font-size:22px">💬</span>
@@ -501,6 +509,15 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
   </div>
 
 </div><!-- /app -->
+
+<!-- VIDEO MODAL -->
+<div id="videoModal" onclick="if(event.target===this)closeVideoModal()">
+  <button class="video-modal-close" onclick="closeVideoModal()">✕</button>
+  <div class="video-modal-title" id="videoModalTitle"></div>
+  <div class="video-iframe-wrap">
+    <iframe id="videoIframe" allowfullscreen allow="autoplay"></iframe>
+  </div>
+</div>
 
 <!-- MINI LEADERBOARD MODAL -->
 <div id="miniLbModal" onclick="if(event.target===this)closeMiniLb()">
@@ -1109,7 +1126,7 @@ function renderDays(){
         const lbBtn=ex.isLb?`<span class="ex-lb-badge" onclick="openScoreModal('${ex.n}','${effectiveRm||ex.rm||'total'}')">🏆 Soumettre</span><span class="ex-lb-badge" onclick="openMiniLb('${effectiveRm||ex.rm||'total'}','${ex.n}')" style="color:#7aaee8;background:rgba(119,174,232,0.1);border-color:rgba(119,174,232,0.25)">📊 Classement</span>`:'';
         const _videoUrl=getVideoUrl(ex);
         const videoBtn=ex.noVideo?'':(_videoUrl
-          ?`<a class="ex-lb-badge" href="${_videoUrl}" target="_blank" style="color:#7aaee8;background:rgba(119,174,232,0.1);border-color:rgba(119,174,232,0.25)">▶ Vidéo</a>`
+          ?`<span class="ex-lb-badge" onclick="openVideo('${_videoUrl}','${ex.n}')" style="cursor:pointer;color:#7aaee8;background:rgba(119,174,232,0.1);border-color:rgba(119,174,232,0.25)">▶ Vidéo</span>`
           :(sIdx===0?`<span class="ex-video-ph" style="color:var(--red);border-color:rgba(224,48,48,0.3);background:rgba(224,48,48,0.08)">⚠ Vidéo manquante</span>`:`<span class="ex-video-ph">▶ Bientôt</span>`));
         return `<div class="ex-row">
           <div class="ex-check${isDone?' done':''}" onclick="toggleCheck('${k}',this,${dIdx})"></div>
@@ -1149,7 +1166,7 @@ function renderDays(){
       </div>
       <div id="wu_${dIdx}" style="display:none">`;
       day.warmup.forEach(ex=>{
-        const vBtn=ex.video?`<div class="ex-actions"><a class="ex-lb-badge" href="${ex.video}" target="_blank" style="color:#f59e0b;background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.25)">▶ Vidéo</a></div>`:'';
+        const vBtn=ex.video?`<div class="ex-actions"><span class="ex-lb-badge" onclick="openVideo('${ex.video}','${ex.n}')" style="cursor:pointer;color:#f59e0b;background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.25)">▶ Vidéo</span></div>`:'';
         bodyHtml+=`<div class="ex-row">
           <div class="ex-content" style="padding-left:0">
             <div class="ex-name" style="color:#f59e0b">${ex.n}</div>
@@ -1634,6 +1651,32 @@ async function editMyPseudo(){
     renderProfile();
     toast('✅ Nom mis à jour !');
   } catch(e){ toast('Erreur : ' + e.message); }
+}
+
+// ─── VIDEO MODAL ─────────────────────────────────────────
+function openVideo(url, title){
+  if(!url) return;
+  // Convert YouTube URL to embed URL
+  let embedUrl = url;
+  // Handle youtube.com/watch?v=ID
+  embedUrl = embedUrl.replace(/youtube\.com\/watch\?v=([^&]+)/, 'youtube.com/embed/$1');
+  // Handle youtu.be/ID
+  embedUrl = embedUrl.replace(/youtu\.be\/([^?]+)/, 'youtube.com/embed/$1');
+  // Handle youtube.com/shorts/ID
+  embedUrl = embedUrl.replace(/youtube\.com\/shorts\/([^?]+)/, 'youtube.com/embed/$1');
+  // Add autoplay + clean params
+  embedUrl = embedUrl.split('?')[0] + '?autoplay=1&rel=0&modestbranding=1';
+
+  document.getElementById('videoIframe').src = embedUrl;
+  document.getElementById('videoModalTitle').textContent = title || '';
+  document.getElementById('videoModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeVideoModal(){
+  document.getElementById('videoModal').classList.remove('show');
+  document.getElementById('videoIframe').src = '';
+  document.body.style.overflow = '';
 }
 
 // ─── MINI LEADERBOARD ────────────────────────────────────

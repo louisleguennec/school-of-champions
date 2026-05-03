@@ -882,15 +882,25 @@ let editingVideoId = null;
 
 // Vidéos à vérifier manuellement (clé exercice → description du doute)
 const VIDEOS_TO_CHECK = [
-  {key:'leg_raises',          label:'Leg raises',                          note:'Pas de vidéo — à ajouter'},
-  {key:'tractions_ou_tirage_poulie_haute', label:'Tractions (ou tirage poulie haute)', note:'Pas de vidéo — à ajouter'},
-  {key:'pompes',              label:'Pompes',                              note:'Pas de vidéo — à ajouter'},
-  {key:'adducteurs_au_rameur_ou_a_la_machine', label:'Adducteurs au rameur ou à la machine', note:'Pas de vidéo — à ajouter'},
-  {key:'tirage_poulie_basse_ou_elastique', label:'Tirage poulie basse (ou élastique)', note:'Pas de vidéo — à ajouter'},
-  {key:'trapbar_deadlift',    label:'Trapbar deadlift',                    note:'Pas de vidéo — à ajouter'},
-  {key:'gainage_copenhague',  label:'Gainage Copenhague',                  note:'Pas de vidéo — à ajouter'},
-  {key:'face_pulls',          label:'Face pulls',                          note:'Pas de vidéo — à ajouter'},
-  {key:'landmine_barbell_rotations', label:'Landmine barbell rotations',   note:'Pas de vidéo — à ajouter'},
+  // Exos sans vidéo — à ajouter
+  {key:'arrachee',                          label:'Arraché',                                  note:'Pas de vidéo'},
+  {key:'arrachee_force_avec_contact',       label:'Arraché force (avec contact)',             note:'Pas de vidéo'},
+  {key:'arrachee_suspension',               label:'Arraché suspension',                       note:'Pas de vidéo'},
+  {key:'epauleje_jete',                     label:'Épaulé-Jeté',                              note:'Pas de vidéo'},
+  {key:'epaule_debout',                     label:'Épaulé debout',                            note:'Pas de vidéo'},
+  {key:'squat_nuque',                       label:'Squat nuque',                              note:'Pas de vidéo'},
+  {key:'front_squat',                       label:'Front squat',                              note:'Pas de vidéo'},
+  {key:'tirage_lourd_arrachee',             label:"Tirage lourd d'arraché",                  note:'Pas de vidéo'},
+  {key:'jete_des_plots',                    label:'Jeté des plots',                           note:'Pas de vidéo'},
+  {key:'trapbar_deadlift',                  label:'Trapbar deadlift',                         note:'Pas de vidéo'},
+  {key:'leg_raises',                        label:'Leg raises',                               note:'Pas de vidéo'},
+  {key:'tractions_ou_tirage_poulie_haute',  label:'Tractions (ou tirage poulie haute)',       note:'Pas de vidéo'},
+  {key:'pompes',                            label:'Pompes',                                   note:'Pas de vidéo'},
+  {key:'adducteurs_au_rameur_ou_machine',   label:'Adducteurs au rameur ou à la machine',    note:'Pas de vidéo'},
+  {key:'tirage_poulie_basse_ou_elastique',  label:'Tirage poulie basse (ou élastique)',       note:'Pas de vidéo'},
+  {key:'gainage_copenhague',                label:'Gainage Copenhague',                       note:'Pas de vidéo'},
+  {key:'face_pulls',                        label:'Face pulls',                               note:'Pas de vidéo'},
+  {key:'landmine_barbell_rotations',        label:'Landmine barbell rotations',               note:'Pas de vidéo'},
 ];
 
 async function loadVideos(){

@@ -475,19 +475,9 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
     <div style="padding:1rem">
       <div style="padding:0 0 8px">
         <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:8px">🧘 Mobilité & Warm-up</div>
-        <a href="https://www.youtube.com/watch?v=Ysk4bkyIl1s" target="_blank" style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;text-decoration:none;margin-bottom:8px">
-          <span style="font-size:22px">🎯</span>
-          <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;color:#7aaee8">Session mobilité complète</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Warm-up quotidien recommandé</div></div>
-          <span style="margin-left:auto;color:var(--text3)">▶</span>
-        </a>
-        <a href="https://www.youtube.com/watch?v=g8uV9X_KN_I" target="_blank" style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;text-decoration:none;margin-bottom:8px">
-          <span style="font-size:22px">🦵</span>
-          <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;color:#7aaee8">Mobilité hanche & cheville</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Avant squat et arraché</div></div>
-          <span style="margin-left:auto;color:var(--text3)">▶</span>
-        </a>
-        <a href="https://www.youtube.com/watch?v=UO1dBrJXKUM" target="_blank" style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;text-decoration:none;margin-bottom:8px">
-          <span style="font-size:22px">💪</span>
-          <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;color:#7aaee8">Activation épaules & dos</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Avant épaulé-jeté</div></div>
+        <a href="https://www.youtube.com/watch?v=ebCD8CE1Ubo" target="_blank" style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;text-decoration:none;margin-bottom:8px">
+          <span style="font-size:22px">🧘</span>
+          <div><div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;text-transform:uppercase;color:#7aaee8">Warm-up Powercamp</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Session mobilité complète</div></div>
           <span style="margin-left:auto;color:var(--text3)">▶</span>
         </a>
       </div>
@@ -768,38 +758,38 @@ const WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
   {type:"main",label:"Lundi",sub:"Arraché Force · Tirage Haut · Prépa",
     warmup:[],
     main:[
-      {n:"Arraché force (avec contact)",d:"8×2 / 80–90%",rm:"arr_force",note:"Du RM arraché force"},
+      {n:"Arraché force (avec contact)",d:"8×2 / 80–90%",rm:"arr_force",note:"Du RM arraché force",video:"https://www.youtube.com/shorts/SIKVjxaNVZU"},
       {n:"Tirage haut d'arraché",d:"6×3 / 75–80%",rm:"arr",note:"Du RM arraché"}
     ],
     prepa:[
       {n:"Tractions nuque (ou tirage poulie haute)",d:"3–4×8–12 reps"},
       {n:"Tirage poulie basse (ou élastique)",d:"3–4×12 reps"},
       {n:"Y au GHD",d:"3–4×15 reps"},
-      {n:"Leg raises",d:"3–4×20 reps"}
+      {n:"Leg raises",d:"3–4×20 reps",video:"https://www.youtube.com/watch?v=1pbZ8mX2D1U"}
     ]
   },
   {type:"main",label:"Mardi",sub:"Jeté Force · Squat · Appel",
     warmup:[],
     main:[
-      {n:"Jeté force",d:"8×3 / 70–80%",rm:"jet_force",note:"Du RM jeté force"},
-      {n:"Squat nuque",d:"6×2 / 80–90%",rm:"squat"},
-      {n:"Appel de jeté",d:"6×4 / 110+%",rm:"fs",note:"Du RM FS"}
+      {n:"Jeté force",d:"8×3 / 70–80%",rm:"jet_force",note:"Du RM jeté force",video:"https://www.youtube.com/watch?v=ngjhO8CJvQg"},
+      {n:"Squat nuque",d:"6×2 / 80–90%",rm:"squat",video:"https://www.youtube.com/shorts/6QFrR9rjcNA"},
+      {n:"Appel de jeté",d:"6×4 / 110+%",rm:"fs",note:"Du RM FS",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}
     ],
     prepa:[
       {n:"Landmine barbell rotations",d:"3–4×10 reps (aller-retour)"},
-      {n:"Cardio basse intensité",d:"30 minutes / 60–70% FC max"}
+      {n:"Cardio basse intensité",d:"30 minutes / 60–70% FC max",noVideo:true}
     ]
   },
   {type:"opt",label:"Mercredi",sub:"CMJ · Épaulé Debout · Prépa physique",
     warmup:[],
     main:[
-      {n:"CMJ",d:"5×3 mains sur les hanches, intention max !"},
-      {n:"Épaulé debout",d:"5×2 / 75–85%",rm:"ep_debout",note:"Du RM épaulé debout"}
+      {n:"CMJ",d:"5×3 mains sur les hanches, intention max !",video:"https://www.youtube.com/shorts/ONyDFBrGXYI"},
+      {n:"Épaulé debout",d:"5×2 / 75–85%",rm:"ep_debout",note:"Du RM épaulé debout",video:"https://www.youtube.com/shorts/yIVSW9ou6kI"}
     ],
     prepa:[
-      {n:"Chute d'arraché en instabilité",d:"6×6 reps"},
-      {n:"Trapbar deadlift",d:"6×4 / 70%",rm:"deadlift",note:"Du RM deadlift · Si pas de trapbar → Clean Deadlift"},
-      {n:"Gainage Copenhague",d:"3–4×40'' par côté"}
+      {n:"Chute d'arraché en instabilité",d:"6×6 reps",video:"https://www.youtube.com/shorts/LFmf-x1pyAk"},
+      {n:"Trapbar deadlift",d:"6×4 / 70%",rm:"deadlift",note:"Du RM deadlift · Si pas de trapbar → Clean Deadlift",video:"https://www.youtube.com/shorts/xK0-M9cbYyg"},
+      {n:"Gainage Copenhague",d:"3–4×40'' par côté",video:"https://www.youtube.com/shorts/3yh6AVeYGqg"}
     ]
   },
   {type:"rest",label:"Jeudi",sub:"Repos · Cardio · Mobilité",
@@ -814,19 +804,19 @@ const WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
       {n:"Épaulé-Jeté",d:"Montée en 1×1 jusqu'à 1×1 / 90%",rm:"ej",isLb:true,note:"Du RM EJ"}
     ],
     prepa:[
-      {n:"Extensions lombaires GHD",d:"3–4×10 reps"},
-      {n:"Leg raises",d:"3–4×20 reps"},
+      {n:"Extensions lombaires GHD",d:"3–4×10 reps",video:"https://www.youtube.com/watch?v=dEDjkzFKJ-0"},
+      {n:"Leg raises",d:"3–4×20 reps",video:"https://www.youtube.com/watch?v=1pbZ8mX2D1U"},
       {n:"Swiss ball side plank",d:"3–4×40'' par côté",note:"Si pas de swiss ball → planche latérale classique"}
     ]
   },
   {type:"main",label:"Samedi",sub:"Saut haie · Front Squat · Prépa",
     warmup:[],
     main:[
-      {n:"Saut 1 haie avec élan",d:"10' de montée en hauteur progressive"},
+      {n:"Saut 1 haie avec élan",d:"10' de montée en hauteur progressive",video:"https://www.youtube.com/shorts/ONyDFBrGXYI"},
       {n:"Front squat",d:"2×5 / 60% · 2×3 / 70% · 3×1 / 80–85%",rm:"fs",isLb:true}
     ],
     prepa:[
-      {n:"Développé couché",d:"5RM RPE 8 · 1×10–15 reps / 80% du x5 du jour"},
+      {n:"Développé couché",d:"5RM RPE 8 · 1×10–15 reps / 80% du x5 du jour",video:"https://www.youtube.com/shorts/joSL4TnhAc8"},
       {n:"Curl biceps",d:"5×10–15 reps"}
     ]
   }
@@ -835,39 +825,39 @@ const WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
   {type:"main",label:"Lundi",sub:"CMJ · Arraché · Tirage Lourd",
     warmup:[],
     main:[
-      {n:"CMJ",d:"5×3 mains sur les hanches, intention max !"},
+      {n:"CMJ",d:"5×3 mains sur les hanches, intention max !",video:"https://www.youtube.com/shorts/ONyDFBrGXYI"},
       {n:"Arraché",d:"2×2 / 80% · 6×1 / 85+%",rm:"arr",isLb:true},
       {n:"Tirage lourd d'arraché",d:"3×3 / 80% · 3×2 / 85–90%",rm:"tla",note:"Du RM TLA"}
     ],
     prepa:[
-      {n:"Tractions (ou tirage poulie haute)",d:"3–4×10 reps"},
-      {n:"Pompes",d:"3–4×20 reps (lestées si possible)"},
-      {n:"Cardio basse intensité",d:"20 minutes / 60–70% FC max"}
+      {n:"Tractions (ou tirage poulie haute)",d:"3–4×10 reps",video:"https://www.youtube.com/shorts/uBtG-2Dqur0"},
+      {n:"Pompes",d:"3–4×20 reps (lestées si possible)",video:"https://www.youtube.com/shorts/1e0wAhSN7SU"},
+      {n:"Cardio basse intensité",d:"20 minutes / 60–70% FC max",noVideo:true}
     ]
   },
   {type:"main",label:"Mardi",sub:"Warm Up Épaulé · Épaulé des Plots · Appel",
     warmup:[],
     main:[
-      {n:"Warm up : Épaulé force + passage d'épaulé",d:"3–4×(3+3 reps) lights"},
-      {n:"Épaulé des plots",d:"5×3 / 65–75% · 3×2 / 80–85%",rm:"ej",note:"Du RM épaulé"},
-      {n:"Appel de jeté",d:"6×5 reps tempo lent 90+%",rm:"fs",note:"Du RM FS"}
+      {n:"Warm up : Épaulé force + passage d'épaulé",d:"3–4×(3+3 reps) lights",video:"https://www.youtube.com/shorts/yIVSW9ou6kI"},
+      {n:"Épaulé des plots",d:"5×3 / 65–75% · 3×2 / 80–85%",rm:"ej",note:"Du RM épaulé",video:"https://www.youtube.com/shorts/lL-Ae_D2IXk"},
+      {n:"Appel de jeté",d:"6×5 reps tempo lent 90+%",rm:"fs",note:"Du RM FS",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}
     ],
     prepa:[
       {n:"TBA",d:"5×8–10 reps"},
       {n:"Clamshell",d:"3–4×10–15 reps / jambe"},
-      {n:"Adducteurs au rameur ou à la machine",d:"3–4×10–15 reps / jambe"}
+      {n:"Adducteurs au rameur ou à la machine",d:"3–4×10–15 reps / jambe",video:"https://www.youtube.com/shorts/3yh6AVeYGqg"}
     ]
   },
   {type:"opt",label:"Mercredi",sub:"Jeté des Plots · Squat Nuque · Appel (optionnel)",
     warmup:[],
     main:[
-      {n:"Jeté des plots",d:"2×3 / 70% · 5×2 / 80–85%",rm:"ej",note:"Du RM épaulé"},
+      {n:"Jeté des plots",d:"2×3 / 70% · 5×2 / 80–85%",rm:"ej",note:"Du RM épaulé",video:"https://www.youtube.com/shorts/Xo8lVPHq510"},
       {n:"Squat nuque",d:"3×3 / 70–75% · 3×2 / 80–85%",rm:"squat"},
-      {n:"Appel de jeté",d:"6×5 reps tempo lent 90+%",rm:"fs",note:"Du RM FS"}
+      {n:"Appel de jeté",d:"6×5 reps tempo lent 90+%",rm:"fs",note:"Du RM FS",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}
     ],
     prepa:[
-      {n:"Single leg hip thrust",d:"3–4×10 reps / jambe"},
-      {n:"Leg raises",d:"3–4×20 reps"}
+      {n:"Single leg hip thrust",d:"3–4×10 reps / jambe",video:"https://www.youtube.com/shorts/UrkkB10bzr8"},
+      {n:"Leg raises",d:"3–4×20 reps",video:"https://www.youtube.com/watch?v=1pbZ8mX2D1U"}
     ]
   },
   {type:"rest",label:"Jeudi",sub:"Repos · Cardio · Mobilité",
@@ -878,25 +868,25 @@ const WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
   {type:"main",label:"Vendredi",sub:"Arraché Suspension · Épaulé-Jeté · Tirage",
     warmup:[],
     main:[
-      {n:"Arraché suspension",d:"3×2 / 70–75% · 5×2 / 80–90%",rm:"arr",isLb:true,note:"Si bien, 2RM"},
+      {n:"Arraché suspension",d:"3×2 / 70–75% · 5×2 / 80–90%",rm:"arr",isLb:true,note:"Si bien, 2RM",video:"https://www.youtube.com/shorts/eCYNHd1QO6U"},
       {n:"Épaulé-Jeté",d:"Montée sur le 1RM du jour",rm:"ej",isLb:true},
-      {n:"Tirage haut d'arraché",d:"4×2 / 80%",rm:"arr",note:"Sans sangles"}
+      {n:"Tirage haut d'arraché",d:"4×2 / 80%",rm:"arr",note:"Sans sangles",video:"https://youtu.be/iYBcBMu8zrA"}
     ],
     prepa:[
       {n:"Face pulls",d:"3–4×10–15 reps"},
-      {n:"Cardio basse intensité",d:"20 minutes / 60–70% FC max"}
+      {n:"Cardio basse intensité",d:"20 minutes / 60–70% FC max",noVideo:true}
     ]
   },
   {type:"main",label:"Samedi",sub:"Saut haie · Développé Militaire · Front Squat",
     warmup:[],
     main:[
-      {n:"Saut 1 haie avec élan",d:"10' de montée en hauteur progressive"},
-      {n:"Développé militaire",d:"Montée sur 1×2 RPE 8"},
+      {n:"Saut 1 haie avec élan",d:"10' de montée en hauteur progressive",video:"https://www.youtube.com/shorts/ONyDFBrGXYI"},
+      {n:"Développé militaire",d:"Montée sur 1×2 RPE 8",video:"https://www.youtube.com/watch?v=_aISMzimYEA"},
       {n:"Front squat",d:"4×3 / 70–80% · 4×2 / 85%",rm:"fs",isLb:true}
     ],
     prepa:[
-      {n:"Leg curl",d:"3–4×10 reps"},
-      {n:"Tirage poulie basse (ou élastique)",d:"3–4×12–15 reps"}
+      {n:"Leg curl",d:"3–4×10 reps",video:"https://youtu.be/n6qRAUu16vc"},
+      {n:"Tirage poulie basse (ou élastique)",d:"3–4×12–15 reps",video:"https://www.youtube.com/watch?v=wNEKpum3Bcs"}
     ]
   }
 ]},
@@ -1118,9 +1108,9 @@ function renderDays(){
         }).join('');
         const lbBtn=ex.isLb?`<span class="ex-lb-badge" onclick="openScoreModal('${ex.n}','${effectiveRm||ex.rm||'total'}')">🏆 Soumettre</span><span class="ex-lb-badge" onclick="openMiniLb('${effectiveRm||ex.rm||'total'}','${ex.n}')" style="color:#7aaee8;background:rgba(119,174,232,0.1);border-color:rgba(119,174,232,0.25)">📊 Classement</span>`:'';
         const _videoUrl=getVideoUrl(ex);
-        const videoBtn=_videoUrl
+        const videoBtn=ex.noVideo?'':(_videoUrl
           ?`<a class="ex-lb-badge" href="${_videoUrl}" target="_blank" style="color:#7aaee8;background:rgba(119,174,232,0.1);border-color:rgba(119,174,232,0.25)">▶ Vidéo</a>`
-          :(sIdx===0?`<span class="ex-video-ph" style="color:var(--red);border-color:rgba(224,48,48,0.3);background:rgba(224,48,48,0.08)">⚠ Vidéo manquante</span>`:`<span class="ex-video-ph">▶ Bientôt</span>`);
+          :(sIdx===0?`<span class="ex-video-ph" style="color:var(--red);border-color:rgba(224,48,48,0.3);background:rgba(224,48,48,0.08)">⚠ Vidéo manquante</span>`:`<span class="ex-video-ph">▶ Bientôt</span>`));
         return `<div class="ex-row">
           <div class="ex-check${isDone?' done':''}" onclick="toggleCheck('${k}',this,${dIdx})"></div>
           <div class="ex-content">

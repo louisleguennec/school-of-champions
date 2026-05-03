@@ -262,7 +262,7 @@ tr:hover td{background:var(--surface2)}
           <option value="arr">Arraché</option>
           <option value="ej">Épaulé-Jeté</option>
           <option value="total">Total</option>
-          <option value="squat">Squat Nuque</option>
+          <option value="squat">Back squat</option>
           <option value="fs">Front Squat</option>
         </select>
         <select id="lbGenderSel" onchange="loadLbAdmin()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
@@ -380,6 +380,14 @@ tr:hover td{background:var(--surface2)}
       <div style="margin-bottom:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem">
         <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:12px">🔓 Déblocage des semaines</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="weekUnlockGrid"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2)">Semaine :</div>
+        <div style="display:flex;gap:6px">
+          <button class="action-btn active" id="cfgWeek1" onclick="setConfigWeek(1,this)" style="padding:6px 14px;font-size:12px">S1</button>
+          <button class="action-btn" id="cfgWeek2" onclick="setConfigWeek(2,this)" style="padding:6px 14px;font-size:12px">S2</button>
+          <button class="action-btn" id="cfgWeek3" onclick="setConfigWeek(3,this)" style="padding:6px 14px;font-size:12px">S3</button>
+        </div>
       </div>
       <div id="lbConfigGrid" class="lb-config-grid"></div>
     </div>
@@ -667,7 +675,7 @@ const EX_NAMES = {
   '0_0_0_0':'Arraché debout','0_0_0_1':'Tirage haut arraché','0_0_0_2':'Front squat','0_0_0_3':'Appel de jeté',
   '0_2_0_0':'Épaulé debout + jeté force','0_2_0_1':'Tirage lourd épaulé',
   '0_4_0_0':'Arraché','0_4_0_1':'Tirage lourd arraché',
-  '0_5_0_0':'Épaulé-Jeté','0_5_0_1':'Squat nuque'
+  '0_5_0_0':'Épaulé-Jeté','0_5_0_1':'Back squat'
 };
 
 async function loadFeelings(){
@@ -783,7 +791,7 @@ const PROG_DAYS = [
   ]},
   { label:'Samedi', exos:[
     {key:'ej', label:'Épaulé-Jeté RM', rm:'ej'},
-    {key:'squat', label:'Squat nuque (light)', rm:'squat'},
+    {key:'squat', label:'Back squat (light)', rm:'squat'},
   ]},
 ];
 
@@ -836,8 +844,17 @@ async function resetWeekUnlock(weekNum){
   } catch(e){ toast('Erreur'); }
 }
 
+let configWeek = 1;
+
+function setConfigWeek(week, btn){
+  configWeek = week;
+  document.querySelectorAll('[id^="cfgWeek"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadConfig();
+}
+
 async function loadConfig(){
-  const active = await db(`active_leaderboards?cycle=eq.${CYCLE}&select=*`) || [];
+  const active = await db(`active_leaderboards?cycle=eq.${CYCLE}&week_num=eq.${configWeek}&select=*`) || [];
   const grid = document.getElementById('lbConfigGrid');
   grid.innerHTML = PROG_DAYS.map((day, dIdx) => {
     if(!day.exos.length) return `
@@ -867,10 +884,10 @@ async function toggleLb(btn, dayNum, movement, label, rm){
   btn.classList.toggle('on');
   try{
     if(isOn){
-      await db(`active_leaderboards?cycle=eq.${CYCLE}&day_num=eq.${dayNum}&movement=eq.${movement}`, 'DELETE');
+      await db(`active_leaderboards?cycle=eq.${CYCLE}&week_num=eq.${configWeek}&day_num=eq.${dayNum}&movement=eq.${movement}`, 'DELETE');
       toast('Leaderboard désactivé');
     } else {
-      await db('active_leaderboards', 'POST', {cycle:CYCLE, week_num:1, day_num:dayNum, movement, label, rm_key:rm});
+      await db('active_leaderboards', 'POST', {cycle:CYCLE, week_num:configWeek, day_num:dayNum, movement, label, rm_key:rm});
       toast('🏆 Leaderboard activé : '+label);
     }
   } catch(e){ btn.classList.toggle('on'); toast('Erreur : '+e.message); }
@@ -882,25 +899,24 @@ let editingVideoId = null;
 
 // Vidéos à vérifier manuellement (clé exercice → description du doute)
 const VIDEOS_TO_CHECK = [
-  // Exos sans vidéo — à ajouter
-  {key:'arrachee',                          label:'Arraché',                                  note:'Pas de vidéo'},
-  {key:'arrachee_force_avec_contact',       label:'Arraché force (avec contact)',             note:'Pas de vidéo'},
-  {key:'arrachee_suspension',               label:'Arraché suspension',                       note:'Pas de vidéo'},
-  {key:'epauleje_jete',                     label:'Épaulé-Jeté',                              note:'Pas de vidéo'},
-  {key:'epaule_debout',                     label:'Épaulé debout',                            note:'Pas de vidéo'},
-  {key:'squat_nuque',                       label:'Squat nuque',                              note:'Pas de vidéo'},
-  {key:'front_squat',                       label:'Front squat',                              note:'Pas de vidéo'},
-  {key:'tirage_lourd_arrachee',             label:"Tirage lourd d'arraché",                  note:'Pas de vidéo'},
-  {key:'jete_des_plots',                    label:'Jeté des plots',                           note:'Pas de vidéo'},
-  {key:'trapbar_deadlift',                  label:'Trapbar deadlift',                         note:'Pas de vidéo'},
-  {key:'leg_raises',                        label:'Leg raises',                               note:'Pas de vidéo'},
-  {key:'tractions_ou_tirage_poulie_haute',  label:'Tractions (ou tirage poulie haute)',       note:'Pas de vidéo'},
-  {key:'pompes',                            label:'Pompes',                                   note:'Pas de vidéo'},
-  {key:'adducteurs_au_rameur_ou_machine',   label:'Adducteurs au rameur ou à la machine',    note:'Pas de vidéo'},
-  {key:'tirage_poulie_basse_ou_elastique',  label:'Tirage poulie basse (ou élastique)',       note:'Pas de vidéo'},
-  {key:'gainage_copenhague',                label:'Gainage Copenhague',                       note:'Pas de vidéo'},
-  {key:'face_pulls',                        label:'Face pulls',                               note:'Pas de vidéo'},
-  {key:'landmine_barbell_rotations',        label:'Landmine barbell rotations',               note:'Pas de vidéo'},
+  {key:'arrache',                                label:'Arraché',                                note:'Pas de vidéo'},
+  {key:'arrache_force_avec_contact',             label:'Arraché force (avec contact)',           note:'Pas de vidéo'},
+  {key:'arrache_suspension',                     label:'Arraché suspension',                     note:'Pas de vidéo'},
+  {key:'epaule_jete',                            label:'Épaulé-Jeté',                            note:'Pas de vidéo'},
+  {key:'epaule_debout',                          label:'Épaulé debout',                          note:'Pas de vidéo'},
+  {key:'squat_nuque',                            label:'Back squat',                            note:'Pas de vidéo'},
+  {key:'front_squat',                            label:'Front squat',                            note:'Pas de vidéo'},
+  {key:'tirage_lourd_d_arrache',                 label:"Tirage lourd d'arraché",                note:'Pas de vidéo'},
+  {key:'jete_des_plots',                         label:'Jeté des plots',                         note:'Pas de vidéo'},
+  {key:'trapbar_deadlift',                       label:'Trapbar deadlift',                       note:'Pas de vidéo'},
+  {key:'leg_raises',                             label:'Leg raises',                             note:'Pas de vidéo'},
+  {key:'tractions_ou_tirage_poulie_haute',       label:'Tractions (ou tirage poulie haute)',     note:'Pas de vidéo'},
+  {key:'pompes',                                 label:'Pompes',                                 note:'Pas de vidéo'},
+  {key:'adducteurs_au_rameur_ou_a_la_machine',   label:'Adducteurs au rameur ou à la machine',  note:'Pas de vidéo'},
+  {key:'tirage_poulie_basse_ou_elastique',       label:'Tirage poulie basse (ou élastique)',     note:'Pas de vidéo'},
+  {key:'gainage_copenhague',                     label:'Gainage Copenhague',                     note:'Pas de vidéo'},
+  {key:'face_pulls',                             label:'Face pulls',                             note:'Pas de vidéo'},
+  {key:'landmine_barbell_rotations',             label:'Landmine barbell rotations',             note:'Pas de vidéo'},
 ];
 
 async function loadVideos(){
@@ -1147,7 +1163,7 @@ const RM_KEYS = [
   {key:'arr',label:'Arraché'},
   {key:'ej',label:'Épaulé-Jeté'},
   {key:'fs',label:'Front Squat'},
-  {key:'squat',label:'Squat Nuque'},
+  {key:'squat',label:'Back squat'},
   {key:'tla',label:'TL Arraché'},
   {key:'tla_haut',label:'TH Arraché'},
   {key:'jet_force',label:'Jeté Force'},
@@ -1173,7 +1189,7 @@ const PROG_MAIN = [
   ]},
   { dayIdx:5, label:'Samedi', exos:[
     {idx:0, name:'Épaulé-Jeté',        detail:'RM du jour (max 2 échecs)',                     rm:'ej'},
-    {idx:1, name:'Squat nuque (light)', detail:'3×3 / 70–75%',                                rm:'squat'},
+    {idx:1, name:'Back squat (light)', detail:'3×3 / 70–75%',                                rm:'squat'},
   ]},
 ];
 

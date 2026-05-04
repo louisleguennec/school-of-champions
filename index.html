@@ -614,7 +614,6 @@ let activeLeaderboards=[];
 let lbData={};
 let lbMovement='arr';
 let lbGender='all';
-let lbMode='saison';                                                                  
 let scoreModalCtx=null;
 let onbGender='H';
 
@@ -634,15 +633,17 @@ async function syncRMsToSupabase(){
   try{
     for(const [movement, weight] of Object.entries(rms)){
       if(!weight) continue;
+      const w = parseFloat(weight);
       const existing = await db(`rm_records?athlete_id=eq.${athlete.id}&movement=eq.${movement}&select=id,weight`);
       if(existing && existing.length){
-        if(parseFloat(weight) > existing[0].weight){
-          await db(`rm_records?id=eq.${existing[0].id}`,'PATCH',{weight:parseFloat(weight)});
-        }
+        // Toujours mettre à jour avec la valeur saisie dans "Mes RM"
+        await db(`rm_records?id=eq.${existing[0].id}`,'PATCH',{weight:w});
       } else {
-        await db('rm_records','POST',{athlete_id:athlete.id,movement,weight:parseFloat(weight),cycle:CYCLE});
+        await db('rm_records','POST',{athlete_id:athlete.id,movement,weight:w,cycle:CYCLE});
       }
     }
+    // Recharger le leaderboard pour refléter les changements
+    loadLeaderboards();
   } catch(e){ console.warn('RM sync failed',e); }
 }
 
@@ -1793,6 +1794,7 @@ async function editMyBodyweight(){
     athlete.bodyweight = bw;
     saveAthlete();
     renderProfile();
+    loadLeaderboards();
     toast('✅ Poids mis à jour !');
   } catch(e){ toast('Erreur : ' + e.message); }
 }

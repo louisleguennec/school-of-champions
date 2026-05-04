@@ -282,17 +282,19 @@ tr:hover td{background:var(--surface2)}
     <!-- VIDEOS -->
     <div class="page" id="pageVideos">
       <div class="page-title">Vidéos exercices</div>
-      <div class="page-sub">Exercices sans vidéo en haut — ajoute le lien et ils disparaissent</div>
+      <div class="page-sub">Exos sans vidéo en haut — ajoute le lien, ils disparaissent</div>
 
-      <!-- EXOS SANS VIDÉO -->
       <div style="margin-bottom:1.5rem">
-        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--yellow);margin-bottom:10px">⚠ Sans vidéo (<span id="missingCount">—</span>)</div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--yellow);margin-bottom:10px">
+          ⚠ Sans vidéo (<span id="missingCount">…</span>)
+        </div>
         <div id="missingVideoList" style="display:flex;flex-direction:column;gap:8px"></div>
       </div>
 
-      <!-- EXOS AVEC VIDÉO -->
       <div>
-        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">✅ Avec vidéo (<span id="hasCount">—</span>)</div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">
+          ✅ Avec vidéo (<span id="hasCount">…</span>)
+        </div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Exercice</th><th>URL Vidéo</th><th>Actions</th></tr></thead>
@@ -378,26 +380,29 @@ tr:hover td{background:var(--surface2)}
     <!-- CONFIG -->
     <div class="page" id="pageConfig">
       <div class="page-title">Configuration</div>
-      <div class="page-sub">Gérer les leaderboards actifs par semaine et par jour</div>
-      <div style="margin-bottom:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem">
-        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">💪 RM supplémentaires visibles</div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:12px">Arraché · Épaulé-Jeté · Back squat · Front squat · Total sont toujours affichés</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="rmKeysGrid"></div>
-      </div>
-      <div style="margin-bottom:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem">
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1.25rem">
         <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:12px">🔓 Déblocage des semaines</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="weekUnlockGrid"></div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
-        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2)">Semaine :</div>
-        <div style="display:flex;gap:6px">
-          <button class="action-btn active" id="cfgWeek1" onclick="setConfigWeek(1,this)" style="padding:6px 14px;font-size:12px">S1</button>
-          <button class="action-btn" id="cfgWeek2" onclick="setConfigWeek(2,this)" style="padding:6px 14px;font-size:12px">S2</button>
-          <button class="action-btn" id="cfgWeek3" onclick="setConfigWeek(3,this)" style="padding:6px 14px;font-size:12px">S3</button>
-        </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1.25rem">
+        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:6px">💪 RM optionnels visibles</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:12px">Arraché · Épaulé-Jeté · Back squat · Front squat · Total sont toujours affichés</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="rmKeysGrid"></div>
       </div>
-      <div id="lbConfigGrid" class="lb-config-grid"></div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem">
+        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:12px">🏆 Leaderboard par semaine</div>
+        <div style="display:flex;gap:6px;margin-bottom:1rem">
+          <button class="action-btn active" id="cfgWeek1" onclick="setConfigWeek(1,this)">S1 · 04/05</button>
+          <button class="action-btn" id="cfgWeek2" onclick="setConfigWeek(2,this)">S2 · 11/05</button>
+          <button class="action-btn" id="cfgWeek3" onclick="setConfigWeek(3,this)">S3 · 18/05</button>
+        </div>
+        <div id="lbConfigGrid" class="lb-config-grid"></div>
+      </div>
     </div>
+
 
   </div>
 </div>
@@ -969,39 +974,39 @@ let editingVideoId = null;
 // Vidéos à vérifier manuellement (clé exercice → description du doute)
 const ALL_PROGRAMME_EXOS = [
   {name:"Arraché force (avec contact)", key:"arrache_force_avec_contact"},
-  {name:"Tirage haut d'arraché", key:"tirage_haut_d_arrache"},
-  {name:"Tractions nuque (ou tirage poulie haute)", key:"tractions_nuque_ou_tirage_poulie_haute"},
-  {name:"Tirage poulie basse (ou élastique)", key:"tirage_poulie_basse_ou_elastique"},
-  {name:"Y au GHD", key:"y_au_ghd"},
-  {name:"Leg raises", key:"leg_raises"},
-  {name:"Jeté force", key:"jete_force"},
-  {name:"Back squat", key:"back_squat"},
-  {name:"Appel de jeté", key:"appel_de_jete"},
-  {name:"Landmine barbell rotations", key:"landmine_barbell_rotations"},
-  {name:"Épaulé debout", key:"epaule_debout"},
+  {name:"Tirage haut d'arraché",        key:"tirage_haut_d_arrache"},
+  {name:"Tractions nuque ou tirage poulie haute", key:"tractions_nuque_ou_tirage_poulie_haute"},
+  {name:"Tirage poulie basse ou élastique", key:"tirage_poulie_basse_ou_elastique"},
+  {name:"Y au GHD",                     key:"y_au_ghd"},
+  {name:"Leg raises",                   key:"leg_raises"},
+  {name:"Jeté force",                   key:"jete_force"},
+  {name:"Back squat",                   key:"back_squat"},
+  {name:"Appel de jeté",                key:"appel_de_jete"},
+  {name:"Landmine barbell rotations",   key:"landmine_barbell_rotations"},
+  {name:"Épaulé debout",                key:"epaule_debout"},
   {name:"Chute d'arraché en instabilité", key:"chute_d_arrache_en_instabilite"},
-  {name:"Trapbar deadlift", key:"trapbar_deadlift"},
-  {name:"Gainage Copenhague", key:"gainage_copenhague"},
-  {name:"Arraché", key:"arrache"},
-  {name:"Épaulé-Jeté", key:"epaule_jete"},
-  {name:"Extensions lombaires GHD", key:"extensions_lombaires_ghd"},
-  {name:"Swiss ball side plank", key:"swiss_ball_side_plank"},
-  {name:"Saut 1 haie avec élan", key:"saut_1_haie_avec_elan"},
-  {name:"Front squat", key:"front_squat"},
-  {name:"Développé couché", key:"developpe_couche"},
-  {name:"Curl biceps", key:"curl_biceps"},
-  {name:"Tirage lourd d'arraché", key:"tirage_lourd_d_arrache"},
-  {name:"Tractions (ou tirage poulie haute)", key:"tractions_ou_tirage_poulie_haute"},
-  {name:"Pompes", key:"pompes"},
-  {name:"Épaulé des plots", key:"epaule_des_plots"},
-  {name:"Clamshell", key:"clamshell"},
+  {name:"Trapbar deadlift",             key:"trapbar_deadlift"},
+  {name:"Gainage Copenhague",           key:"gainage_copenhague"},
+  {name:"Arraché",                      key:"arrache"},
+  {name:"Épaulé-Jeté",                  key:"epaule_jete"},
+  {name:"Extensions lombaires GHD",     key:"extensions_lombaires_ghd"},
+  {name:"Swiss ball side plank",        key:"swiss_ball_side_plank"},
+  {name:"Saut 1 haie avec élan",        key:"saut_1_haie_avec_elan"},
+  {name:"Front squat",                  key:"front_squat"},
+  {name:"Développé couché",             key:"developpe_couche"},
+  {name:"Curl biceps",                  key:"curl_biceps"},
+  {name:"Tractions ou tirage poulie haute", key:"tractions_ou_tirage_poulie_haute"},
+  {name:"Pompes",                       key:"pompes"},
+  {name:"Épaulé des plots",             key:"epaule_des_plots"},
+  {name:"Clamshell",                    key:"clamshell"},
   {name:"Adducteurs au rameur ou à la machine", key:"adducteurs_au_rameur_ou_a_la_machine"},
-  {name:"Jeté des plots", key:"jete_des_plots"},
-  {name:"Single leg hip thrust", key:"single_leg_hip_thrust"},
-  {name:"Arraché suspension", key:"arrache_suspension"},
-  {name:"Face pulls", key:"face_pulls"},
-  {name:"Développé militaire", key:"developpe_militaire"},
-  {name:"Leg curl", key:"leg_curl"},
+  {name:"Jeté des plots",               key:"jete_des_plots"},
+  {name:"Single leg hip thrust",        key:"single_leg_hip_thrust"},
+  {name:"Arraché suspension",           key:"arrache_suspension"},
+  {name:"Face pulls",                   key:"face_pulls"},
+  {name:"Développé militaire",          key:"developpe_militaire"},
+  {name:"Leg curl",                     key:"leg_curl"},
+  {name:"Arraché debout",               key:"arrache_debout"},
 ];
 
 let allVideos = [];
@@ -1009,347 +1014,90 @@ let allVideos = [];
 async function loadVideos(){
   try{
     allVideos = await db('exercise_videos?select=*&order=exercise_key.asc') || [];
-    renderVideoPage();
-  } catch(e){ console.warn('Videos load failed', e); }
+  } catch(e){ allVideos = []; }
+  renderVideoPage();
 }
 
 function renderVideoPage(){
-  const linkedKeys = allVideos.map(v=>v.exercise_key);
+  const linkedKeys = allVideos.map(v => v.exercise_key.toLowerCase().trim());
+  const missing = ALL_PROGRAMME_EXOS.filter(e => !linkedKeys.includes(e.key));
+  const hasvid = allVideos.filter(v => ALL_PROGRAMME_EXOS.some(e => e.key === v.exercise_key.toLowerCase().trim()));
 
-  // Missing videos
-  const missing = ALL_PROGRAMME_EXOS.filter(e=>!linkedKeys.includes(e.key));
-  const missingList = document.getElementById('missingVideoList');
-  const missingCount = document.getElementById('missingCount');
-  if(missingCount) missingCount.textContent = missing.length;
-  if(missingList){
-    missingList.innerHTML = missing.map(e=>`
-      <div style="background:var(--surface);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:10px 14px">
-        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">${e.name}</div>
-        <div style="display:flex;gap:6px">
-          <input id="vid_${e.key}" type="text" placeholder="Colle le lien YouTube..." 
-            style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;color:var(--text);font-size:13px;outline:none">
-          <button class="action-btn primary" onclick="addVideoForExo('${e.key}','${e.name.replace(/'/g,"\'")}')">✓ Ajouter</button>
-        </div>
-      </div>`).join('') || '<div style="color:var(--green);font-size:13px;padding:8px">Tous les exercices ont une vidéo ! 🎉</div>';
+  document.getElementById('missingCount').textContent = missing.length;
+  document.getElementById('hasCount').textContent = allVideos.length;
+
+  // Missing list
+  const ml = document.getElementById('missingVideoList');
+  if(ml){
+    if(!missing.length){
+      ml.innerHTML = '<div style="color:var(--green);font-size:13px;padding:8px">Tous les exercices ont une vidéo 🎉</div>';
+    } else {
+      ml.innerHTML = missing.map(e => `
+        <div style="background:var(--surface);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:10px 14px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:8px">${e.name}</div>
+          <div style="display:flex;gap:6px">
+            <input id="vid_${e.key}" type="text" placeholder="Colle le lien YouTube..."
+              style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;color:var(--text);font-size:13px;outline:none">
+            <button class="action-btn primary" onclick="addVideoForExo('${e.key}')">✓ Ajouter</button>
+          </div>
+        </div>`).join('');
+    }
   }
 
-  // Has videos
+  // Has video table
   const tbody = document.getElementById('videosTable');
-  const hasCount = document.getElementById('hasCount');
-  if(hasCount) hasCount.textContent = allVideos.length;
   if(tbody){
-    tbody.innerHTML = allVideos.map(v=>`<tr>
-      <td style="font-weight:600">${v.exercise_key}</td>
-      <td><a href="${v.video_url}" target="_blank" style="color:#7aaee8;font-size:12px;word-break:break-all">${v.video_url}</a></td>
-      <td style="display:flex;gap:6px">
-        <button class="action-btn" onclick="editVideo('${v.id}','${v.exercise_key}','${v.video_url.replace(/'/g,"\'")}')">Modifier</button>
+    tbody.innerHTML = allVideos.map(v => `<tr>
+      <td style="font-weight:600;font-size:13px">${v.exercise_key}</td>
+      <td><a href="${v.video_url}" target="_blank" style="color:#7aaee8;font-size:12px;word-break:break-all">${v.video_url.substring(0,60)}${v.video_url.length>60?'…':''}</a></td>
+      <td>
+        <button class="action-btn" onclick="editVideo('${v.id}','${v.exercise_key}','${v.video_url}')">Modifier</button>
         <button class="action-btn danger" onclick="deleteVideo('${v.id}','${v.exercise_key}')">Supprimer</button>
       </td>
-    </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text3);padding:1rem">Aucune vidéo enregistrée</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text3);padding:1rem">Aucune vidéo</td></tr>';
   }
 }
 
-async function addVideoForExo(key, name){
-  const url = document.getElementById('vid_'+key)?.value.trim();
+async function addVideoForExo(key){
+  const input = document.getElementById('vid_' + key);
+  const url = input ? input.value.trim() : '';
   if(!url){ toast('Colle un lien YouTube'); return; }
   try{
+    // Try insert first
     await db('exercise_videos','POST',{exercise_key:key, video_url:url});
     toast('✅ Vidéo ajoutée !');
-    loadVideos();
   } catch(e){
+    // If duplicate key, update
     try{
-      await db(`exercise_videos?exercise_key=eq.${key}`,'PATCH',{video_url:url});
-      toast('✅ Vidéo mise à jour !');
-      loadVideos();
-    } catch(e2){ toast('Erreur : '+e2.message); }
+      const existing = await db(`exercise_videos?exercise_key=eq.${key}&select=id`);
+      if(existing && existing.length){
+        await db(`exercise_videos?id=eq.${existing[0].id}`,'PATCH',{video_url:url});
+        toast('✅ Vidéo mise à jour !');
+      } else { toast('Erreur : '+e.message); return; }
+    } catch(e2){ toast('Erreur : '+e2.message); return; }
   }
+  loadVideos();
 }
 
-function showAddVideoModal(){
-  editingVideoId = null;
-  document.getElementById('videoModalTitle').textContent = 'Ajouter une vidéo';
-  document.getElementById('vKey').value = '';
-  document.getElementById('vUrl').value = '';
-  document.getElementById('addVideoModal').style.display = 'flex';
-}
-
-function editVideo(id, key, url){
-  editingVideoId = id;
-  document.getElementById('videoModalTitle').textContent = 'Modifier la vidéo';
-  document.getElementById('vKey').value = key;
-  document.getElementById('vUrl').value = url;
-  document.getElementById('addVideoModal').style.display = 'flex';
-}
-
-function closeVideoModal(){
-  document.getElementById('addVideoModal').style.display = 'none';
-  editingVideoId = null;
-}
-
-async function saveVideo(){
-  const key = document.getElementById('vKey').value.trim();
-  const url = document.getElementById('vUrl').value.trim();
-  if(!key || !url){ alert('Remplis les deux champs'); return; }
+async function editVideo(id, key, currentUrl){
+  const url = prompt('Nouveau lien vidéo :', currentUrl);
+  if(!url || url === currentUrl) return;
   try{
-    if(editingVideoId){
-      await db(`exercise_videos?id=eq.${editingVideoId}`, 'PATCH', {exercise_key: key, video_url: url});
-      toast('Vidéo mise à jour');
-    } else {
-      await db('exercise_videos', 'POST', {exercise_key: key, video_url: url});
-      toast('Vidéo ajoutée');
-    }
-    closeVideoModal();
+    await db(`exercise_videos?id=eq.${id}`,'PATCH',{video_url:url});
+    toast('✅ Vidéo modifiée');
     loadVideos();
-  } catch(e){ alert('Erreur : ' + e.message); }
+  } catch(e){ toast('Erreur : '+e.message); }
 }
 
 async function deleteVideo(id, key){
-  if(!confirm(`Supprimer la vidéo "${key}" ?`)) return;
+  if(!confirm(`Supprimer la vidéo pour "${key}" ?`)) return;
   try{
-    await db(`exercise_videos?id=eq.${id}`, 'DELETE');
+    await db(`exercise_videos?id=eq.${id}`,'DELETE');
     toast('Vidéo supprimée');
     loadVideos();
-  } catch(e){ toast('Erreur'); }
+  } catch(e){ toast('Erreur : '+e.message); }
 }
 
-// ─── EXPORT CSV ───────────────────────────────────────────
-async function exportCSV(type){
-  let data, filename, headers;
-  try{
-    if(type==='coach'){
-      const movLabels={arr:'Arraché',ej:'Épaulé-Jeté',squat:'Squat',fs:'Front Squat',tla:'TL Arraché'};
-      data = coachData;
-      headers = ['Athlète','Club','Mouvement','Charge (kg)','Sinclair','Date'];
-      filename = 'soc_coach_charges.csv';
-      const rows2 = data.map(s=>{
-        const sinc = calcSinclair(s.weight, s.athletes?.bodyweight||80, s.athletes?.gender||'H');
-        return [s.athletes?.pseudo||'',s.athletes?.club||'',movLabels[s.movement]||s.movement,s.weight,sinc.toFixed(1),new Date(s.created_at).toLocaleDateString('fr-FR')];
-      });
-      const csv2 = [headers,...rows2].map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
-      const blob2=new Blob(['\uFEFF'+csv2],{type:'text/csv;charset=utf-8'});
-      const url2=URL.createObjectURL(blob2);
-      const a2=document.createElement('a');
-      a2.href=url2;a2.download=filename;a2.click();
-      URL.revokeObjectURL(url2);
-      toast('Export téléchargé !');
-      return;
-    }
-    if(type==='athletes'){
-      data = await db('athletes?select=pseudo,email,gender,bodyweight,club,country,level,access_type,created_at&order=created_at.desc') || [];
-      headers = ['Pseudo','Email','Genre','Poids','Club','Pays','Niveau','Accès','Inscription'];
-      filename = 'soc_athletes.csv';
-    } else if(type==='scores'){
-      data = await db(`cycle_scores?cycle=eq.${CYCLE}&select=weight,movement,week_num,created_at,athletes(pseudo,gender,bodyweight)&order=created_at.desc`) || [];
-      headers = ['Athlète','Genre','Poids','Mouvement','Charge (kg)','Sinclair','Semaine','Date'];
-      filename = 'soc_scores.csv';
-    } else if(type==='feelings'){
-      data = await db(`exercise_feelings?cycle=eq.${CYCLE}&select=exercise_key,score,week_num,day_num,created_at,athletes(pseudo)&order=created_at.desc`) || [];
-      headers = ['Athlète','Exercice','Score','Semaine','Jour','Date'];
-      filename = 'soc_ressentis.csv';
-    }
-
-    const rows = data.map(d => {
-      if(type==='athletes') return [
-        d.pseudo, d.email, d.gender==='F'?'Femme':'Homme',
-        d.bodyweight, d.club||'', d.country||'', d.level||'', d.access_type,
-        new Date(d.created_at).toLocaleDateString('fr-FR')
-      ];
-      if(type==='scores') return [
-        d.athletes?.pseudo||'', d.athletes?.gender||'', d.athletes?.bodyweight||'',
-        d.movement, d.weight,
-        calcSinclair(d.weight, d.athletes?.bodyweight||80, d.athletes?.gender||'H').toFixed(1),
-        'S'+d.week_num, new Date(d.created_at).toLocaleDateString('fr-FR')
-      ];
-      if(type==='feelings') return [
-        d.athletes?.pseudo||'', d.exercise_key, d.score,
-        'S'+d.week_num, 'J'+d.day_num,
-        new Date(d.created_at).toLocaleDateString('fr-FR')
-      ];
-    });
-
-    const csv = [headers, ...rows].map(r => r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
-    const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href=url; a.download=filename; a.click();
-    URL.revokeObjectURL(url);
-    toast(`Export ${filename} téléchargé !`);
-  } catch(e){ toast('Erreur export : '+e.message); console.warn(e); }
-}
-
-// ─── COACH VIEW ───────────────────────────────────────────
-let coachData = [];
-
-async function loadCoachView(){
-  const week = document.getElementById('coachWeekSel').value;
-  const day = document.getElementById('coachDaySel').value;
-  const mov = document.getElementById('coachMovSel').value;
-
-  try{
-    // Load scores
-    let url = `cycle_scores?cycle=eq.${CYCLE}&week_num=eq.${week}&select=weight,movement,created_at,athletes(pseudo,gender,bodyweight,club)&order=created_at.desc`;
-    if(mov!=='all') url += `&movement=eq.${mov}`;
-    const scores = await db(url) || [];
-    coachData = scores;
-
-    const tbody = document.getElementById('coachTable');
-    if(!scores.length){
-      tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:1rem">Aucune charge enregistrée</td></tr>';
-    } else {
-      tbody.innerHTML = scores.map(s=>{
-        const bw = s.athletes?.bodyweight || 80;
-        const gender = s.athletes?.gender || 'H';
-        const sinc = calcSinclair(s.weight, bw, gender);
-        // Get RM for % calculation - we don't have it here so skip
-        const date = new Date(s.created_at).toLocaleDateString('fr-FR');
-        const movLabels={arr:'Arraché',ej:'Épaulé-Jeté',squat:'Squat',fs:'Front Squat',tla:'TL Arraché',tla_haut:'TH Arraché',jet_force:'Jeté Force'};
-        const dotColor = sinc>250?'var(--gold)':sinc>200?'var(--green)':'var(--text)';
-        return `<tr>
-          <td><strong>${s.athletes?.pseudo||'—'}</strong><br><span style="font-size:11px;color:var(--text3)">${s.athletes?.club||''}</span></td>
-          <td>${movLabels[s.movement]||s.movement}</td>
-          <td style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:var(--yellow)">${s.weight}kg</td>
-          <td style="color:${dotColor};font-weight:700">${sinc.toFixed(1)}</td>
-          <td style="color:var(--text3)">—</td>
-          <td>S${week}</td>
-          <td style="color:var(--text3);font-size:12px">${date}</td>
-        </tr>`;
-      }).join('');
-    }
-
-    // Load fatigue for this week
-    const fatigue = await db(`weekly_fatigue?cycle=eq.${CYCLE}&week_num=eq.${week}&select=score_start,score_end,athletes(pseudo,club)`) || [];
-    const ftbody = document.getElementById('coachFatigueTable');
-    ftbody.innerHTML = fatigue.map(f=>{
-      const s=f.score_start, e=f.score_end;
-      const diff=s&&e?e-s:null;
-      const diffStr=diff!==null?`<span style="color:${diff>0?'var(--green)':diff<0?'var(--red)':'var(--text2)'};font-weight:700">${diff>0?'+':''}${diff}</span>`:'—';
-      const dot=v=>v<=3?'var(--red)':v<=6?'var(--yellow)':'var(--green)';
-      return `<tr>
-        <td><strong>${f.athletes?.pseudo||'—'}</strong></td>
-        <td style="color:var(--text3)">${f.athletes?.club||'—'}</td>
-        <td>${s?`<span style="color:${dot(s)};font-weight:700;font-size:16px">${s}/10</span>`:'—'}</td>
-        <td>${e?`<span style="color:${dot(e)};font-weight:700;font-size:16px">${e}/10</span>`:'—'}</td>
-        <td>${diffStr}</td>
-      </tr>`;
-    }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1rem">Aucune fatigue enregistrée</td></tr>';
-
-  } catch(e){ console.warn('Coach view failed',e); }
-}
-
-// ─── PROGRAMME EDITOR ────────────────────────────────────
-const RM_KEYS = [
-  {key:'arr',label:'Arraché'},
-  {key:'ej',label:'Épaulé-Jeté'},
-  {key:'fs',label:'Front Squat'},
-  {key:'squat',label:'Back squat'},
-  {key:'tla',label:'TL Arraché'},
-  {key:'tla_haut',label:'TH Arraché'},
-  {key:'jet_force',label:'Jeté Force'},
-  {key:'arr_force',label:'Arr. Force'},
-  {key:'ep_debout',label:'Épa. Debout'},
-  {key:'deadlift',label:'Deadlift'},
-];
-
-const PROG_MAIN = [
-  { dayIdx:0, label:'Lundi', exos:[
-    {idx:0, name:'Arraché debout',        detail:'2×2/70% · 1×2/80% · 1×1/85% · 4×1/90+%', rm:'arr'},
-    {idx:1, name:'Tirage haut arraché',   detail:'4×2 / 80–85%',                             rm:'tla_haut'},
-    {idx:2, name:'Front squat',            detail:'4×2 / 90%',                                rm:'fs'},
-    {idx:3, name:'Appel de jeté',          detail:'6×4 (même charge que le front squat)',      rm:'fs'},
-  ]},
-  { dayIdx:2, label:'Mercredi', exos:[
-    {idx:0, name:'Épaulé debout + jeté force', detail:'6×2 / 85–90+%',                        rm:'jet_force'},
-    {idx:1, name:'Tirage lourd épaulé',       detail:'4×2 / 100+% (du RM épaulé)',            rm:'ej'},
-  ]},
-  { dayIdx:4, label:'Vendredi', exos:[
-    {idx:0, name:'Arraché',                 detail:'RM du jour (max 3 échecs)',                rm:'arr'},
-    {idx:1, name:'Tirage lourd arraché',   detail:'6×2–3 reps / 100–110%',                   rm:'arr'},
-  ]},
-  { dayIdx:5, label:'Samedi', exos:[
-    {idx:0, name:'Épaulé-Jeté',        detail:'RM du jour (max 2 échecs)',                     rm:'ej'},
-    {idx:1, name:'Back squat (light)', detail:'3×3 / 70–75%',                                rm:'squat'},
-  ]},
-];
-
-let progOverrides = {};
-
-async function loadProgEditor(){
-  const dayIdx = parseInt(document.getElementById('progDaySel').value);
-  const day = PROG_MAIN.find(d => d.dayIdx === dayIdx);
-  if(!day) return;
-
-  // Load overrides from Supabase
-  try{
-    const ov = await db(`programme_overrides?cycle=eq.${CYCLE}&day_idx=eq.${dayIdx}&select=*`) || [];
-    progOverrides = {};
-    ov.forEach(o => { progOverrides[o.ex_idx] = o; });
-  } catch(e){ console.warn('Overrides load failed',e); }
-
-  const list = document.getElementById('progEditorList');
-  list.innerHTML = day.exos.map(ex => {
-    const ov = progOverrides[ex.idx];
-    const currentDetail = ov?.detail || ex.detail;
-    const currentRm = ov?.rm_key || ex.rm;
-    const rmOptions = RM_KEYS.map(r =>
-      `<option value="${r.key}" ${currentRm===r.key?'selected':''}>${r.label}</option>`
-    ).join('');
-    const isModified = !!ov;
-
-    return `<div style="background:var(--surface);border:1px solid ${isModified?'#003366':'var(--border)'};border-radius:12px;padding:1rem">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;color:${isModified?'#7aaee8':'var(--text)'}">${ex.name}</div>
-        ${isModified?'<span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#4488cc;background:rgba(68,136,204,0.1);border:1px solid rgba(68,136,204,0.3);border-radius:4px;padding:2px 7px">MODIFIÉ</span>':''}
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div>
-          <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#999;margin-bottom:4px">Séries / % / description</div>
-          <input id="prog_detail_${dayIdx}_${ex.idx}" value="${currentDetail}" 
-            style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:'Barlow',sans-serif">
-        </div>
-        <div>
-          <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#999;margin-bottom:4px">RM de référence</div>
-          <select id="prog_rm_${dayIdx}_${ex.idx}" 
-            style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none">
-            ${rmOptions}
-          </select>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:4px">
-          <button class="action-btn primary" onclick="saveProgOverride(${dayIdx},${ex.idx},this)" style="flex:2;padding:9px">💾 Enregistrer</button>
-          ${isModified?`<button class="action-btn danger" onclick="resetProgOverride(${dayIdx},${ex.idx})" style="flex:1;padding:9px">↺ Réinitialiser</button>`:''}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-async function saveProgOverride(dayIdx, exIdx, btn){
-  const day = PROG_MAIN.find(d=>d.dayIdx===dayIdx);
-  const ex = day?.exos.find(e=>e.idx===exIdx);
-  const exName = ex?.name || '';
-  const detail = document.getElementById(`prog_detail_${dayIdx}_${exIdx}`).value.trim();
-  const rmKey = document.getElementById(`prog_rm_${dayIdx}_${exIdx}`).value;
-  if(!detail){ toast('Le champ description est vide'); return; }
-  try{
-    const existing = progOverrides[exIdx];
-    if(existing){
-      await db(`programme_overrides?id=eq.${existing.id}`, 'PATCH', {detail, rm_key:rmKey, updated_at:new Date().toISOString()});
-    } else {
-      await db('programme_overrides', 'POST', {cycle:CYCLE, day_idx:dayIdx, ex_idx:exIdx, ex_name:exName, detail, rm_key:rmKey});
-    }
-    toast('✅ Modif enregistrée !');
-    loadProgEditor();
-  } catch(e){ toast('Erreur : '+e.message); console.warn(e); }
-}
-
-async function resetProgOverride(dayIdx, exIdx){
-  if(!confirm('Remettre les valeurs par défaut ?')) return;
-  try{
-    const existing = progOverrides[exIdx];
-    if(existing) await db(`programme_overrides?id=eq.${existing.id}`, 'DELETE');
-    toast('Valeurs remises par défaut');
-    loadProgEditor();
-  } catch(e){ toast('Erreur'); }
-}
 
 // SIDEBAR TOGGLE
 function toggleSidebar(){

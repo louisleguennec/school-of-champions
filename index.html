@@ -1065,11 +1065,7 @@ function saveActual(key,dIdx,val,rmKey,isLb){
   actualWeights[key]=w;
   localStorage.setItem('soc_actual',JSON.stringify(actualWeights));
   if(athlete) syncSessionLog('actual', actualWeights);
-  if(rmKey&&w>(parseFloat(rms[rmKey])||0)){
-    rms[rmKey]=w;
-    saveRMs();
-    buildRMGrid();
-  }
+  // ❌ Ne pas modifier les RMs automatiquement — seulement via "Mes RM"
   if(isLb==='1'&&athlete) submitActualToLb(rmKey,w);
   renderDays();
   updateTonnage();
@@ -1424,7 +1420,7 @@ async function submitScore(){
   const w=parseFloat(document.getElementById('scoreInput').value);
   if(!w||isNaN(w)){toast('Entre un poids valide');return;}
   const {rmKey}=scoreModalCtx;
-  rms[rmKey]=w;saveRMs();
+  // RM non modifié — soumission LB uniquement
   toast('🏆 Score soumis !');
   closeScoreModal();
   renderDays();

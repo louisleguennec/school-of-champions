@@ -466,10 +466,41 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
   <div class="panel" id="panelProfile">
     <div class="profile-card">
       <div class="profile-avatar m" id="profileAvatar" style="background:rgba(28,46,74,0.8);color:#7aaee8"></div>
-      <div class="profile-name" id="profileName" style="cursor:pointer" onclick="editMyPseudo()" title="Modifier mon nom">—</div>
-      <div style="font-size:10px;color:var(--text3);margin-top:2px;cursor:pointer" onclick="editMyPseudo()">✏️ Modifier mon nom</div>
-      <div class="profile-meta" id="profileMeta" style="cursor:pointer" onclick="editMyBodyweight()" title="Modifier mon poids de corps">—</div>
-      <div style="font-size:10px;color:var(--text3);margin-top:2px;cursor:pointer" onclick="editMyBodyweight()">✏️ Modifier mon poids</div>
+      <div class="profile-name" id="profileName">—</div>
+      <div class="profile-meta" id="profileMeta">—</div>
+    </div>
+    <div style="margin:0.75rem 1rem 0">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">✏️ Mon profil</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:12px;color:var(--text3);width:80px;flex-shrink:0">Pseudo</span>
+          <input id="editPseudo" type="text" style="flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:14px;outline:none">
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:12px;color:var(--text3);width:80px;flex-shrink:0">Poids (kg)</span>
+          <input id="editBw" type="number" inputmode="decimal" style="flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:14px;outline:none">
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:12px;color:var(--text3);width:80px;flex-shrink:0">Pays</span>
+          <input id="editCountry" type="text" placeholder="ex: 🇫🇷" style="flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:14px;outline:none">
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:12px;color:var(--text3);width:80px;flex-shrink:0">Club</span>
+          <input id="editClub" type="text" placeholder="ex: Powercamp" style="flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:14px;outline:none">
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:12px;color:var(--text3);width:80px;flex-shrink:0">Niveau</span>
+          <select id="editLevel" style="flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:14px;outline:none">
+            <option value="">— Sélectionner —</option>
+            <option value="Regional">Régional</option>
+            <option value="Inter-Regional">Inter-Régional</option>
+            <option value="Honneur">Honneur</option>
+            <option value="Elite">Élite</option>
+            <option value="Intl">International</option>
+          </select>
+        </div>
+        <button onclick="saveMyProfile()" style="background:var(--blue);border:none;border-radius:10px;padding:10px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:4px">💾 Enregistrer</button>
+      </div>
     </div>
     <div style="margin:0 1rem">
       <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">Mes records all-time</div>
@@ -1537,6 +1568,12 @@ function renderProfile(){
   const levelLabels={regional:'Régional',interregional:'Inter-régional',honneur:'France Honneur',elite:'France Élite',international:'International'};
   document.getElementById('profileName').textContent=athlete.pseudo;
   document.getElementById('profileMeta').textContent=`${athlete.gender==='F'?'Femme':'Homme'} · ${athlete.bodyweight}kg · ${athlete.country||'🇫🇷'}${athlete.club?' · '+athlete.club:''}${athlete.level?' · '+levelLabels[athlete.level]:''}`;
+  // Fill edit form
+  const ep=document.getElementById('editPseudo'); if(ep) ep.value=athlete.pseudo||'';
+  const eb=document.getElementById('editBw'); if(eb) eb.value=athlete.bodyweight||'';
+  const ec=document.getElementById('editCountry'); if(ec) ec.value=athlete.country||'';
+  const ecl=document.getElementById('editClub'); if(ecl) ecl.value=athlete.club||'';
+  const el=document.getElementById('editLevel'); if(el) el.value=athlete.level||'';
   const rec=document.getElementById('myRecords');
   rec.innerHTML=LB_ALLTIME.map(m=>{
     const val=m.key==='total'?getTotal():rms[m.key];
@@ -1769,33 +1806,30 @@ function updateTonnage(){
 }
 
 // ─── EDIT PSEUDO ─────────────────────────────────────────
-async function editMyPseudo(){
+async function saveMyProfile(){
   if(!athlete) return;
-  const newPseudo = prompt('Ton pseudo :', athlete.pseudo);
-  if(!newPseudo || newPseudo.trim() === athlete.pseudo) return;
-  if(newPseudo.trim().length < 2){ toast('Pseudo trop court'); return; }
-  try{
-    await db(`athletes?id=eq.${athlete.id}`, 'PATCH', {pseudo: newPseudo.trim()});
-    athlete.pseudo = newPseudo.trim();
-    saveAthlete();
-    renderProfile();
-    toast('✅ Nom mis à jour !');
-  } catch(e){ toast('Erreur : ' + e.message); }
-}
+  const pseudo = document.getElementById('editPseudo')?.value.trim();
+  const bw = parseFloat(document.getElementById('editBw')?.value);
+  const country = document.getElementById('editCountry')?.value.trim();
+  const club = document.getElementById('editClub')?.value.trim();
+  const level = document.getElementById('editLevel')?.value;
 
-async function editMyBodyweight(){
-  if(!athlete) return;
-  const newBw = prompt('Ton poids de corps (kg) :', athlete.bodyweight);
-  if(!newBw || newBw.trim() === String(athlete.bodyweight)) return;
-  const bw = parseFloat(newBw);
-  if(isNaN(bw) || bw < 30 || bw > 200){ toast('Poids invalide'); return; }
+  if(!pseudo || pseudo.length < 2){ toast('Pseudo trop court'); return; }
+  if(isNaN(bw) || bw < 30 || bw > 200){ toast('Poids invalide (30–200 kg)'); return; }
+
   try{
-    await db(`athletes?id=eq.${athlete.id}`, 'PATCH', {bodyweight: bw});
+    await db(`athletes?id=eq.${athlete.id}`, 'PATCH', {
+      pseudo, bodyweight:bw, country:country||'🇫🇷', club:club||'', level:level||null
+    });
+    athlete.pseudo = pseudo;
     athlete.bodyweight = bw;
+    athlete.country = country || '🇫🇷';
+    athlete.club = club || '';
+    athlete.level = level || null;
     saveAthlete();
     renderProfile();
     loadLeaderboards();
-    toast('✅ Poids mis à jour !');
+    toast('✅ Profil mis à jour !');
   } catch(e){ toast('Erreur : ' + e.message); }
 }
 

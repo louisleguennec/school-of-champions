@@ -1,41 +1,22 @@
-const CACHE = 'soc-v1';
-const STATIC = [
-  '/',
-  '/index.html',
-];
+// Incrémente ce numéro à chaque déploiement pour forcer la mise à jour
+const CACHE_VERSION = 'soc-v' + Date.now();
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(STATIC))
-  );
+  // Force activation immédiate sans attendre
   self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
+  // Supprime TOUS les anciens caches
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    )
+      Promise.all(keys.map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', e => {
-  // Network first pour les requêtes Supabase
-  if (e.request.url.includes('supabase.co')) {
-    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-    return;
-  }
-  // Cache first pour le reste
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(res => {
-        if (!res || res.status !== 200) return res;
-        const clone = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, clone));
-        return res;
-      });
-    })
-  );
+  // Network first TOUJOURS — pas de cache
+  // Le SW sert juste à l'installation PWA sur mobile
+  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
 });

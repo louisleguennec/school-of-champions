@@ -1530,7 +1530,7 @@ function getInitials(name){return name.split(' ').map(w=>w[0]).join('').substrin
 function renderLb(){
   buildLbMovementFilter();
   const mov=LB_ALLTIME.find(m=>m.key===lbMovement)||LB_ALLTIME[0];
-  document.getElementById('lbMovTitle').innerHTML=`${mov.icon} ${mov.label} ${mov.isSinclair?'<span class="lb-cycle-badge">Sinclair</span>':''} <span style="font-size:10px;color:var(--text3);font-weight:400">${lbMode==='cycle'?'· Ce cycle':'· Saison'}</span>`;
+  document.getElementById('lbMovTitle').innerHTML=`${mov.icon} ${mov.label} ${mov.isSinclair?'<span class="lb-cycle-badge">Sinclair</span>':''}`;
   let pool=(lbData[lbMovement]||[]).filter(a=>lbGender==='all'||a.gender===lbGender);
   pool=pool.map(a=>({...a,displayScore:calcSinclair(a.weight,a.bw,a.gender),rawWeight:a.weight}));
   pool.sort((a,b)=>b.displayScore-a.displayScore);

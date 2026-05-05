@@ -566,7 +566,6 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
       <div class="full-lb-title" id="fullLbTitle">—</div>
       <div class="full-lb-subtitle" id="fullLbSubtitle">Toutes les performances</div>
       <div style="display:flex;gap:6px;margin-top:8px">
-        <button class="lb-gender-btn active" id="fullLbAll" onclick="setFullLbGender('all',this)">Tous</button>
         <button class="lb-gender-btn" id="fullLbH" onclick="setFullLbGender('H',this)">Hommes</button>
         <button class="lb-gender-btn" id="fullLbF" onclick="setFullLbGender('F',this)">Femmes</button>
       </div>
@@ -1960,11 +1959,10 @@ let fullLbExName = '';
 async function openFullLb(rmKey, exName){
   fullLbRmKey = rmKey;
   fullLbExName = exName;
-  fullLbGender = 'all';
+  fullLbGender = athlete?.gender || 'H';
   document.getElementById('fullLbTitle').textContent = exName;
-  document.getElementById('fullLbAll').classList.add('active');
-  document.getElementById('fullLbH').classList.remove('active');
-  document.getElementById('fullLbF').classList.remove('active');
+  document.getElementById('fullLbH').classList.toggle('active', fullLbGender==='H');
+  document.getElementById('fullLbF').classList.toggle('active', fullLbGender==='F');
   document.getElementById('fullLbModal').classList.add('show');
   document.body.style.overflow = 'hidden';
   await refreshFullLb();
@@ -2004,7 +2002,7 @@ async function refreshFullLb(){
 
 function setFullLbGender(g, btn){
   fullLbGender = g;
-  document.querySelectorAll('[id^="fullLb"]').forEach(b=>{ if(b.tagName==='BUTTON') b.classList.remove('active'); });
+  document.querySelectorAll('#fullLbH,#fullLbF').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderFullLb();
 }

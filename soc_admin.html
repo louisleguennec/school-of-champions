@@ -144,6 +144,7 @@ tr:hover td{background:var(--surface2)}
     <button class="nav-link" onclick="showPage('feelings',this)"><span class="nav-icon">📈</span>Ressentis</button>
     <button class="nav-link" onclick="showPage('fatigue',this)"><span class="nav-icon">⚡</span>Fatigue</button>
     <button class="nav-link" onclick="showPage('leaderboard',this)"><span class="nav-icon">🏆</span>Leaderboard</button>
+    <button class="nav-link" onclick="showPage('guests',this)"><span class="nav-icon">👥</span>LB Invités</button>
     <button class="nav-link" onclick="showPage('config',this)"><span class="nav-icon">⚙️</span>Configuration</button>
     <button class="nav-link" onclick="showPage('videos',this)"><span class="nav-icon">🎬</span>Vidéos</button>
     <button class="nav-link" onclick="showPage('coach',this)"><span class="nav-icon">🏋️</span>Vue Coach</button>
@@ -274,6 +275,54 @@ tr:hover td{background:var(--surface2)}
         <table>
           <thead><tr><th>#</th><th>Athlète</th><th>Club</th><th>Poids corps</th><th>Charge</th><th>Sinclair</th><th>Actions</th></tr></thead>
           <tbody id="lbAdminTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- GUESTS LEADERBOARD -->
+    <div class="page" id="pageGuests">
+      <div class="page-title">Invités Leaderboard</div>
+      <div class="page-sub">Athlètes de référence — apparaissent au classement sans avoir de compte</div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:1.25rem">
+        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:12px">➕ Ajouter un invité</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <input id="guestName" placeholder="Nom / Pseudo" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none">
+            <select id="guestGender" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none">
+              <option value="H">Homme</option>
+              <option value="F">Femme</option>
+            </select>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <input id="guestBw" type="number" placeholder="Poids de corps (kg)" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none">
+            <select id="guestLevel" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none">
+              <option value="">— Niveau —</option>
+              <option value="Regional">Régional</option>
+              <option value="Inter-Regional">Inter-Régional</option>
+              <option value="Honneur">Honneur</option>
+              <option value="Elite">Élite</option>
+              <option value="Intl">International</option>
+            </select>
+          </div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-top:4px">Performances (kg)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <input id="guestArr" type="number" placeholder="Arraché" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none">
+            <input id="guestEj" type="number" placeholder="Épaulé-Jeté" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none">
+            <input id="guestFs" type="number" placeholder="Front squat" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <input id="guestSquat" type="number" placeholder="Back squat" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none">
+            <input id="guestClub" placeholder="Club (optionnel)" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none">
+            <button class="action-btn primary" onclick="addGuest()" style="padding:8px">✓ Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nom</th><th>Genre</th><th>Poids</th><th>Niveau</th><th>Arraché</th><th>EJ</th><th>FS</th><th>BS</th><th>Club</th><th>Actions</th></tr></thead>
+          <tbody id="guestsTable"></tbody>
         </table>
       </div>
     </div>
@@ -485,6 +534,7 @@ function showPage(name,btn){
   if(name==='athletes') loadAthletes();
   if(name==='feelings') loadFeelings();
   if(name==='videos') loadVideos();
+  if(name==='guests') loadGuests();
   if(name==='coach') loadCoachView();
   if(name==='programme') loadProgEditor();
   if(name==='fatigue') loadFatigueAdmin();
@@ -1107,6 +1157,68 @@ function toggleSidebar(){
     });
   }
 })();
+
+// ─── LEADERBOARD GUESTS ───────────────────────────────────
+let allGuests = [];
+
+async function loadGuests(){
+  try{
+    allGuests = await db('leaderboard_guests?select=*&order=created_at.desc') || [];
+    renderGuests();
+  } catch(e){ console.warn('Guests load failed',e); }
+}
+
+function renderGuests(){
+  const tbody = document.getElementById('guestsTable');
+  if(!tbody) return;
+  tbody.innerHTML = allGuests.map(g => `<tr>
+    <td style="font-weight:700">${g.pseudo}</td>
+    <td>${g.gender==='F'?'Femme':'Homme'}</td>
+    <td>${g.bodyweight}kg</td>
+    <td style="font-size:11px;color:var(--text2)">${g.level||'—'}</td>
+    <td style="color:var(--yellow);font-weight:700">${g.arr||'—'}</td>
+    <td style="color:var(--yellow);font-weight:700">${g.ej||'—'}</td>
+    <td style="color:var(--yellow);font-weight:700">${g.fs||'—'}</td>
+    <td style="color:var(--yellow);font-weight:700">${g.squat||'—'}</td>
+    <td style="color:var(--text3);font-size:12px">${g.club||'—'}</td>
+    <td><button class="action-btn danger" onclick="deleteGuest('${g.id}','${g.pseudo}')">Supprimer</button></td>
+  </tr>`).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:1rem">Aucun invité</td></tr>';
+}
+
+async function addGuest(){
+  const pseudo = document.getElementById('guestName').value.trim();
+  const gender = document.getElementById('guestGender').value;
+  const bodyweight = parseFloat(document.getElementById('guestBw').value);
+  const level = document.getElementById('guestLevel').value;
+  const arr = parseFloat(document.getElementById('guestArr').value) || null;
+  const ej = parseFloat(document.getElementById('guestEj').value) || null;
+  const fs = parseFloat(document.getElementById('guestFs').value) || null;
+  const squat = parseFloat(document.getElementById('guestSquat').value) || null;
+  const club = document.getElementById('guestClub').value.trim();
+
+  if(!pseudo){ toast('Nom requis'); return; }
+  if(!bodyweight || isNaN(bodyweight)){ toast('Poids requis'); return; }
+  if(!arr && !ej && !fs && !squat){ toast('Au moins une perf requise'); return; }
+
+  try{
+    await db('leaderboard_guests','POST',{pseudo,gender,bodyweight,level:level||null,arr,ej,fs,squat,club:club||null});
+    toast('✅ Invité ajouté !');
+    // Clear form
+    ['guestName','guestBw','guestArr','guestEj','guestFs','guestSquat','guestClub'].forEach(id=>{
+      const el = document.getElementById(id); if(el) el.value='';
+    });
+    loadGuests();
+  } catch(e){ toast('Erreur : '+e.message); }
+}
+
+async function deleteGuest(id, pseudo){
+  if(!confirm(`Supprimer ${pseudo} du leaderboard ?`)) return;
+  try{
+    await db(`leaderboard_guests?id=eq.${id}`,'DELETE');
+    toast('Invité supprimé');
+    loadGuests();
+  } catch(e){ toast('Erreur'); }
+}
 
 // TOAST
 function toast(msg){

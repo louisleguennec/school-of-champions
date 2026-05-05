@@ -313,15 +313,16 @@ tr:hover td{background:var(--surface2)}
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
             <input id="guestSquat" type="number" placeholder="Back squat" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none">
+            <input id="guestTotal" type="number" placeholder="Total officiel" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none">
             <input id="guestClub" placeholder="Club (optionnel)" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none">
-            <button class="action-btn primary" onclick="addGuest()" style="padding:8px">✓ Ajouter</button>
           </div>
+          <button class="action-btn primary" onclick="addGuest()" style="padding:8px;width:100%">✓ Ajouter</button>
         </div>
       </div>
 
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Nom</th><th>Genre</th><th>Poids</th><th>Niveau</th><th>Arraché</th><th>EJ</th><th>FS</th><th>BS</th><th>Club</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Nom</th><th>Genre</th><th>Poids</th><th>Niveau</th><th>Arraché</th><th>EJ</th><th>Total</th><th>FS</th><th>BS</th><th>Club</th><th>Actions</th></tr></thead>
           <tbody id="guestsTable"></tbody>
         </table>
       </div>
@@ -1179,6 +1180,7 @@ function renderGuests(){
     <td style="color:var(--yellow);font-weight:700">${g.arr||'—'}</td>
     <td style="color:var(--yellow);font-weight:700">${g.ej||'—'}</td>
     <td style="color:var(--yellow);font-weight:700">${g.fs||'—'}</td>
+    <td style="color:var(--yellow);font-weight:700">${g.total||'—'}</td>
     <td style="color:var(--yellow);font-weight:700">${g.squat||'—'}</td>
     <td style="color:var(--text3);font-size:12px">${g.club||'—'}</td>
     <td><button class="action-btn danger" onclick="deleteGuest('${g.id}','${g.pseudo}')">Supprimer</button></td>
@@ -1194,17 +1196,18 @@ async function addGuest(){
   const ej = parseFloat(document.getElementById('guestEj').value) || null;
   const fs = parseFloat(document.getElementById('guestFs').value) || null;
   const squat = parseFloat(document.getElementById('guestSquat').value) || null;
+  const total = parseFloat(document.getElementById('guestTotal').value) || null;
   const club = document.getElementById('guestClub').value.trim();
 
   if(!pseudo){ toast('Nom requis'); return; }
   if(!bodyweight || isNaN(bodyweight)){ toast('Poids requis'); return; }
-  if(!arr && !ej && !fs && !squat){ toast('Au moins une perf requise'); return; }
+  if(!arr && !ej && !fs && !squat && !total){ toast('Au moins une perf requise'); return; }
 
   try{
-    await db('leaderboard_guests','POST',{pseudo,gender,bodyweight,level:level||null,arr,ej,fs,squat,club:club||null});
+    await db('leaderboard_guests','POST',{pseudo,gender,bodyweight,level:level||null,arr,ej,total,fs,squat,club:club||null});
     toast('✅ Invité ajouté !');
     // Clear form
-    ['guestName','guestBw','guestArr','guestEj','guestFs','guestSquat','guestClub'].forEach(id=>{
+    ['guestName','guestBw','guestArr','guestEj','guestTotal','guestFs','guestSquat','guestClub'].forEach(id=>{
       const el = document.getElementById(id); if(el) el.value='';
     });
     loadGuests();

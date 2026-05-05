@@ -222,7 +222,7 @@ tr:hover td{background:var(--surface2)}
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Jour</th><th>Exercice</th><th>Moy.</th><th>Réponses</th><th>Détail</th></tr></thead>
+          <thead><tr><th>Jour</th><th>Exercice</th><th>Ressenti moy.</th><th>Réponses</th></tr></thead>
           <tbody id="feelingsTable"></tbody>
         </table>
       </div>
@@ -568,6 +568,8 @@ function renderAthletes(list){
       <td style="display:flex;gap:6px">
         <button class="action-btn" onclick="editPseudo('${a.id}','${a.pseudo}')">Nom</button>
         <button class="action-btn" onclick="editClub('${a.id}','${a.club||''}')">Club</button>
+        <button class="action-btn" onclick="editLevel('${a.id}','${a.level||''}')">Niveau</button>
+        <button class="action-btn" onclick="editBodyweight('${a.id}','${a.bodyweight}')">Poids</button>
         <button class="action-btn ${a.access_type==='sub'?'danger':''}" onclick="toggleAccess('${a.id}','${a.access_type}')">${a.access_type==='sub'?'Désactiver':'Activer'}</button>
         <button class="action-btn danger" onclick="deleteAthlete('${a.id}','${a.pseudo}')">Supprimer</button>
       </td>
@@ -630,6 +632,31 @@ async function editClub(id,current){
   } catch(e){ toast('Erreur'); }
 }
 
+async function editLevel(id, current){
+  const levels = ['Regional','Inter-Regional','Honneur','Elite','Intl'];
+  const opts = levels.map((l,i)=>`${i+1}. ${l}`).join('\n');
+  const choice = prompt(`Niveau (1-5):\n${opts}\nActuel: ${current||'—'}\n\nTape le numéro ou laisse vide pour effacer:`);
+  if(choice===null) return;
+  const lvl = levels[parseInt(choice)-1] || null;
+  try{
+    await db(`athletes?id=eq.${id}`,'PATCH',{level:lvl});
+    toast('Niveau mis à jour');
+    loadAthletes();
+  } catch(e){ toast('Erreur'); }
+}
+
+async function editBodyweight(id, current){
+  const bw = prompt('Poids de corps (kg):', current||'');
+  if(bw===null) return;
+  const val = parseFloat(bw);
+  if(isNaN(val)||val<30||val>200){ toast('Poids invalide'); return; }
+  try{
+    await db(`athletes?id=eq.${id}`,'PATCH',{bodyweight:val});
+    toast('Poids mis à jour');
+    loadAthletes();
+  } catch(e){ toast('Erreur'); }
+}
+
 async function deleteAthlete(id,pseudo){
   if(!confirm(`Supprimer ${pseudo} ? Cette action est irréversible.`)) return;
   try{
@@ -669,19 +696,18 @@ const EX_NAMES = {
 async function loadFeelings(){
   const week = document.getElementById('feelingsWeek')?.value || 1;
   try{
-    const data = await db(`exercise_feelings?cycle=eq.${CYCLE}&week_num=eq.${week}&select=exercise_key,score,day_num,athletes(pseudo)&order=day_num.asc,exercise_key.asc`) || [];
+    const data = await db(`exercise_feelings?cycle=eq.${CYCLE}&week_num=eq.${week}&select=exercise_key,score,day_num&order=day_num.asc,exercise_key.asc`) || [];
     
+    const DAY_LABELS = {1:'Lundi',2:'Mardi',3:'Mercredi',4:'Jeudi',5:'Vendredi',6:'Samedi'};
+    const SCORE_EMOJI = {1:'😵',2:'😓',3:'😐',4:'💪',5:'🔥'};
+
     // Group by day + exercise
     const grouped = {};
     data.forEach(f => {
       const key = `${f.day_num}_${f.exercise_key}`;
-      if(!grouped[key]) grouped[key] = {day:f.day_num, ex:f.exercise_key, scores:[], athletes:[]};
+      if(!grouped[key]) grouped[key] = {day:f.day_num, ex:f.exercise_key, scores:[]};
       grouped[key].scores.push(f.score);
-      grouped[key].athletes.push(f.athletes?.pseudo||'?');
     });
-
-    const DAY_LABELS = {1:'Lundi',2:'Mardi',3:'Mercredi',4:'Jeudi',5:'Vendredi',6:'Samedi'};
-    const SCORE_EMOJI = {1:'😵',2:'😓',3:'😐',4:'💪',5:'🔥'};
 
     const tbody = document.getElementById('feelingsTable');
     if(!tbody) return;
@@ -689,393 +715,45 @@ async function loadFeelings(){
     tbody.innerHTML = rows.map(g => {
       const avg = (g.scores.reduce((a,b)=>a+b,0)/g.scores.length).toFixed(1);
       const emoji = SCORE_EMOJI[Math.round(parseFloat(avg))]||'';
-      const detail = g.athletes.map((n,i)=>`${n}: ${SCORE_EMOJI[g.scores[i]]||g.scores[i]}`).join(' · ');
+      // Format exercise name nicely
+      const exName = g.ex.replace(/_/g,' ').replace(/\w/g, l=>l.toUpperCase());
       return `<tr>
         <td style="font-weight:700;color:var(--text2)">${DAY_LABELS[g.day]||'J'+g.day}</td>
-        <td style="font-size:12px">${g.ex.replace(/_/g,' ')}</td>
-        <td style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--yellow)">${emoji} ${avg}</td>
-        <td style="color:var(--text3);font-size:12px">${g.scores.length}</td>
-        <td style="font-size:11px;color:var(--text3)">${detail}</td>
+        <td style="font-size:13px">${exName}</td>
+        <td style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--yellow)">${emoji} ${avg}</td>
+        <td style="color:var(--text3);font-size:12px">${g.scores.length} réponse${g.scores.length>1?'s':''}</td>
       </tr>`;
-    }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1rem">Aucun ressenti cette semaine</td></tr>';
+    }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:1rem">Aucun ressenti cette semaine</td></tr>';
   } catch(e){ console.warn('Feelings failed',e); }
 }
 
-// FATIGUE ADMIN
+
 async function loadFatigueAdmin(){
-  const week=document.getElementById('fatigueWeekSel').value;
   try{
-    const fatigue=await db(`weekly_fatigue?cycle=eq.${CYCLE}&week_num=eq.${week}&select=score_start,score_end,athletes(pseudo,club)`)||[];
-    const tbody=document.getElementById('fatigueTable');
-    tbody.innerHTML=fatigue.map(f=>{
-      const s=f.score_start, e=f.score_end;
-      const diff=s&&e?e-s:null;
-      const diffStr=diff!==null?`<span style="color:${diff>0?'var(--green)':diff<0?'var(--red)':'var(--text2)'}">${diff>0?'+':''}${diff}</span>`:'—';
-      const dotColor=(v)=>v<=3?'var(--red)':v<=6?'var(--yellow)':'var(--green)';
+    const fatigue = await db(`weekly_fatigue?cycle=eq.${CYCLE}&select=score_start,score_end,week_num,athletes(pseudo,club)&order=week_num.asc,athletes(pseudo).asc`) || [];
+    const tbody = document.getElementById('fatigueTable');
+    if(!tbody) return;
+    if(!fatigue.length){
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1rem">Aucune donnée de fatigue pour ce cycle</td></tr>';
+      return;
+    }
+    const dot = v => v<=3?'var(--red)':v<=6?'var(--yellow)':'var(--green)';
+    tbody.innerHTML = fatigue.map(f => {
+      const s = f.score_start, e = f.score_end;
+      const diff = (s&&e) ? e-s : null;
+      const diffStr = diff!==null ? `<span style="color:${diff>0?'var(--green)':diff<0?'var(--red)':'var(--text2)'};font-weight:700">${diff>0?'+':''}${diff}</span>` : '—';
       return `<tr>
-        <td>${f.athletes?.pseudo||'—'}</td>
+        <td><strong>${f.athletes?.pseudo||'—'}</strong></td>
         <td style="color:var(--text3)">${f.athletes?.club||'—'}</td>
-        <td>${s?`<span style="color:${dotColor(s)};font-weight:700;font-size:16px">${s}/10</span>`:'—'}</td>
-        <td>${e?`<span style="color:${dotColor(e)};font-weight:700;font-size:16px">${e}/10</span>`:'—'}</td>
+        <td>S${f.week_num}</td>
+        <td>${s?`<span style="color:${dot(s)};font-weight:700;font-size:16px">${s}/10</span>`:'—'}</td>
+        <td>${e?`<span style="color:${dot(e)};font-weight:700;font-size:16px">${e}/10</span>`:'—'}</td>
         <td>${diffStr}</td>
       </tr>`;
-    }).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1rem">Aucune donnée</td></tr>';
-  } catch(e){ console.warn(e); }
-}
-
-// LB ADMIN
-async function loadLbAdmin(){
-  const mov=document.getElementById('lbMovSel').value;
-  const gender=document.getElementById('lbGenderSel').value;
-  document.getElementById('lbAdminTitle').textContent=`Classement ${mov.toUpperCase()} · ${gender==='H'?'Hommes':'Femmes'}`;
-  try{
-    const records=await db(`rm_records?movement=eq.${mov}&select=weight,athletes(pseudo,gender,bodyweight,club)&athletes.gender=eq.${gender}`)||[];
-    const filtered=records.filter(r=>r.athletes&&r.athletes.gender===gender);
-    const pool=filtered.map(r=>({
-      name:r.athletes.pseudo,bw:r.athletes.bodyweight,
-      club:r.athletes.club||'',
-      weight:r.weight,
-      sinclair:calcSinclair(r.weight,r.athletes.bodyweight,gender)
-    })).sort((a,b)=>b.sinclair-a.sinclair);
-    const tbody=document.getElementById('lbAdminTable');
-    tbody.innerHTML=pool.map((a,i)=>`<tr>
-      <td style="color:${i===0?'var(--gold)':i===1?'var(--silver,#9ca3af)':i===2?'#b45309':'var(--text3)'};font-weight:900">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</td>
-      <td>${a.name}</td>
-      <td style="color:var(--text3)">${a.club||'—'}</td>
-      <td>${a.bw}kg</td>
-      <td style="font-weight:700;color:var(--yellow)">${a.weight}kg</td>
-      <td style="color:var(--blue-light)">${a.sinclair.toFixed(1)}</td>
-      <td><button class="action-btn danger" onclick="deleteScore('${a.name}','${mov}')">Supprimer</button></td>
-    </tr>`).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:1rem">Aucun score</td></tr>';
-  } catch(e){ console.warn(e); }
-}
-
-async function deleteScore(pseudo,movement){
-  if(!confirm(`Supprimer le score de ${pseudo} en ${movement} ?`)) return;
-  try{
-    const athlete=await db(`athletes?pseudo=eq.${encodeURIComponent(pseudo)}&select=id`);
-    if(!athlete||!athlete.length){ toast('Athlète non trouvé'); return; }
-    await db(`rm_records?athlete_id=eq.${athlete[0].id}&movement=eq.${movement}`,'DELETE');
-    toast('Score supprimé');
-    loadLbAdmin();
-  } catch(e){ toast('Erreur'); }
-}
-
-// CONFIG - Active leaderboards
-// Exos de training par jour (copié du programme, section main uniquement)
-// Exos LB par semaine et par jour
-const ALL_PROG_DAYS = {
-  1: [ // S1 · 04/05
-    { label:'Lundi', exos:[
-      {key:'arrache_force_avec_contact', label:'Arraché force (avec contact)', rm:'arr_force'},
-    ]},
-    { label:'Mardi', exos:[] },
-    { label:'Mercredi', exos:[] },
-    { label:'Jeudi', exos:[] },
-    { label:'Vendredi', exos:[
-      {key:'arrache',    label:'Arraché',     rm:'arr'},
-      {key:'epaule_jete',label:'Épaulé-Jeté', rm:'ej'},
-    ]},
-    { label:'Samedi', exos:[
-      {key:'front_squat', label:'Front squat', rm:'fs'},
-    ]},
-  ],
-  2: [ // S2 · 11/05
-    { label:'Lundi', exos:[
-      {key:'arrache', label:'Arraché', rm:'arr'},
-    ]},
-    { label:'Mardi', exos:[
-      {key:'back_squat', label:'Back squat', rm:'squat'},
-    ]},
-    { label:'Mercredi', exos:[] },
-    { label:'Jeudi', exos:[] },
-    { label:'Vendredi', exos:[
-      {key:'arrache_suspension', label:'Arraché suspension', rm:'arr'},
-      {key:'epaule_jete',        label:'Épaulé-Jeté',        rm:'ej'},
-    ]},
-    { label:'Samedi', exos:[
-      {key:'front_squat', label:'Front squat', rm:'fs'},
-    ]},
-  ],
-  3: [ // S3 · 18/05 — à venir
-    { label:'Lundi', exos:[] },
-    { label:'Mardi', exos:[] },
-    { label:'Mercredi', exos:[] },
-    { label:'Jeudi', exos:[] },
-    { label:'Vendredi', exos:[] },
-    { label:'Samedi', exos:[] },
-  ],
-};
-let PROG_DAYS = ALL_PROG_DAYS[1];
-
-async function loadWeekUnlocks(){
-  // Load manual overrides from Supabase (if any)
-  try{
-    const unlocks = await db('week_unlocks?cycle=eq.'+CYCLE+'&select=*') || [];
-    const grid = document.getElementById('weekUnlockGrid');
-    if(!grid) return;
-    const WEEK_LABELS = ['S1 · 04/05','S2 · 11/05','S3 · 18/05'];
-    const WEEK_DATES = ['2026-05-03','2026-05-10','2026-05-17']; // samedi unlock
-    grid.innerHTML = WEEK_LABELS.map((label,i) => {
-      const forced = unlocks.find(u=>u.week_num===i+1);
-      const autoUnlock = new Date() >= new Date(WEEK_DATES[i]);
-      const isUnlocked = forced ? forced.unlocked : autoUnlock;
-      const isManual = !!forced;
-      return `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px">
-        <div>
-          <div style="font-size:13px;font-weight:700">${label}</div>
-          <div style="font-size:10px;color:var(--text3)">${isManual?'Manuel':'Auto · sam. '+WEEK_DATES[i].slice(5)}</div>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center">
-          ${isManual?`<button class="action-btn danger" onclick="resetWeekUnlock(${i+1})" style="padding:4px 8px;font-size:11px">↺</button>`:''}
-          <button class="toggle-switch ${isUnlocked?'on':''}" onclick="toggleWeekUnlock(${i+1},${!isUnlocked},this)"></button>
-        </div>
-      </div>`;
     }).join('');
-  } catch(e){ console.warn('Week unlocks failed',e); }
+  } catch(e){ console.warn('Fatigue admin failed',e); }
 }
 
-async function toggleWeekUnlock(weekNum, unlock, btn){
-  btn.classList.toggle('on', unlock);
-  try{
-    const existing = await db(`week_unlocks?cycle=eq.${CYCLE}&week_num=eq.${weekNum}&select=id`);
-    if(existing && existing.length){
-      await db(`week_unlocks?id=eq.${existing[0].id}`,'PATCH',{unlocked:unlock});
-    } else {
-      await db('week_unlocks','POST',{cycle:CYCLE,week_num:weekNum,unlocked:unlock});
-    }
-    toast(unlock?'🔓 Semaine débloquée':'🔒 Semaine verrouillée');
-    loadWeekUnlocks();
-  } catch(e){ toast('Erreur : '+e.message); }
-}
-
-async function resetWeekUnlock(weekNum){
-  try{
-    await db(`week_unlocks?cycle=eq.${CYCLE}&week_num=eq.${weekNum}`,'DELETE');
-    toast('Remis en auto');
-    loadWeekUnlocks();
-  } catch(e){ toast('Erreur'); }
-}
-
-let configWeek = 1;
-
-function setConfigWeek(week, btn){
-  configWeek = week;
-  PROG_DAYS = ALL_PROG_DAYS[week] || ALL_PROG_DAYS[1];
-  document.querySelectorAll('[id^="cfgWeek"]').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  loadConfig();
-}
-
-const RM_OPTIONAL_ADMIN = [
-  {key:'arr_force',  label:'Arr. Force'},
-  {key:'arr_debout', label:'Arraché debout'},
-  {key:'jet',        label:'Jeté'},
-  {key:'jet_force',  label:'Jeté Force'},
-  {key:'ep_debout',  label:'Épa. Debout'},
-  {key:'ep',         label:'Épaulé'},
-  {key:'deadlift',   label:'Deadlift'},
-];
-
-async function loadRMKeys(){
-  try{
-    const active = await db('active_rm_keys?select=key') || [];
-    const activeKeys = active.map(a=>a.key);
-    const grid = document.getElementById('rmKeysGrid');
-    if(!grid) return;
-    grid.innerHTML = RM_OPTIONAL_ADMIN.map(rm=>{
-      const isOn = activeKeys.includes(rm.key);
-      return `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px">
-        <span style="font-size:13px;font-weight:600">${rm.label}</span>
-        <button class="toggle-switch ${isOn?'on':''}" onclick="toggleRMKey('${rm.key}',${!isOn},this)"></button>
-      </div>`;
-    }).join('');
-  } catch(e){ console.warn('RM keys load failed',e); }
-}
-
-async function toggleRMKey(key, activate, btn){
-  btn.classList.toggle('on', activate);
-  try{
-    if(activate){
-      await db('active_rm_keys','POST',{key});
-      toast('💪 '+key+' activé');
-    } else {
-      await db(`active_rm_keys?key=eq.${key}`,'DELETE');
-      toast('RM désactivé');
-    }
-    loadRMKeys();
-  } catch(e){ btn.classList.toggle('on',!activate); toast('Erreur : '+e.message); }
-}
-
-async function loadConfig(){
-  const active = await db(`active_leaderboards?cycle=eq.${CYCLE}&week_num=eq.${configWeek}&select=*`) || [];
-  const grid = document.getElementById('lbConfigGrid');
-  grid.innerHTML = PROG_DAYS.map((day, dIdx) => {
-    if(!day.exos.length) return `
-      <div class="lb-config-card" style="opacity:0.4">
-        <div class="lb-config-day">${day.label}</div>
-        <div style="font-size:11px;color:var(--text3);font-style:italic">Repos — pas d'exo LB</div>
-      </div>`;
-    return `
-      <div class="lb-config-card">
-        <div class="lb-config-day">${day.label}</div>
-        ${day.exos.map(ex => {
-          const isActive = active.some(a => a.day_num === dIdx+1 && a.movement === ex.key);
-          return `<div class="lb-toggle">
-            <div>
-              <div style="font-size:12px;color:var(--text);font-weight:600">${ex.label}</div>
-              <div style="font-size:10px;color:var(--text3)">RM: ${ex.rm}</div>
-            </div>
-            <button class="toggle-switch ${isActive?'on':''}" onclick="toggleLb(this,${dIdx+1},'${ex.key}','${ex.label}','${ex.rm}')"></button>
-          </div>`;
-        }).join('')}
-      </div>`;
-  }).join('');
-}
-
-async function toggleLb(btn, dayNum, movement, label, rm){
-  const isOn = btn.classList.contains('on');
-  btn.classList.toggle('on');
-  try{
-    if(isOn){
-      await db(`active_leaderboards?cycle=eq.${CYCLE}&week_num=eq.${configWeek}&day_num=eq.${dayNum}&movement=eq.${movement}`, 'DELETE');
-      toast('Leaderboard désactivé');
-    } else {
-      await db('active_leaderboards', 'POST', {cycle:CYCLE, week_num:configWeek, day_num:dayNum, movement, label, rm_key:rm});
-      toast('🏆 Leaderboard activé : '+label);
-    }
-  } catch(e){ btn.classList.toggle('on'); toast('Erreur : '+e.message); }
-}
-
-// VIDEOS
-let editingVideoId = null;
-
-// Vidéos à vérifier manuellement (clé exercice → description du doute)
-const ALL_PROGRAMME_EXOS = [
-  {name:"Arraché force (avec contact)", key:"arrache_force_avec_contact"},
-  {name:"Tirage haut d'arraché",        key:"tirage_haut_d_arrache"},
-  {name:"Tractions nuque ou tirage poulie haute", key:"tractions_nuque_ou_tirage_poulie_haute"},
-  {name:"Tirage poulie basse ou élastique", key:"tirage_poulie_basse_ou_elastique"},
-  {name:"Y au GHD",                     key:"y_au_ghd"},
-  {name:"Leg raises",                   key:"leg_raises"},
-  {name:"Jeté force",                   key:"jete_force"},
-  {name:"Back squat",                   key:"back_squat"},
-  {name:"Appel de jeté",                key:"appel_de_jete"},
-  {name:"Landmine barbell rotations",   key:"landmine_barbell_rotations"},
-  {name:"Épaulé debout",                key:"epaule_debout"},
-  {name:"Chute d'arraché en instabilité", key:"chute_d_arrache_en_instabilite"},
-  {name:"Trapbar deadlift",             key:"trapbar_deadlift"},
-  {name:"Gainage Copenhague",           key:"gainage_copenhague"},
-  {name:"Arraché",                      key:"arrache"},
-  {name:"Épaulé-Jeté",                  key:"epaule_jete"},
-  {name:"Extensions lombaires GHD",     key:"extensions_lombaires_ghd"},
-  {name:"Swiss ball side plank",        key:"swiss_ball_side_plank"},
-  {name:"Saut 1 haie avec élan",        key:"saut_1_haie_avec_elan"},
-  {name:"Front squat",                  key:"front_squat"},
-  {name:"Développé couché",             key:"developpe_couche"},
-  {name:"Curl biceps",                  key:"curl_biceps"},
-  {name:"Tractions ou tirage poulie haute", key:"tractions_ou_tirage_poulie_haute"},
-  {name:"Pompes",                       key:"pompes"},
-  {name:"Épaulé des plots",             key:"epaule_des_plots"},
-  {name:"Clamshell",                    key:"clamshell"},
-  {name:"Adducteurs au rameur ou à la machine", key:"adducteurs_au_rameur_ou_a_la_machine"},
-  {name:"Jeté des plots",               key:"jete_des_plots"},
-  {name:"Single leg hip thrust",        key:"single_leg_hip_thrust"},
-  {name:"Arraché suspension",           key:"arrache_suspension"},
-  {name:"Face pulls",                   key:"face_pulls"},
-  {name:"Développé militaire",          key:"developpe_militaire"},
-  {name:"Leg curl",                     key:"leg_curl"},
-  {name:"Arraché debout",               key:"arrache_debout"},
-];
-
-let allVideos = [];
-
-async function loadVideos(){
-  try{
-    allVideos = await db('exercise_videos?select=*&order=exercise_key.asc') || [];
-  } catch(e){ allVideos = []; }
-  renderVideoPage();
-}
-
-function renderVideoPage(){
-  const linkedKeys = allVideos.map(v => v.exercise_key.toLowerCase().trim());
-  const missing = ALL_PROGRAMME_EXOS.filter(e => !linkedKeys.includes(e.key));
-  const hasvid = allVideos.filter(v => ALL_PROGRAMME_EXOS.some(e => e.key === v.exercise_key.toLowerCase().trim()));
-
-  document.getElementById('missingCount').textContent = missing.length;
-  document.getElementById('hasCount').textContent = allVideos.length;
-
-  // Missing list
-  const ml = document.getElementById('missingVideoList');
-  if(ml){
-    if(!missing.length){
-      ml.innerHTML = '<div style="color:var(--green);font-size:13px;padding:8px">Tous les exercices ont une vidéo 🎉</div>';
-    } else {
-      ml.innerHTML = missing.map(e => `
-        <div style="background:var(--surface);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:10px 14px">
-          <div style="font-size:13px;font-weight:700;margin-bottom:8px">${e.name}</div>
-          <div style="display:flex;gap:6px">
-            <input id="vid_${e.key}" type="text" placeholder="Colle le lien YouTube..."
-              style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 10px;color:var(--text);font-size:13px;outline:none">
-            <button class="action-btn primary" onclick="addVideoForExo('${e.key}')">✓ Ajouter</button>
-          </div>
-        </div>`).join('');
-    }
-  }
-
-  // Has video table
-  const tbody = document.getElementById('videosTable');
-  if(tbody){
-    tbody.innerHTML = allVideos.map(v => `<tr>
-      <td style="font-weight:600;font-size:13px">${v.exercise_key}</td>
-      <td><a href="${v.video_url}" target="_blank" style="color:#7aaee8;font-size:12px;word-break:break-all">${v.video_url.substring(0,60)}${v.video_url.length>60?'…':''}</a></td>
-      <td>
-        <button class="action-btn" onclick="editVideo('${v.id}','${v.exercise_key}','${v.video_url}')">Modifier</button>
-        <button class="action-btn danger" onclick="deleteVideo('${v.id}','${v.exercise_key}')">Supprimer</button>
-      </td>
-    </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text3);padding:1rem">Aucune vidéo</td></tr>';
-  }
-}
-
-async function addVideoForExo(key){
-  const input = document.getElementById('vid_' + key);
-  const url = input ? input.value.trim() : '';
-  if(!url){ toast('Colle un lien YouTube'); return; }
-  try{
-    // Try insert first
-    await db('exercise_videos','POST',{exercise_key:key, video_url:url});
-    toast('✅ Vidéo ajoutée !');
-  } catch(e){
-    // If duplicate key, update
-    try{
-      const existing = await db(`exercise_videos?exercise_key=eq.${key}&select=id`);
-      if(existing && existing.length){
-        await db(`exercise_videos?id=eq.${existing[0].id}`,'PATCH',{video_url:url});
-        toast('✅ Vidéo mise à jour !');
-      } else { toast('Erreur : '+e.message); return; }
-    } catch(e2){ toast('Erreur : '+e2.message); return; }
-  }
-  loadVideos();
-}
-
-async function editVideo(id, key, currentUrl){
-  const url = prompt('Nouveau lien vidéo :', currentUrl);
-  if(!url || url === currentUrl) return;
-  try{
-    await db(`exercise_videos?id=eq.${id}`,'PATCH',{video_url:url});
-    toast('✅ Vidéo modifiée');
-    loadVideos();
-  } catch(e){ toast('Erreur : '+e.message); }
-}
-
-async function deleteVideo(id, key){
-  if(!confirm(`Supprimer la vidéo pour "${key}" ?`)) return;
-  try{
-    await db(`exercise_videos?id=eq.${id}`,'DELETE');
-    toast('Vidéo supprimée');
-    loadVideos();
-  } catch(e){ toast('Erreur : '+e.message); }
-}
 
 
 // SIDEBAR TOGGLE

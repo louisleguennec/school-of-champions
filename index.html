@@ -1541,7 +1541,7 @@ async function loadLeaderboards(){
     try{
       const guests = await db('leaderboard_guests?select=*') || [];
       guests.forEach(g=>{
-        const movs = [{key:'arr',val:g.arr},{key:'ej',val:g.ej},{key:'fs',val:g.fs},{key:'squat',val:g.squat}];
+        const movs = [{key:'arr',val:g.arr},{key:'ej',val:g.ej},{key:'total',val:g.total},{key:'fs',val:g.fs},{key:'squat',val:g.squat}];
         movs.forEach(({key,val})=>{
           if(!val) return;
           if(!lbData[key]) lbData[key]=[];
@@ -1550,13 +1550,11 @@ async function loadLeaderboards(){
       });
     } catch(e){ console.warn('Guests load failed',e); }
 
-    const arrData=lbData['arr']||[];
-    const ejData=lbData['ej']||[];
-    lbData['total']=arrData.map(a=>{
-      const ej=ejData.find(e=>e.name===a.name);
-      if(!ej) return null;
-      return Object.assign({},a,{weight:a.weight+ej.weight});
-    }).filter(Boolean);
+    // Total: use stored value from rm_records (key='total'), not calculated
+    const totalData = lbData['total'] || [];
+    // Also include athletes who have explicit total in rm_records
+    // lbData['total'] is already populated from rm_records with key='total'
+    // For guests: use their explicit total field
     document.getElementById('lbAthleteCount').textContent=new Set((records||[]).filter(r=>r.athletes).map(r=>r.athletes.pseudo)).size;
     renderLb();
   } catch(e){console.warn('LB load failed',e);}

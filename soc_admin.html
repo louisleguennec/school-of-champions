@@ -147,7 +147,7 @@ tr:hover td{background:var(--surface2)}
     <button class="nav-link" onclick="showPage('guests',this)"><span class="nav-icon">👥</span>LB Invités</button>
     <button class="nav-link" onclick="showPage('config',this)"><span class="nav-icon">⚙️</span>Configuration</button>
     <button class="nav-link" onclick="showPage('videos',this)"><span class="nav-icon">🎬</span>Vidéos</button>
-    <button class="nav-link" onclick="showPage('coach',this)"><span class="nav-icon">🏋️</span>Vue Coach</button>
+
     <button class="nav-link" onclick="showPage('programme',this)"><span class="nav-icon">✏️</span>Programme</button>
   </nav>
 
@@ -212,28 +212,22 @@ tr:hover td{background:var(--surface2)}
     <!-- FEELINGS -->
     <div class="page" id="pageFeelings">
       <div class="page-title">Ressentis</div>
-      <div class="page-sub">Note moyenne par exercice · 1=très dur · 5=facile</div>
-      <div style="display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap">
-        <select id="feelingWeek" onchange="loadFeelings()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
+      <div class="page-sub">Ressenti moyen par jour et par exercice</div>
+      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+        <select id="feelingsWeek" onchange="loadFeelings()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
           <option value="1">Semaine 1</option>
           <option value="2">Semaine 2</option>
           <option value="3">Semaine 3</option>
-          <option value="4">Semaine 4</option>
         </select>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer">
-          <input type="checkbox" id="feelingShowAll" onchange="loadFeelings()" style="accent-color:#003366">
-          Inclure prépa physique
-        </label>
-        <span style="font-size:11px;color:var(--text3)">— Par défaut : training uniquement</span>
       </div>
-      <div class="chart-card" style="max-width:700px">
-        <div class="chart-title">Ressentis moyens par exercice</div>
-        <div id="feelingsDetail"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Jour</th><th>Exercice</th><th>Moy.</th><th>Réponses</th><th>Détail</th></tr></thead>
+          <tbody id="feelingsTable"></tbody>
+        </table>
       </div>
     </div>
-
-    <!-- FATIGUE -->
-    <div class="page" id="pageFatigue">
+        <div class="page" id="pageFatigue">
       <div class="page-title">Fatigue hebdomadaire</div>
       <div class="page-sub">Score de fatigue par athlète · 1=épuisé · 10=en forme</div>
       <div class="table-wrap">
@@ -348,63 +342,6 @@ tr:hover td{background:var(--surface2)}
           <table>
             <thead><tr><th>Exercice</th><th>URL Vidéo</th><th>Actions</th></tr></thead>
             <tbody id="videosTable"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- COACH VIEW -->
-    <div class="page" id="pageCoach">
-      <div class="page-title">Vue Coach</div>
-      <div class="page-sub">Charges réalisées par les athlètes · Semaine en cours</div>
-      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
-        <select id="coachWeekSel" onchange="loadCoachView()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
-          <option value="1">Semaine 1</option>
-          <option value="2">Semaine 2</option>
-          <option value="3">Semaine 3</option>
-          <option value="4">Semaine 4</option>
-        </select>
-        <select id="coachDaySel" onchange="loadCoachView()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
-          <option value="all">Tous les jours</option>
-          <option value="0">Lundi</option>
-          <option value="2">Mercredi</option>
-          <option value="4">Vendredi</option>
-          <option value="5">Samedi</option>
-        </select>
-        <select id="coachMovSel" onchange="loadCoachView()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
-          <option value="all">Tous les mouvements</option>
-          <option value="arr">Arraché</option>
-          <option value="ej">Épaulé-Jeté</option>
-          <option value="squat">Squat</option>
-          <option value="fs">Front Squat</option>
-          <option value="tla">TL Arraché</option>
-        </select>
-        <button class="action-btn" onclick="exportCSV('coach')" style="padding:8px 16px;font-size:13px">⬇ Export</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Athlète</th>
-              <th>Mouvement</th>
-              <th>Charge</th>
-              <th>Sinclair</th>
-              <th>% RM</th>
-              <th>Semaine</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody id="coachTable"></tbody>
-        </table>
-      </div>
-      <!-- FATIGUE POST-SEANCE -->
-      <div style="margin-top:1.5rem">
-        <div class="page-title" style="font-size:18px">⚡ Fatigue post-séance</div>
-        <div class="page-sub">Score de fatigue enregistré par les athlètes cette semaine</div>
-        <div class="table-wrap" style="margin-top:0.75rem">
-          <table>
-            <thead><tr><th>Athlète</th><th>Club</th><th>Début sem.</th><th>Fin sem.</th><th>Évolution</th></tr></thead>
-            <tbody id="coachFatigueTable"></tbody>
           </table>
         </div>
       </div>
@@ -536,7 +473,6 @@ function showPage(name,btn){
   if(name==='feelings') loadFeelings();
   if(name==='videos') loadVideos();
   if(name==='guests') loadGuests();
-  if(name==='coach') loadCoachView();
   if(name==='programme') loadProgEditor();
   if(name==='fatigue') loadFatigueAdmin();
   if(name==='leaderboard') loadLbAdmin();
@@ -731,35 +667,38 @@ const EX_NAMES = {
 };
 
 async function loadFeelings(){
-  const week=document.getElementById('feelingWeek').value;
-  const showAll=document.getElementById('feelingShowAll')?.checked;
+  const week = document.getElementById('feelingsWeek')?.value || 1;
   try{
-    const feel=await db(`exercise_feelings?cycle=eq.${CYCLE}&week_num=eq.${week}&select=exercise_key,score`)||[];
-    const exScores={};
-    feel.forEach(f=>{
-      // Filter: only training exos (sectionIdx=0, i.e. 3rd segment of key is "0")
-      const parts=f.exercise_key.split('_');
-      if(!showAll && parts[2]!=='0') return;
-      if(!exScores[f.exercise_key]) exScores[f.exercise_key]=[];
-      exScores[f.exercise_key].push(f.score);
+    const data = await db(`exercise_feelings?cycle=eq.${CYCLE}&week_num=eq.${week}&select=exercise_key,score,day_num,athletes(pseudo)&order=day_num.asc,exercise_key.asc`) || [];
+    
+    // Group by day + exercise
+    const grouped = {};
+    data.forEach(f => {
+      const key = `${f.day_num}_${f.exercise_key}`;
+      if(!grouped[key]) grouped[key] = {day:f.day_num, ex:f.exercise_key, scores:[], athletes:[]};
+      grouped[key].scores.push(f.score);
+      grouped[key].athletes.push(f.athletes?.pseudo||'?');
     });
-    const sorted=Object.entries(exScores)
-      .map(([k,scores])=>({k,avg:Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*10)/10,n:scores.length}))
-      .sort((a,b)=>a.avg-b.avg);
-    const el=document.getElementById('feelingsDetail');
-    el.innerHTML=sorted.map(e=>{
-      const color=e.avg<2?'var(--red)':e.avg<3?'var(--yellow)':e.avg<4?'var(--text)':'var(--green)';
-      const label=EX_NAMES[e.k]||e.k.split('_').slice(2).join('_').replace(/_/g,' ')||e.k;
-      const parts=e.k.split('_');
-      const dayNames=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-      const dayLabel=dayNames[parseInt(parts[1])]||'';
-      return `<div class="bar-row">
-        <span class="bar-label" title="${e.k}" style="width:180px"><span style="color:var(--text3);font-size:10px">${dayLabel} · </span>${label}</span>
-        <div class="bar-track"><div class="bar-fill" style="width:${e.avg*20}%;background:${color}"></div></div>
-        <span class="bar-val" style="color:${color}">${e.avg} <span style="color:var(--text3);font-size:10px">(${e.n})</span></span>
-      </div>`;
-    }).join('')||'<div style="color:var(--text3);font-size:13px;padding:1rem 0">Aucun ressenti pour cette semaine</div>';
-  } catch(e){ console.warn(e); }
+
+    const DAY_LABELS = {1:'Lundi',2:'Mardi',3:'Mercredi',4:'Jeudi',5:'Vendredi',6:'Samedi'};
+    const SCORE_EMOJI = {1:'😵',2:'😓',3:'😐',4:'💪',5:'🔥'};
+
+    const tbody = document.getElementById('feelingsTable');
+    if(!tbody) return;
+    const rows = Object.values(grouped).sort((a,b)=>a.day-b.day||a.ex.localeCompare(b.ex));
+    tbody.innerHTML = rows.map(g => {
+      const avg = (g.scores.reduce((a,b)=>a+b,0)/g.scores.length).toFixed(1);
+      const emoji = SCORE_EMOJI[Math.round(parseFloat(avg))]||'';
+      const detail = g.athletes.map((n,i)=>`${n}: ${SCORE_EMOJI[g.scores[i]]||g.scores[i]}`).join(' · ');
+      return `<tr>
+        <td style="font-weight:700;color:var(--text2)">${DAY_LABELS[g.day]||'J'+g.day}</td>
+        <td style="font-size:12px">${g.ex.replace(/_/g,' ')}</td>
+        <td style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--yellow)">${emoji} ${avg}</td>
+        <td style="color:var(--text3);font-size:12px">${g.scores.length}</td>
+        <td style="font-size:11px;color:var(--text3)">${detail}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:1rem">Aucun ressenti cette semaine</td></tr>';
+  } catch(e){ console.warn('Feelings failed',e); }
 }
 
 // FATIGUE ADMIN
@@ -1222,6 +1161,7 @@ async function deleteGuest(id, pseudo){
     loadGuests();
   } catch(e){ toast('Erreur'); }
 }
+
 
 // TOAST
 function toast(msg){

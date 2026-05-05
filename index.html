@@ -632,6 +632,7 @@ async function db(path,method='GET',body=null){
 // ─── STATE ────────────────────────────────────────────────
 let athlete=null;
 let rms={};
+let rmsAllTime={}; // RM all-time — leaderboard général
 let checked={};
 let rpeScores={};
 let openDay=null;
@@ -646,6 +647,7 @@ let onbGender='H';
 
 function loadLocal(){
   try{rms=JSON.parse(localStorage.getItem('soc_rms')||'{}')}catch(e){}
+  try{rmsAllTime=JSON.parse(localStorage.getItem('soc_rms_alltime')||'{}')}catch(e){}
   try{checked=JSON.parse(localStorage.getItem('soc_chk')||'{}')}catch(e){}
   try{rpeScores=JSON.parse(localStorage.getItem('soc_rpe')||'{}')}catch(e){}
   try{actualWeights=JSON.parse(localStorage.getItem('soc_actual')||'{}')}catch(e){}
@@ -656,28 +658,40 @@ function saveRMs(){
   if(athlete) syncRMsToSupabase();
 }
 
-async function syncRMsToSupabase(){
+function saveRMsAllTime(){
+  localStorage.setItem('soc_rms_alltime',JSON.stringify(rmsAllTime));
+  if(athlete) syncRMsAllTimeToSupabase();
+}
+
+async function syncRMsAllTimeToSupabase(){
   try{
-    for(const [movement, weight] of Object.entries(rms)){
+    for(const [movement, weight] of Object.entries(rmsAllTime)){
       if(!weight) continue;
       const w = parseFloat(weight);
       const existing = await db(`rm_records?athlete_id=eq.${athlete.id}&movement=eq.${movement}&select=id,weight`);
       if(existing && existing.length){
-        // Toujours mettre à jour avec la valeur saisie dans "Mes RM"
         await db(`rm_records?id=eq.${existing[0].id}`,'PATCH',{weight:w});
       } else {
         await db('rm_records','POST',{athlete_id:athlete.id,movement,weight:w,cycle:CYCLE});
       }
     }
-    // Mettre à jour lbData directement
     Object.keys(lbData).forEach(mov => {
       lbData[mov] = (lbData[mov]||[]).map(a => {
-        if(a.isMe && rms[mov]) return {...a, weight:parseFloat(rms[mov])};
+        if(a.isMe && rmsAllTime[mov]) return {...a, weight:parseFloat(rmsAllTime[mov])};
         return a;
       });
     });
     renderLb();
     loadLeaderboards();
+  } catch(e){ console.warn('AllTime RM sync failed',e); }
+}
+
+async function syncRMsToSupabase(){
+  // RM actuel → sauvegarde locale uniquement (pas au leaderboard)
+  // Le leaderboard utilise rmsAllTime via syncRMsAllTimeToSupabase
+  try{
+    localStorage.setItem('soc_rms', JSON.stringify(rms));
+    renderDays();
   } catch(e){ console.warn('RM sync failed',e); }
 }
 
@@ -743,12 +757,13 @@ async function loadRMsFromSupabase(){
   try{
     const records = await db(`rm_records?athlete_id=eq.${athlete.id}&select=movement,weight`) || [];
     records.forEach(r=>{
-      // Only update if Supabase value is higher (best perf wins)
-      if(!rms[r.movement] || parseFloat(r.weight) > parseFloat(rms[r.movement])){
-        rms[r.movement] = r.weight;
-      }
+      // All-time: always take Supabase value
+      rmsAllTime[r.movement] = r.weight;
+      // Current: only if not already set locally
+      if(!rms[r.movement]) rms[r.movement] = r.weight;
     });
     localStorage.setItem('soc_rms', JSON.stringify(rms));
+    localStorage.setItem('soc_rms_alltime', JSON.stringify(rmsAllTime));
     buildRMGrid();
     renderDays();
   } catch(e){ console.warn('RM load failed',e); }
@@ -905,7 +920,6 @@ function buildRMGrid(){
     const f=document.createElement('div');
     f.className='rm-field';
     if(r.note){
-      // Manual total field with note
       f.style.cssText+='border-color:rgba(0,51,102,0.5);background:rgba(0,51,102,0.08);grid-column:span 2';
       f.innerHTML=`<div class="rm-field-label" style="color:#6699cc">${r.label}</div>
         <div style="font-size:10px;color:var(--text3);margin-bottom:6px;font-style:italic">${r.note}</div>
@@ -918,10 +932,36 @@ function buildRMGrid(){
         saveRMs(); buildRMGrid();
       });
     } else {
-      f.innerHTML=`<div class="rm-field-label">${r.label}</div><div class="rm-field-row"><input type="number" inputmode="decimal" placeholder="—" value="${rms[r.key]||''}" data-key="${r.key}"><span class="rm-field-unit">kg</span></div>`;
-      f.querySelector('input').addEventListener('change',function(){
-        if(this.value) rms[r.key]=parseFloat(this.value); else delete rms[r.key];
-        saveRMs(); renderDays(); buildRMGrid();
+      f.innerHTML=`
+        <div class="rm-field-label">${r.label}</div>
+        <div style="margin-top:4px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:3px">🏆 All-time <span style="font-size:8px;color:var(--text3)">(leaderboard)</span></div>
+          <div class="rm-field-row">
+            <input type="number" inputmode="decimal" placeholder="—" value="${rmsAllTime[r.key]||''}" data-key="${r.key}" data-type="alltime" style="font-size:20px;color:var(--yellow)">
+            <span class="rm-field-unit">kg</span>
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:3px">📊 Actuel <span style="font-size:8px;color:var(--text3)">(calcul %)</span></div>
+          <div class="rm-field-row">
+            <input type="number" inputmode="decimal" placeholder="—" value="${rms[r.key]||''}" data-key="${r.key}" data-type="current" style="font-size:20px;color:#7aaee8">
+            <span class="rm-field-unit">kg</span>
+          </div>
+        </div>`;
+      f.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('change', function(){
+          const key = this.dataset.key;
+          const type = this.dataset.type;
+          const val = this.value ? parseFloat(this.value) : null;
+          if(type === 'alltime'){
+            if(val) rmsAllTime[key]=val; else delete rmsAllTime[key];
+            saveRMsAllTime();
+          } else {
+            if(val) rms[key]=val; else delete rms[key];
+            saveRMs(); renderDays();
+          }
+          buildRMGrid();
+        });
       });
     }
     g.appendChild(f);

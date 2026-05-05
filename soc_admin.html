@@ -198,8 +198,7 @@ tr:hover td{background:var(--surface2)}
               <th>Genre</th>
               <th>Poids</th>
               <th>Club</th>
-              <th>Pays</th>
-              <th>Niveau</th>
+                            <th>Niveau</th>
               <th>Statut</th>
               <th>Actions</th>
             </tr>
@@ -410,7 +409,7 @@ tr:hover td{background:var(--surface2)}
     </div>
     <div class="modal-field"><div class="modal-label">Poids de corps (kg)</div><input class="modal-input" id="mBW" type="number" placeholder="85"></div>
     <div class="modal-field"><div class="modal-label">Club / Salle</div><input class="modal-input" id="mClub" type="text" placeholder="Powercamp Toulouse"></div>
-    <div class="modal-field"><div class="modal-label">Pays</div><input class="modal-input" id="mCountry" type="text" placeholder="🇫🇷" value="🇫🇷"></div>
+
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeModal()">Annuler</button>
       <button class="modal-submit" onclick="addAthlete()">Ajouter →</button>
@@ -441,7 +440,7 @@ tr:hover td{background:var(--surface2)}
 
 <script>
 const SUPA_URL = 'https://sexokzggfinzvgroqnes.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNleG9remdnZmluenZncm9xbmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NDc4NjMsImV4cCI6MjA5MzIyMzg2M30.PTDsG863YJBjpL06ybFRRrNuKlM5LHYG80MxyCKKMpo';
+const SUPA_KEY = 'sb_publishable_Lq6BcamJ5LTSKnR5t7Y2wQ_RhPv_YKX';
 const ADMIN_PWD = 'M!WA77s$';
 const CYCLE = 'mai26';
 
@@ -558,14 +557,14 @@ async function loadDashboard(){
 let allAthletes=[];
 async function loadAthletes(){
   try{
-    allAthletes=await db('athletes?select=*&order=created_at.desc')||[];
+    allAthletes=await db('athletes?select=*&order=created_at.desc&t='+Date.now())||[];
     document.getElementById('athleteCount').textContent=allAthletes.length;
     renderAthletes(allAthletes);
   } catch(e){ console.warn(e); }
 }
 
-const LEVEL_LABELS={regional:'Régional',interregional:'Inter-Rég.',honneur:'Honneur',elite:'Élite',international:'Intl'};
-const LEVEL_COLORS={regional:'#4488cc',interregional:'#7aaee8',honneur:'#fbbf24',elite:'#f59e0b',international:'#e03030'};
+const LEVEL_LABELS={'Regional':'Régional','Inter-Regional':'Inter-Rég.','Honneur':'Honneur','Elite':'Élite','Intl':'Intl'};
+const LEVEL_COLORS={'Regional':'#4488cc','Inter-Regional':'#7aaee8','Honneur':'#fbbf24','Elite':'#f59e0b','Intl':'#e03030'};
 
 function renderAthletes(list){
   const tbody=document.getElementById('athleteTable');
@@ -577,7 +576,6 @@ function renderAthletes(list){
       <td><span class="badge ${a.gender==='F'?'f':'m'}">${a.gender==='F'?'Femme':'Homme'}</span></td>
       <td>${a.bodyweight}kg</td>
       <td style="color:var(--text2)">${a.club||'—'}</td>
-      <td>${a.country||'🇫🇷'}</td>
       <td>${lvl}</td>
       <td><span class="badge ${a.access_type==='sub'?'active':'inactive'}">${a.access_type==='sub'?'Abonné':'One-shot'}</span></td>
       <td style="display:flex;gap:6px">
@@ -663,10 +661,9 @@ async function addAthlete(){
   const gender=document.getElementById('mGender').value;
   const bodyweight=parseFloat(document.getElementById('mBW').value);
   const club=document.getElementById('mClub').value.trim();
-  const country=document.getElementById('mCountry').value.trim()||'🇫🇷';
   if(!pseudo||!email||!bodyweight){ alert('Remplis tous les champs obligatoires'); return; }
   try{
-    await db('athletes','POST',{pseudo,email,gender,bodyweight,club,country,access_type:'sub',cycle:CYCLE});
+    await db('athletes','POST',{pseudo,email,gender,bodyweight,club,access_type:'sub',cycle:CYCLE});
     toast(`${pseudo} ajouté !`);
     closeModal();
     loadAthletes();
@@ -742,18 +739,18 @@ async function loadLbAdmin(){
   const gender=document.getElementById('lbGenderSel').value;
   document.getElementById('lbAdminTitle').textContent=`Classement ${mov.toUpperCase()} · ${gender==='H'?'Hommes':'Femmes'}`;
   try{
-    const records=await db(`rm_records?movement=eq.${mov}&select=weight,athletes(pseudo,gender,bodyweight,club,country)&athletes.gender=eq.${gender}`)||[];
+    const records=await db(`rm_records?movement=eq.${mov}&select=weight,athletes(pseudo,gender,bodyweight,club)&athletes.gender=eq.${gender}`)||[];
     const filtered=records.filter(r=>r.athletes&&r.athletes.gender===gender);
     const pool=filtered.map(r=>({
       name:r.athletes.pseudo,bw:r.athletes.bodyweight,
-      club:r.athletes.club||'',country:r.athletes.country||'🇫🇷',
+      club:r.athletes.club||'',
       weight:r.weight,
       sinclair:calcSinclair(r.weight,r.athletes.bodyweight,gender)
     })).sort((a,b)=>b.sinclair-a.sinclair);
     const tbody=document.getElementById('lbAdminTable');
     tbody.innerHTML=pool.map((a,i)=>`<tr>
       <td style="color:${i===0?'var(--gold)':i===1?'var(--silver,#9ca3af)':i===2?'#b45309':'var(--text3)'};font-weight:900">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</td>
-      <td>${a.country} ${a.name}</td>
+      <td>${a.name}</td>
       <td style="color:var(--text3)">${a.club||'—'}</td>
       <td>${a.bw}kg</td>
       <td style="font-weight:700;color:var(--yellow)">${a.weight}kg</td>

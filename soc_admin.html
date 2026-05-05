@@ -693,6 +693,43 @@ const EX_NAMES = {
   '0_5_0_0':'Épaulé-Jeté','0_5_0_1':'Back squat'
 };
 
+// Map numeric exercise keys to names
+// Format: weekIdx(1) + dayIdx(1) + sectionIdx(1) + exoIdx(1)
+const EX_KEY_MAP = {
+  // S1 (week 0) — Arraché force, Tirage haut, Tractions, Tirage poulie, Y GHD, Leg raises (warmup/main)
+  // Lundi (day 0)
+  '0000':'Arraché force (avec contact)', '0001':'Tirage haut arraché',
+  '0010':'Arraché force (avec contact)', '0011':'Tirage haut arraché',
+  '0020':'Tractions nuque', '0021':'Tirage poulie basse', '0022':'Y au GHD', '0023':'Leg raises',
+  // Mardi (day 1)
+  '0100':'Jeté force', '0101':'Back squat', '0102':'Appel de jeté',
+  '0110':'Landmine barbell rotations', '0111':'Cardio basse intensité',
+  // Mercredi (day 2)
+  '0200':'CMJ', '0201':'Épaulé debout',
+  '0210':'Chute arraché instabilité', '0211':'Trapbar deadlift', '0212':'Gainage Copenhague',
+  // Vendredi (day 4)
+  '0400':'Arraché', '0401':'Tirage lourd arraché',
+  '0410':'Extensions lombaires GHD', '0411':'Leg raises', '0412':'Swiss ball side plank',
+  // Samedi (day 5)
+  '0500':'Saut 1 haie', '0501':'Front squat',
+  '0510':'Développé couché', '0511':'Curl biceps',
+  // S2 (week 1)
+  '1000':'Arraché', '1010':'Tractions', '1011':'Pompes', '1012':'Cardio basse intensité',
+  '1100':'Épaulé des plots', '1110':'TBA', '1111':'Clamshell', '1112':'Adducteurs rameur',
+  '1200':'Jeté des plots', '1201':'Squat nuque', '1202':'Appel de jeté',
+  '1210':'Single leg hip thrust', '1211':'Leg raises',
+  '1400':'Arraché suspension', '1401':'Épaulé-Jeté', '1402':'Tirage haut arraché',
+  '1410':'Face pulls', '1411':'Cardio basse intensité',
+  '1500':'Saut 1 haie', '1501':'Développé militaire', '1502':'Front squat',
+  '1510':'Leg curl', '1511':'Tirage poulie basse',
+};
+
+function getExName(key){
+  if(EX_KEY_MAP[key]) return EX_KEY_MAP[key];
+  // Fallback: format the key
+  return key.replace(/_/g,' ');
+}
+
 async function loadFeelings(){
   const week = document.getElementById('feelingsWeek')?.value || 1;
   try{
@@ -715,8 +752,7 @@ async function loadFeelings(){
     tbody.innerHTML = rows.map(g => {
       const avg = (g.scores.reduce((a,b)=>a+b,0)/g.scores.length).toFixed(1);
       const emoji = SCORE_EMOJI[Math.round(parseFloat(avg))]||'';
-      // Format exercise name nicely
-      const exName = g.ex.replace(/_/g,' ').replace(/\w/g, l=>l.toUpperCase());
+      const exName = getExName(g.ex);
       return `<tr>
         <td style="font-weight:700;color:var(--text2)">${DAY_LABELS[g.day]||'J'+g.day}</td>
         <td style="font-size:13px">${exName}</td>

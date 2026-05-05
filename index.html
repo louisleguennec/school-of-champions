@@ -252,6 +252,19 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 /* CONFETTI */
 #confettiCanvas{position:fixed;inset:0;pointer-events:none;z-index:9999;display:none}
 
+/* FULL LB MODAL */
+#fullLbModal{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:550;display:none;flex-direction:column}
+#fullLbModal.show{display:flex}
+.full-lb-sheet{background:var(--bg);flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.full-lb-header{background:var(--surface);padding:1rem 1rem 0.75rem;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.full-lb-back{background:none;border:none;color:var(--text2);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:8px;padding:0}
+.full-lb-title{font-family:"Barlow Condensed",sans-serif;font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:1px}
+.full-lb-subtitle{font-size:11px;color:var(--text3);margin-top:2px}
+.full-lb-body{padding:0.75rem 1rem;flex:1}
+.full-lb-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.full-lb-row:last-child{border-bottom:none}
+.full-lb-row.is-me{background:rgba(0,51,102,0.1);border-radius:8px;padding:10px 8px;margin:0 -8px}
+
 /* VIDEO MODAL */
 #videoModal{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:600;display:none;flex-direction:column;align-items:center;justify-content:center;padding:1rem}
 #videoModal.show{display:flex}
@@ -444,6 +457,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
     </div>
     <div class="lb-filter" id="lbMovementFilter"></div>
     <div class="lb-gender-filter">
+      <button class="lb-gender-btn active" data-gender="all" onclick="setLbGender('all',this)">Tous</button>
       <button class="lb-gender-btn" data-gender="H" onclick="setLbGender('H',this)">Hommes</button>
       <button class="lb-gender-btn" data-gender="F" onclick="setLbGender('F',this)">Femmes</button>
     </div>
@@ -543,6 +557,23 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
   </div>
 
 </div><!-- /app -->
+
+<!-- FULL LEADERBOARD MODAL -->
+<div id="fullLbModal">
+  <div class="full-lb-sheet">
+    <div class="full-lb-header">
+      <button class="full-lb-back" onclick="closeFullLb()">← Retour</button>
+      <div class="full-lb-title" id="fullLbTitle">—</div>
+      <div class="full-lb-subtitle" id="fullLbSubtitle">Toutes les performances</div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button class="lb-gender-btn active" id="fullLbAll" onclick="setFullLbGender('all',this)">Tous</button>
+        <button class="lb-gender-btn" id="fullLbH" onclick="setFullLbGender('H',this)">Hommes</button>
+        <button class="lb-gender-btn" id="fullLbF" onclick="setFullLbGender('F',this)">Femmes</button>
+      </div>
+    </div>
+    <div class="full-lb-body" id="fullLbBody"></div>
+  </div>
+</div>
 
 <!-- VIDEO MODAL -->
 <div id="videoModal" onclick="if(event.target===this)closeVideoModal()">
@@ -1319,7 +1350,7 @@ function renderDays(){
             onclick="setRPE('${k}',${v},this)" 
             title="${RPE_LABELS[v-1]}">${RPE_EMOJIS[v-1]}</span>`;
         }).join('');
-        const lbBtn=ex.isLb?`<span class="ex-lb-badge" onclick="openScoreModal('${ex.n}','${effectiveRm||ex.rm||'total'}')">🏆 Soumettre</span><span class="ex-lb-badge" onclick="openMiniLb('${effectiveRm||ex.rm||'total'}','${ex.n}')" style="color:#7aaee8;background:rgba(119,174,232,0.1);border-color:rgba(119,174,232,0.25)">📊 Classement</span>`:'';
+        const lbBtn=ex.isLb?`<span class="ex-lb-badge" onclick="openScoreModal('${ex.n}','${effectiveRm||ex.rm||'total'}')">🏆 Soumettre</span><span class="ex-lb-badge" onclick="openFullLb('${effectiveRm||ex.rm||'total'}','${ex.n}')" style="color:#7aaee8;background:rgba(119,174,232,0.1);border-color:rgba(119,174,232,0.25)">📊 Classement</span>`:'';
         const _videoUrl=getVideoUrl(ex);
         const videoBtn=ex.noVideo?'':(_videoUrl
           ?`<span class="ex-lb-badge" onclick="openVideo('${_videoUrl}','${ex.n}')" style="cursor:pointer;color:#7aaee8;background:rgba(119,174,232,0.1);border-color:rgba(119,174,232,0.25)">▶ Vidéo</span>`
@@ -1511,7 +1542,7 @@ async function submitScore(){
         await db(`rm_records?id=eq.${existing[0].id}`,'PATCH',{weight:w});
       }
       await loadLeaderboards();
-      openMiniLb(_ctx?.rmKey||'arr', _ctx?.exName||'');
+      openFullLb(_ctx?.rmKey||'arr', _ctx?.exName||'');
     } catch(e){console.warn('Score save failed',e);}
   }
 }
@@ -1920,6 +1951,111 @@ function closeVideoModal(){
   document.body.style.overflow = '';
 }
 
+// ─── FULL LEADERBOARD MODAL ──────────────────────────────
+let fullLbData = [];
+let fullLbGender = 'all';
+let fullLbRmKey = 'arr';
+let fullLbExName = '';
+
+async function openFullLb(rmKey, exName){
+  fullLbRmKey = rmKey;
+  fullLbExName = exName;
+  fullLbGender = 'all';
+  document.getElementById('fullLbTitle').textContent = exName;
+  document.getElementById('fullLbAll').classList.add('active');
+  document.getElementById('fullLbH').classList.remove('active');
+  document.getElementById('fullLbF').classList.remove('active');
+  document.getElementById('fullLbModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  await refreshFullLb();
+}
+
+async function refreshFullLb(){
+  document.getElementById('fullLbBody').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3)">Chargement...</div>';
+  try{
+    // Load from cycle_scores for this exercise
+    const scores = await db(`cycle_scores?movement=eq.${fullLbRmKey}&select=weight,exercise_name,athletes(pseudo,gender,bodyweight,club,level)&order=weight.desc`) || [];
+    // Best per athlete
+    const best = {};
+    scores.forEach(s=>{
+      if(!s.athletes) return;
+      if(!s.exercise_name || s.exercise_name === fullLbExName || s.exercise_name === ''){
+        const name = s.athletes.pseudo;
+        if(!best[name] || s.weight > best[name].weight){
+          best[name] = {...s.athletes, weight:s.weight};
+        }
+      }
+    });
+    // If no cycle scores, fallback to rm_records
+    if(!Object.keys(best).length){
+      const records = await db(`rm_records?movement=eq.${fullLbRmKey}&select=weight,athletes(pseudo,gender,bodyweight,club,level)&order=weight.desc`) || [];
+      records.forEach(r=>{
+        if(!r.athletes) return;
+        const name = r.athletes.pseudo;
+        if(!best[name]) best[name] = {...r.athletes, weight:r.weight};
+      });
+    }
+    fullLbData = Object.values(best);
+    renderFullLb();
+  } catch(e){ 
+    document.getElementById('fullLbBody').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3)">Erreur de chargement</div>';
+  }
+}
+
+function setFullLbGender(g, btn){
+  fullLbGender = g;
+  document.querySelectorAll('[id^="fullLb"]').forEach(b=>{ if(b.tagName==='BUTTON') b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderFullLb();
+}
+
+function renderFullLb(){
+  const mov = LB_ALLTIME.find(m=>m.key===fullLbRmKey) || {isSinclair:true};
+  let pool = fullLbGender==='all' ? fullLbData : fullLbData.filter(a=>a.gender===fullLbGender);
+  pool = pool.map(a=>({...a, displayScore: mov.isSinclair!==false ? calcSinclair(a.weight,a.bodyweight||a.bw,a.gender) : a.weight}))
+             .sort((a,b)=>b.displayScore-a.displayScore);
+
+  const body = document.getElementById('fullLbBody');
+  document.getElementById('fullLbSubtitle').textContent = `${pool.length} performance${pool.length>1?'s':''} · ${fullLbExName}`;
+
+  if(!pool.length){
+    body.innerHTML = '<div style="text-align:center;padding:2rem;font-size:13px;color:var(--text3)">Pas encore de score — sois le premier ! 🏆</div>';
+    return;
+  }
+
+  const levelBadgeHtml = (level) => {
+    const labels = {'Regional':'RÉG','Inter-Regional':'INT-RÉG','Honneur':'HONNEUR','Elite':'ÉLITE','Intl':'INTL'};
+    return level && labels[level] ? `<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(0,51,102,0.3);color:#7aaee8">${labels[level]}</span>` : '';
+  };
+
+  body.innerHTML = pool.map((a,i)=>{
+    const r = i+1;
+    const medal = r===1?'🥇':r===2?'🥈':r===3?'🥉':'';
+    const rc = r===1?'var(--gold)':r===2?'#aaa':r===3?'#cd7f32':'var(--text2)';
+    const isMe = athlete && a.pseudo === athlete.pseudo;
+    return `<div class="full-lb-row${isMe?' is-me':''}">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:${medal?'22':'16'}px;font-weight:900;width:36px;text-align:center;color:${rc}">${medal||r}</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:rgba(28,46,74,0.8);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;color:#7aaee8;flex-shrink:0">${(a.pseudo||'?')[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;color:${isMe?'#7aaee8':'#fff'}">${a.pseudo}</span>
+          ${levelBadgeHtml(a.level)}
+        </div>
+        <div style="font-size:11px;color:var(--text3)">${a.bodyweight||a.bw||'—'}kg poids de corps${a.club?' · '+a.club:''}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:${isMe?'var(--yellow)':rc}">${a.weight}kg</div>
+        ${mov.isSinclair!==false?`<div style="font-size:10px;color:var(--text3)">Sinc. ${a.displayScore.toFixed(1)}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function closeFullLb(){
+  document.getElementById('fullLbModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
 // ─── MINI LEADERBOARD ────────────────────────────────────
 async function openMiniLb(rmKey, exName){
   try{
@@ -1960,7 +2096,7 @@ function _showMiniLb(rmKey, exName, exScores, isAllTime){
         };
       }
     });
-    pool = Object.values(best).filter(a=>a.gender===(athlete?.gender||'H'));
+  let pool=(lbData[mov.key]||[]).filter(a=>lbGender==='all'||a.gender===lbGender);
   } else {
     pool = (lbData[rmKey]||[]).filter(a=>a.gender===(athlete?.gender||'H'));
   }

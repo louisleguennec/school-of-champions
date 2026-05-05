@@ -600,7 +600,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 </div>
 
 <canvas id="confettiCanvas"></canvas>
-<button class="fab" id="fab" onclick="completeDay()">✓ Séance terminée</button>
+<button class="fab" id="fab" onclick="completeDay()">✓ Valider les modifications</button>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1544,7 +1544,7 @@ function renderLb(){
     const rc=r===1?'r1':r===2?'r2':r===3?'r3':'';
     const medal=r===1?'🥇':r===2?'🥈':r===3?'🥉':r;
     const clubStr=a.club?` · ${a.club}`:'';
-    const levelLabels={regional:'RÉG',interregional:'INT-RÉG',honneur:'HONNEUR',elite:'ÉLITE',international:'INTL'};
+    const levelLabels={'Regional':'RÉG','Inter-Regional':'INT-RÉG','Honneur':'HONNEUR','Elite':'ÉLITE','Intl':'INTL'};
     return `<div class="lb-row ${rc} ${a.isMe?'is-me':''}">
       <div class="lb-rank ${rc}">${medal}</div>
       <div class="lb-avatar ${a.gender==='F'?'f':'m'}">${getInitials(a.name)}</div>

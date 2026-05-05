@@ -480,11 +480,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
           <span style="font-size:12px;color:var(--text3);width:80px;flex-shrink:0">Poids (kg)</span>
           <input id="editBw" type="number" inputmode="decimal" style="flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:14px;outline:none">
         </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <span style="font-size:12px;color:var(--text3);width:80px;flex-shrink:0">Pays</span>
-          <input id="editCountry" type="text" placeholder="ex: 🇫🇷" style="flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:14px;outline:none">
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
+<div style="display:flex;gap:8px;align-items:center">
           <span style="font-size:12px;color:var(--text3);width:80px;flex-shrink:0">Club</span>
           <input id="editClub" type="text" placeholder="ex: Powercamp" style="flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:14px;outline:none">
         </div>
@@ -673,7 +669,14 @@ async function syncRMsToSupabase(){
         await db('rm_records','POST',{athlete_id:athlete.id,movement,weight:w,cycle:CYCLE});
       }
     }
-    // Recharger le leaderboard pour refléter les changements
+    // Mettre à jour lbData directement
+    Object.keys(lbData).forEach(mov => {
+      lbData[mov] = (lbData[mov]||[]).map(a => {
+        if(a.isMe && rms[mov]) return {...a, weight:parseFloat(rms[mov])};
+        return a;
+      });
+    });
+    renderLb();
     loadLeaderboards();
   } catch(e){ console.warn('RM sync failed',e); }
 }
@@ -778,7 +781,7 @@ async function submitOnboarding(){
   const pseudo=document.getElementById('onbPseudo').value.trim();
   const email=document.getElementById('onbEmail').value.trim().toLowerCase();
   const bw=parseFloat(document.getElementById('onbBW').value);
-  const country=document.getElementById('onbCountry').value.trim()||'🇫🇷';
+  const _unused='🇫🇷';
   const errEl=document.getElementById('onbError');
   if(!pseudo||!email||!bw||isNaN(bw)){errEl.textContent='Remplis tous les champs.';errEl.style.display='block';return;}
   errEl.style.display='none';
@@ -790,7 +793,7 @@ async function submitOnboarding(){
       athlete=existing[0];
     } else {
       const club=document.getElementById('onbClub').value.trim();
-      const created=await db('athletes','POST',{email,pseudo,gender:onbGender,bodyweight:bw,country,access_type:'sub',club,level:onbLevel});
+      const created=await db('athletes','POST',{email,pseudo,gender:onbGender,bodyweight:bw,access_type:'sub',club,level:onbLevel});
       athlete=created[0];
     }
     saveAthlete();
@@ -1476,7 +1479,7 @@ async function submitScore(){
 async function loadLeaderboards(){
   try{
     lbData={};
-    const records=await db('rm_records?select=weight,movement,athletes(pseudo,gender,bodyweight,country,club,level)');
+    const records=await db('rm_records?select=weight,movement,athletes(pseudo,gender,bodyweight,club,level)');
     (records||[]).forEach(r=>{
       if(!r.athletes) return;
       if(!lbData[r.movement]) lbData[r.movement]=[];
@@ -1487,7 +1490,7 @@ async function loadLeaderboards(){
       } else {
         lbData[r.movement].push({
           name:r.athletes.pseudo,gender:r.athletes.gender,
-          bw:r.athletes.bodyweight,country:r.athletes.country||'🇫🇷',
+          bw:r.athletes.bodyweight,
           club:r.athletes.club||'',level:r.athletes.level||null,
           weight:r.weight,isMe:athlete&&r.athletes.pseudo===athlete.pseudo
         });
@@ -1546,7 +1549,7 @@ function renderLb(){
       <div class="lb-rank ${rc}">${medal}</div>
       <div class="lb-avatar ${a.gender==='F'?'f':'m'}">${getInitials(a.name)}</div>
       <div class="lb-info">
-        <div class="lb-name">${a.country} ${a.name}${a.level?` <span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(0,51,102,0.4);color:#6699cc">${levelLabels[a.level]||''}</span>`:''}</div>
+        <div class="lb-name">${a.name}${a.level?` <span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(0,51,102,0.4);color:#6699cc">${levelLabels[a.level]||''}</span>`:''}</div>
         <div class="lb-meta">${a.rawWeight}kg · ${a.bw}kg poids de corps${clubStr}</div>
       </div>
       <div>
@@ -1567,11 +1570,10 @@ function renderProfile(){
   else{av.style.background='rgba(28,46,74,0.8)';av.style.color='#7aaee8';}
   const levelLabels={regional:'Régional',interregional:'Inter-régional',honneur:'France Honneur',elite:'France Élite',international:'International'};
   document.getElementById('profileName').textContent=athlete.pseudo;
-  document.getElementById('profileMeta').textContent=`${athlete.gender==='F'?'Femme':'Homme'} · ${athlete.bodyweight}kg · ${athlete.country||'🇫🇷'}${athlete.club?' · '+athlete.club:''}${athlete.level?' · '+levelLabels[athlete.level]:''}`;
+  document.getElementById('profileMeta').textContent=`${athlete.gender==='F'?'Femme':'Homme'} · ${athlete.bodyweight}kg${athlete.club?' · '+athlete.club:''}${athlete.level?' · '+levelLabels[athlete.level]:''}`;
   // Fill edit form
   const ep=document.getElementById('editPseudo'); if(ep) ep.value=athlete.pseudo||'';
   const eb=document.getElementById('editBw'); if(eb) eb.value=athlete.bodyweight||'';
-  const ec=document.getElementById('editCountry'); if(ec) ec.value=athlete.country||'';
   const ecl=document.getElementById('editClub'); if(ecl) ecl.value=athlete.club||'';
   const el=document.getElementById('editLevel'); if(el) el.value=athlete.level||'';
   const rec=document.getElementById('myRecords');
@@ -1810,7 +1812,7 @@ async function saveMyProfile(){
   if(!athlete) return;
   const pseudo = document.getElementById('editPseudo')?.value.trim();
   const bw = parseFloat(document.getElementById('editBw')?.value);
-  const country = document.getElementById('editCountry')?.value.trim();
+
   const club = document.getElementById('editClub')?.value.trim();
   const level = document.getElementById('editLevel')?.value;
 
@@ -1819,15 +1821,23 @@ async function saveMyProfile(){
 
   try{
     await db(`athletes?id=eq.${athlete.id}`, 'PATCH', {
-      pseudo, bodyweight:bw, country:country||'🇫🇷', club:club||'', level:level||null
+      pseudo, bodyweight:bw, club:club||'', level:level||null
     });
     athlete.pseudo = pseudo;
     athlete.bodyweight = bw;
-    athlete.country = country || '🇫🇷';
     athlete.club = club || '';
     athlete.level = level || null;
     saveAthlete();
     renderProfile();
+    // Mettre à jour lbData directement avec les nouvelles infos
+    Object.keys(lbData).forEach(mov => {
+      lbData[mov] = (lbData[mov]||[]).map(a => {
+        if(a.isMe) return {...a, name:athlete.pseudo, bw:athlete.bodyweight, club:athlete.club||'', level:athlete.level||null};
+        return a;
+      });
+    });
+    renderLb();
+    // Recharger depuis Supabase en arrière-plan
     loadLeaderboards();
     toast('✅ Profil mis à jour !');
   } catch(e){ toast('Erreur : ' + e.message); }
@@ -1894,7 +1904,7 @@ function _showMiniLb(rmKey, exName, exScores, isAllTime){
       if(!best[name]||s.weight>best[name].weight){
         best[name]={
           name,gender:s.athletes.gender,bw:s.athletes.bodyweight,
-          country:'🇫🇷',club:s.athletes.club||'',
+          club:s.athletes.club||'',
           weight:s.weight,isMe:athlete&&name===athlete.pseudo
         };
       }
@@ -1919,7 +1929,7 @@ function _showMiniLb(rmKey, exName, exScores, isAllTime){
       return `<div class="mini-lb-row${a.isMe?' is-me':''}">
         <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;width:28px;color:${rc}">${medal}</span>
         <div style="flex:1;min-width:0">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;color:${a.isMe?'#7aaee8':'#fff'}">${a.country} ${a.name}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;color:${a.isMe?'#7aaee8':'#fff'}">${a.name}</div>
           <div style="font-size:10px;color:var(--text3)">${a.bw}kg${a.club?' · '+a.club:''}</div>
         </div>
         <div style="text-align:right">
@@ -1955,7 +1965,7 @@ async function checkAccess(){
   if(!email||!code){errEl.textContent='Remplis les deux champs.';errEl.style.display='block';return;}
   if(code!==VALID_CODE){errEl.textContent='Code d\'accès incorrect.';errEl.style.display='block';return;}
   try{
-    const existing=await db('athletes?email=eq.'+encodeURIComponent(email)+'&select=id,pseudo,gender,bodyweight,country,club,access_type,level');
+    const existing=await db('athletes?email=eq.'+encodeURIComponent(email)+'&select=id,pseudo,gender,bodyweight,club,access_type,level');
     if(existing&&existing.length>0){
       athlete=existing[0];saveAthlete();
       localStorage.setItem('soc_access_validated','1');

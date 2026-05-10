@@ -4,40 +4,56 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SOC Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --red:#e03030;--blue:#003366;--blue-light:#4488cc;
-  --bg:#0d0d0d;--surface:#141414;--surface2:#1c1c1c;--surface3:#242424;
-  --border:#272727;--border2:#333;
-  --text:#fff;--text2:#aaa;--text3:#666;
-  --green:#22c55e;--yellow:#fbbf24;--gold:#f59e0b;
+  /* Brand */
+  --navy:#000d1f;--navy-2:#061a36;--navy-3:#0d2747;
+  --paper:#f0ede7;--gold:#c9a96e;--gold-soft:#d9bd86;
+  --black:#1a1a1a;--white:#ffffff;
+  /* Tokens (sombre = dominant) */
+  --bg:var(--navy);
+  --surface:var(--navy-2);
+  --surface2:var(--navy-3);
+  --surface3:#143055;
+  --border:rgba(201,169,110,0.15);
+  --border2:rgba(201,169,110,0.3);
+  --text:var(--white);
+  --text2:#b8c2d1;
+  --text3:#7a8699;
+  /* Accents */
+  --blue:var(--gold);--blue-light:var(--gold-soft);
+  --red:#e85a5a;--green:#5fc788;--yellow:#e8c468;
+  /* Fonts */
+  --font-title:'Bebas Neue',sans-serif;
+  --font-body:'Barlow Condensed','Barlow',sans-serif;
+  --font-ui:'Inter',sans-serif;
 }
-html{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;-webkit-font-smoothing:antialiased}
+html{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;-webkit-font-smoothing:antialiased}
 body{min-height:100vh}
 
 /* LOGIN */
 #loginScreen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:2rem}
 #loginScreen.hidden{display:none}
-.login-logo{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;text-transform:uppercase;letter-spacing:2px;text-align:center}
-.login-logo em{color:var(--blue-light);font-style:normal}
+.login-logo{font-family:var(--font-title);font-size:36px;font-weight:400;text-transform:uppercase;letter-spacing:2px;text-align:center}
+.login-logo em{color:var(--gold);font-style:normal}
 .login-sub{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
 .login-input{width:100%;max-width:300px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-size:16px;outline:none;text-align:center;letter-spacing:3px}
-.login-input:focus{border-color:var(--blue)}
-.login-btn{width:100%;max-width:300px;padding:12px;border-radius:10px;border:none;background:var(--blue);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.login-input:focus{border-color:var(--gold)}
+.login-btn{width:100%;max-width:300px;padding:12px;border-radius:10px;border:none;background:var(--gold);color:var(--navy);font-family:var(--font-ui);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
 .login-error{font-size:12px;color:var(--red);display:none}
 
 /* LAYOUT */
 #app{display:none}
 #app.show{display:flex;min-height:100vh}
 .sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 0;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
-.sidebar-logo{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:1px;padding:0 1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
-.sidebar-logo em{color:var(--blue-light);font-style:normal}
+.sidebar-logo{font-family:var(--font-title);font-size:20px;font-weight:400;text-transform:uppercase;letter-spacing:1px;padding:0 1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.sidebar-logo em{color:var(--gold);font-style:normal}
 .sidebar-logo small{display:block;font-size:10px;letter-spacing:2px;color:var(--text3);font-weight:400;margin-top:2px}
-.nav-link{display:flex;align-items:center;gap:10px;padding:10px 1.25rem;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--text2);cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:all 0.15s;border-left:3px solid transparent}
+.nav-link{display:flex;align-items:center;gap:10px;padding:10px 1.25rem;font-family:var(--font-ui);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:all 0.15s;border-left:3px solid transparent}
 .nav-link:hover{background:var(--surface2);color:var(--text)}
-.nav-link.active{background:var(--surface2);color:#fff;border-left-color:var(--blue)}
+.nav-link.active{background:var(--surface2);color:var(--gold);border-left-color:var(--gold)}
 .nav-icon{font-size:16px;width:20px;text-align:center}
 
 .main-content{flex:1;padding:2rem;overflow-y:auto}
@@ -45,43 +61,43 @@ body{min-height:100vh}
 .page.active{display:block}
 
 /* CARDS */
-.page-title{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-.page-sub{font-size:13px;color:var(--text2);margin-bottom:1.5rem}
+.page-title{font-family:var(--font-title);font-size:28px;font-weight:400;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.page-sub{font-family:var(--font-ui);font-size:12px;color:var(--text2);margin-bottom:1.5rem;letter-spacing:0.3px}
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem}
-.stat-val{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;color:var(--text)}
+.stat-val{font-family:var(--font-body);font-size:32px;font-weight:900;color:var(--text)}
 .stat-val.blue{color:var(--blue-light)}
 .stat-val.green{color:var(--green)}
 .stat-val.gold{color:var(--gold)}
-.stat-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-top:2px}
+.stat-label{font-family:var(--font-ui);font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-top:4px}
 
 /* TABLE */
 .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
 .table-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border)}
-.table-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.table-title{font-family:var(--font-ui);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px}
 .table-search{background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:6px 12px;color:var(--text);font-size:13px;outline:none;width:220px}
-.table-search:focus{border-color:var(--blue)}
+.table-search:focus{border-color:var(--gold)}
 table{width:100%;border-collapse:collapse}
-th{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+th{font-family:var(--font-ui);font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);padding:12px 14px;text-align:left;border-bottom:1px solid var(--border)}
 td{font-size:13px;padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
 td:first-child{color:var(--text);font-weight:600}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:var(--surface2)}
-.badge{font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:2px 8px;border-radius:4px;display:inline-block}
+.badge{font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:4px;display:inline-block}
 .badge.active{background:rgba(34,197,94,0.15);color:var(--green)}
 .badge.inactive{background:var(--surface3);color:var(--text3)}
-.badge.m{background:rgba(0,51,102,0.3);color:var(--blue-light)}
-.badge.f{background:rgba(74,28,60,0.3);color:#e87ab8}
-.action-btn{font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:4px 10px;border-radius:5px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer;transition:all 0.15s}
+.badge.m{background:rgba(201,169,110,0.15);color:var(--gold)}
+.badge.f{background:rgba(232,196,104,0.15);color:#e8c468}
+.action-btn{font-family:var(--font-ui);font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:5px 10px;border-radius:5px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer;transition:all 0.15s}
 .action-btn:hover{background:var(--surface3);color:var(--text)}
 .action-btn.danger{border-color:rgba(224,48,48,0.3);color:var(--red)}
 .action-btn.danger:hover{background:rgba(224,48,48,0.1)}
-.action-btn.primary{border-color:var(--blue);color:var(--blue-light);background:rgba(0,51,102,0.2)}
+.action-btn.primary{border-color:var(--gold);color:var(--gold);background:rgba(201,169,110,0.12)}
 
 /* CHARTS */
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
 .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem}
-.chart-title{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem}
+.chart-title{font-family:var(--font-ui);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:1rem;color:var(--gold)}
 .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .bar-label{font-size:12px;color:var(--text2);width:160px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar-track{flex:1;height:8px;background:var(--surface3);border-radius:4px;overflow:hidden}
@@ -93,12 +109,12 @@ tr:hover td{background:var(--surface2)}
 .fatigue-row:last-child{border-bottom:none}
 .fatigue-name{font-size:13px;color:var(--text);width:140px;flex-shrink:0}
 .fatigue-dots{display:flex;gap:4px}
-.fatigue-dot{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Barlow Condensed',sans-serif}
+.fatigue-dot{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--font-body)}
 
 /* LB CONFIG */
 .lb-config-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
 .lb-config-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem}
-.lb-config-day{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;color:var(--blue-light)}
+.lb-config-day{font-family:var(--font-ui);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;color:var(--gold)}
 .lb-toggle{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
 .lb-toggle:last-child{border-bottom:none}
 .toggle-switch{width:36px;height:20px;background:var(--surface3);border-radius:10px;border:none;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0}
@@ -110,14 +126,14 @@ tr:hover td{background:var(--surface2)}
 #addModal{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;display:none;align-items:center;justify-content:center}
 #addModal.show{display:flex}
 .modal-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:1.5rem;width:100%;max-width:420px}
-.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem}
+.modal-title{font-family:var(--font-title);font-size:22px;font-weight:400;text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem}
 .modal-field{margin-bottom:12px}
 .modal-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
 .modal-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;outline:none}
 .modal-input:focus{border-color:var(--blue)}
 .modal-btns{display:flex;gap:8px;margin-top:1rem}
-.modal-cancel{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
-.modal-submit{flex:2;padding:10px;border-radius:8px;border:none;background:var(--blue);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.modal-cancel{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);font-family:var(--font-ui);font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer}
+.modal-submit{flex:2;padding:10px;border-radius:8px;border:none;background:var(--gold);color:var(--navy);font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer}
 
 .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#1c1c1c;border:1px solid var(--border2);color:var(--text);font-size:13px;font-weight:500;padding:9px 18px;border-radius:50px;opacity:0;transition:all 0.25s;pointer-events:none;white-space:nowrap;z-index:600}
 .toast.show{opacity:1}
@@ -220,31 +236,17 @@ tr:hover td{background:var(--surface2)}
           <option value="3">Semaine 3</option>
         </select>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Jour</th><th>Exercice</th><th>Ressenti moy.</th><th>Réponses</th></tr></thead>
-          <tbody id="feelingsTable"></tbody>
-        </table>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.25rem">
+        <div class="stat-card"><div class="stat-val gold" id="feelWeekAvg">—</div><div class="stat-label">Moy. semaine</div></div>
+        <div class="stat-card"><div class="stat-val blue" id="feelWeekCount">—</div><div class="stat-label">Réponses semaine</div></div>
+        <div class="stat-card"><div class="stat-val green" id="feelWeekAthletes">—</div><div class="stat-label">Athlètes ayant noté</div></div>
       </div>
+      <div id="feelingsByDay"></div>
     </div>
         <div class="page" id="pageFatigue">
       <div class="page-title">Fatigue hebdomadaire</div>
-      <div class="page-sub">Score de fatigue par athlète · 1=épuisé · 10=en forme</div>
-      <div class="table-wrap">
-        <div class="table-header">
-          <div class="table-title">Scores de fatigue</div>
-          <select id="fatigueWeekSel" onchange="loadFatigueAdmin()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
-            <option value="1">Semaine 1</option>
-            <option value="2">Semaine 2</option>
-            <option value="3">Semaine 3</option>
-            <option value="4">Semaine 4</option>
-          </select>
-        </div>
-        <table>
-          <thead><tr><th>Athlète</th><th>Club</th><th>Début semaine</th><th>Fin semaine</th><th>Évolution</th></tr></thead>
-          <tbody id="fatigueTable"></tbody>
-        </table>
-      </div>
+      <div class="page-sub">Moyennes des scores · 1=épuisé · 10=en forme</div>
+      <div id="fatigueWeeksGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
     </div>
 
     <!-- LEADERBOARD -->
@@ -409,7 +411,7 @@ tr:hover td{background:var(--surface2)}
 <!-- ADD VIDEO MODAL -->
 <div id="addVideoModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center">
   <div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:1.5rem;width:100%;max-width:500px;margin:1rem">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;text-transform:uppercase;margin-bottom:1rem" id="videoModalTitle">Ajouter une vidéo</div>
+    <div style="font-family:var(--font-title);font-size:22px;font-weight:400;text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem" id="videoModalTitle">Ajouter une vidéo</div>
     <div style="margin-bottom:10px">
       <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#999;margin-bottom:5px">Nom de l'exercice (clé unique)</div>
       <input id="vKey" class="table-search" placeholder="ex: arraché_debout" style="width:100%">
@@ -586,7 +588,7 @@ function renderAthletes(list){
   if(el){
     el.innerHTML=Object.entries(levelCounts).map(([k,v])=>`
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 12px;display:flex;align-items:center;gap:8px">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:${LEVEL_COLORS[k]||'var(--text3)'}">${v}</span>
+        <span style="font-family:var(--font-body);font-size:20px;font-weight:900;color:${LEVEL_COLORS[k]||'var(--text3)'}">${v}</span>
         <span style="font-size:11px;color:var(--text2)">${LEVEL_LABELS[k]||'Non renseigné'}</span>
       </div>`).join('');
   }
@@ -733,64 +735,214 @@ function getExName(key){
 async function loadFeelings(){
   const week = document.getElementById('feelingsWeek')?.value || 1;
   try{
-    const data = await db(`exercise_feelings?cycle=eq.${CYCLE}&week_num=eq.${week}&select=exercise_key,score,day_num&order=day_num.asc,exercise_key.asc`) || [];
-    
+    const data = await db(`exercise_feelings?cycle=eq.${CYCLE}&week_num=eq.${week}&select=exercise_key,score,day_num,athlete_id&order=day_num.asc,exercise_key.asc`) || [];
+
     const DAY_LABELS = {1:'Lundi',2:'Mardi',3:'Mercredi',4:'Jeudi',5:'Vendredi',6:'Samedi'};
     const SCORE_EMOJI = {1:'😵',2:'😓',3:'😐',4:'💪',5:'🔥'};
+    const emojiFor = avg => SCORE_EMOJI[Math.round(parseFloat(avg))] || '';
+    const colorFor = avg => { const v=parseFloat(avg); return v<2.5?'var(--red)':v<3.5?'var(--yellow)':'var(--green)'; };
 
-    // Group by day + exercise
-    const grouped = {};
+    // KPI semaine
+    if(!data.length){
+      document.getElementById('feelWeekAvg').textContent='—';
+      document.getElementById('feelWeekCount').textContent='0';
+      document.getElementById('feelWeekAthletes').textContent='0';
+      document.getElementById('feelingsByDay').innerHTML='<div class="table-wrap" style="padding:1.5rem;text-align:center;color:var(--text3)">Aucun ressenti cette semaine</div>';
+      return;
+    }
+    const weekAvg = (data.reduce((s,f)=>s+f.score,0)/data.length).toFixed(2);
+    const uniqueAth = new Set(data.map(f=>f.athlete_id)).size;
+    document.getElementById('feelWeekAvg').textContent = `${emojiFor(weekAvg)} ${weekAvg}`;
+    document.getElementById('feelWeekCount').textContent = data.length;
+    document.getElementById('feelWeekAthletes').textContent = uniqueAth;
+
+    // Group par jour
+    const byDay = {};
     data.forEach(f => {
-      const key = `${f.day_num}_${f.exercise_key}`;
-      if(!grouped[key]) grouped[key] = {day:f.day_num, ex:f.exercise_key, scores:[]};
-      grouped[key].scores.push(f.score);
+      if(!byDay[f.day_num]) byDay[f.day_num] = {scores:[], byEx:{}};
+      byDay[f.day_num].scores.push(f.score);
+      if(!byDay[f.day_num].byEx[f.exercise_key]) byDay[f.day_num].byEx[f.exercise_key] = [];
+      byDay[f.day_num].byEx[f.exercise_key].push(f.score);
     });
 
-    const tbody = document.getElementById('feelingsTable');
-    if(!tbody) return;
-    const rows = Object.values(grouped).sort((a,b)=>a.day-b.day||a.ex.localeCompare(b.ex));
-    tbody.innerHTML = rows.map(g => {
-      const avg = (g.scores.reduce((a,b)=>a+b,0)/g.scores.length).toFixed(1);
-      const emoji = SCORE_EMOJI[Math.round(parseFloat(avg))]||'';
-      const exName = getExName(g.ex);
-      return `<tr>
-        <td style="font-weight:700;color:var(--text2)">${DAY_LABELS[g.day]||'J'+g.day}</td>
-        <td style="font-size:13px">${exName}</td>
-        <td style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--yellow)">${emoji} ${avg}</td>
-        <td style="color:var(--text3);font-size:12px">${g.scores.length} réponse${g.scores.length>1?'s':''}</td>
-      </tr>`;
-    }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:1rem">Aucun ressenti cette semaine</td></tr>';
+    const container = document.getElementById('feelingsByDay');
+    const sortedDays = Object.keys(byDay).map(Number).sort((a,b)=>a-b);
+    container.innerHTML = sortedDays.map(d => {
+      const day = byDay[d];
+      const avg = (day.scores.reduce((a,b)=>a+b,0)/day.scores.length).toFixed(2);
+      const exRows = Object.entries(day.byEx).map(([ek,scores]) => {
+        const exAvg = (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(2);
+        return `<tr>
+          <td style="font-size:13px">${getExName(ek)}</td>
+          <td style="font-family:var(--font-body);font-size:18px;font-weight:900;color:${colorFor(exAvg)}">${emojiFor(exAvg)} ${exAvg}</td>
+          <td style="color:var(--text3);font-size:12px">${scores.length} rép.</td>
+        </tr>`;
+      }).join('');
+      return `<details class="table-wrap" style="margin-bottom:10px;padding:0" ${d===sortedDays[0]?'open':''}>
+        <summary style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;cursor:pointer;list-style:none;border-bottom:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:14px">
+            <span style="font-family:var(--font-body);font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:1px">${DAY_LABELS[d]||'Jour '+d}</span>
+            <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">${Object.keys(day.byEx).length} exo${Object.keys(day.byEx).length>1?'s':''} · ${day.scores.length} rép.</span>
+          </div>
+          <span style="font-family:var(--font-body);font-size:22px;font-weight:900;color:${colorFor(avg)}">${emojiFor(avg)} ${avg}</span>
+        </summary>
+        <table>
+          <thead><tr><th>Exercice</th><th>Ressenti moy.</th><th>Réponses</th></tr></thead>
+          <tbody>${exRows}</tbody>
+        </table>
+      </details>`;
+    }).join('');
   } catch(e){ console.warn('Feelings failed',e); }
 }
 
 
 async function loadFatigueAdmin(){
   try{
-    const fatigue = await db(`weekly_fatigue?cycle=eq.${CYCLE}&select=score_start,score_end,week_num,athletes(pseudo,club)&order=week_num.asc,athletes(pseudo).asc`) || [];
-    const tbody = document.getElementById('fatigueTable');
-    if(!tbody) return;
+    const fatigue = await db(`weekly_fatigue?cycle=eq.${CYCLE}&select=score_start,score_end,week_num,athlete_id`) || [];
+    const grid = document.getElementById('fatigueWeeksGrid');
+    if(!grid) return;
     if(!fatigue.length){
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1rem">Aucune donnée de fatigue pour ce cycle</td></tr>';
+      grid.innerHTML = '<div class="table-wrap" style="grid-column:1/-1;padding:1.5rem;text-align:center;color:var(--text3)">Aucune donnée de fatigue pour ce cycle</div>';
       return;
     }
-    const dot = v => v<=3?'var(--red)':v<=6?'var(--yellow)':'var(--green)';
-    tbody.innerHTML = fatigue.map(f => {
-      const s = f.score_start, e = f.score_end;
-      const diff = (s&&e) ? e-s : null;
-      const diffStr = diff!==null ? `<span style="color:${diff>0?'var(--green)':diff<0?'var(--red)':'var(--text2)'};font-weight:700">${diff>0?'+':''}${diff}</span>` : '—';
-      return `<tr>
-        <td><strong>${f.athletes?.pseudo||'—'}</strong></td>
-        <td style="color:var(--text3)">${f.athletes?.club||'—'}</td>
-        <td>S${f.week_num}</td>
-        <td>${s?`<span style="color:${dot(s)};font-weight:700;font-size:16px">${s}/10</span>`:'—'}</td>
-        <td>${e?`<span style="color:${dot(e)};font-weight:700;font-size:16px">${e}/10</span>`:'—'}</td>
-        <td>${diffStr}</td>
-      </tr>`;
+
+    // Group by week
+    const weeks = {};
+    fatigue.forEach(f => {
+      if(!weeks[f.week_num]) weeks[f.week_num] = {starts:[], ends:[], athletes:new Set()};
+      if(f.score_start!=null) weeks[f.week_num].starts.push(f.score_start);
+      if(f.score_end!=null) weeks[f.week_num].ends.push(f.score_end);
+      if(f.athlete_id) weeks[f.week_num].athletes.add(f.athlete_id);
+    });
+
+    const colorFor = v => v==null?'var(--text3)':v<=3?'var(--red)':v<=6?'var(--yellow)':'var(--green)';
+    const avgOf = arr => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : null;
+    const fmt = v => v==null?'—':v.toFixed(1);
+
+    const sortedWeeks = Object.keys(weeks).map(Number).sort((a,b)=>a-b);
+    grid.innerHTML = sortedWeeks.map(w => {
+      const d = weeks[w];
+      const aStart = avgOf(d.starts);
+      const aEnd = avgOf(d.ends);
+      const diff = (aStart!=null && aEnd!=null) ? (aEnd - aStart) : null;
+      const diffStr = diff==null ? '—' : `${diff>0?'+':''}${diff.toFixed(1)}`;
+      const diffColor = diff==null?'var(--text3)':diff>0.3?'var(--green)':diff<-0.3?'var(--red)':'var(--text2)';
+      return `<div class="stat-card" style="padding:1.25rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+          <div style="font-family:var(--font-body);font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px">Semaine ${w}</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">${d.athletes.size} athlète${d.athletes.size>1?'s':''}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div>
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Début</div>
+            <div style="font-family:var(--font-body);font-size:30px;font-weight:900;color:${colorFor(aStart)}">${fmt(aStart)}<span style="font-size:14px;color:var(--text3);font-weight:700">/10</span></div>
+            <div style="font-size:11px;color:var(--text3)">${d.starts.length} réponse${d.starts.length>1?'s':''}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Fin</div>
+            <div style="font-family:var(--font-body);font-size:30px;font-weight:900;color:${colorFor(aEnd)}">${fmt(aEnd)}<span style="font-size:14px;color:var(--text3);font-weight:700">/10</span></div>
+            <div style="font-size:11px;color:var(--text3)">${d.ends.length} réponse${d.ends.length>1?'s':''}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Évolution</span>
+          <span style="font-family:var(--font-body);font-size:18px;font-weight:900;color:${diffColor}">${diffStr}</span>
+        </div>
+      </div>`;
     }).join('');
   } catch(e){ console.warn('Fatigue admin failed',e); }
 }
 
+// LEADERBOARD ADMIN
+const LB_MOV_LABEL = {arr:'Arraché', ej:'Épaulé-Jeté', total:'Total', squat:'Back squat', fs:'Front squat'};
 
+async function loadLbAdmin(){
+  const mov = document.getElementById('lbMovSel')?.value || 'arr';
+  const gender = document.getElementById('lbGenderSel')?.value || 'H';
+  const titleEl = document.getElementById('lbAdminTitle');
+  if(titleEl) titleEl.textContent = `${LB_MOV_LABEL[mov]||mov} · ${gender==='H'?'Hommes':'Femmes'}`;
+  try {
+    // Athlètes inscrits
+    const records = await db(`rm_records?movement=eq.${mov}&select=id,weight,athlete_id,athletes(id,pseudo,gender,bodyweight,club,level)`) || [];
+    const rows = [];
+    records.forEach(r => {
+      if(!r.athletes || r.athletes.gender !== gender) return;
+      // Garder le best par athlète
+      const ex = rows.find(x => x.athleteId === r.athletes.id);
+      if(ex){ if(r.weight > ex.weight){ ex.weight = r.weight; ex.recordId = r.id; } }
+      else rows.push({
+        recordId: r.id, athleteId: r.athletes.id, isGuest: false,
+        name: r.athletes.pseudo, club: r.athletes.club||'—',
+        bw: r.athletes.bodyweight, weight: r.weight
+      });
+    });
+    // Invités
+    const guests = await db('leaderboard_guests?select=*') || [];
+    guests.forEach(g => {
+      if(g.gender !== gender) return;
+      const val = g[mov];
+      if(!val) return;
+      rows.push({
+        guestId: g.id, isGuest: true,
+        name: g.pseudo, club: g.club||'—',
+        bw: g.bodyweight, weight: val
+      });
+    });
+
+    // Tri Sinclair desc pour total, sinon poids desc
+    rows.forEach(r => { r.sinclair = calcSinclair(r.weight, r.bw, gender); });
+    rows.sort((a,b) => b.weight - a.weight);
+
+    const tbody = document.getElementById('lbAdminTable');
+    if(!tbody) return;
+    if(!rows.length){
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:1.5rem">Aucun score pour ce filtre</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map((r,i) => `<tr>
+      <td style="font-family:var(--font-body);font-size:18px;font-weight:900;color:var(--gold)">${i+1}</td>
+      <td><strong>${r.name}</strong>${r.isGuest?' <span class="badge inactive" style="margin-left:6px">Invité</span>':''}</td>
+      <td style="color:var(--text3)">${r.club}</td>
+      <td>${r.bw?r.bw+' kg':'—'}</td>
+      <td style="font-family:var(--font-body);font-size:18px;font-weight:900;color:var(--text)">${r.weight} kg</td>
+      <td style="color:var(--text2)">${r.sinclair||'—'}</td>
+      <td style="white-space:nowrap">
+        <button class="action-btn" onclick="editLbWeight('${r.isGuest?'guest':'rec'}','${r.isGuest?r.guestId:r.recordId}','${mov}',${r.weight})">✏️</button>
+        <button class="action-btn danger" onclick="deleteLbRow('${r.isGuest?'guest':'rec'}','${r.isGuest?r.guestId:r.recordId}','${mov}','${r.name.replace(/'/g,"\\'")}')">🗑</button>
+      </td>
+    </tr>`).join('');
+  } catch(e){ console.warn('LB admin failed',e); }
+}
+
+async function editLbWeight(type, id, mov, current){
+  const v = prompt(`Nouvelle perf ${LB_MOV_LABEL[mov]||mov} (kg) :`, current);
+  if(v===null) return;
+  const w = parseFloat(v);
+  if(!w || w<=0){ alert('Valeur invalide'); return; }
+  try {
+    if(type==='rec'){
+      await db(`rm_records?id=eq.${id}`, 'PATCH', {weight: w});
+    } else {
+      await db(`leaderboard_guests?id=eq.${id}`, 'PATCH', {[mov]: w});
+    }
+    toast('Perf modifiée');
+    loadLbAdmin();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
+
+async function deleteLbRow(type, id, mov, name){
+  if(!confirm(`Supprimer la perf ${LB_MOV_LABEL[mov]||mov} de ${name} ?`)) return;
+  try {
+    if(type==='rec'){
+      await db(`rm_records?id=eq.${id}`, 'DELETE');
+    } else {
+      // Pour un invité : on ne supprime pas la ligne, on remet la perf à null
+      await db(`leaderboard_guests?id=eq.${id}`, 'PATCH', {[mov]: null});
+    }
+    toast('Perf supprimée');
+    loadLbAdmin();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
 
 // SIDEBAR TOGGLE
 function toggleSidebar(){

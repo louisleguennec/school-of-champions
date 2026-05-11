@@ -859,7 +859,7 @@ async function submitOnboarding(){
       athlete=existing[0];
     } else {
       const club=document.getElementById('onbClub').value.trim();
-      const created=await db('athletes','POST',{email,pseudo,gender:onbGender,bodyweight:bw,access_type:'sub',club,level:onbLevel});
+      const created=await db('athletes','POST',{email,pseudo,gender:onbGender,bodyweight:bw,access_type:'sub',club,level:onbLevel,last_access_cycle:CYCLE});
       athlete=created[0];
     }
     saveAthlete();
@@ -1213,13 +1213,15 @@ async function submitActualToLb(rmKey,weight){
   } catch(e){console.warn('LB submit failed',e);}
 }
 
-// Dates de début de chaque semaine (lundi)
+// Dates de début de chaque semaine (lundi, minuit heure locale)
+// Note : new Date(year, monthIdx, day) crée la date à minuit dans le fuseau local,
+// contrairement à new Date('YYYY-MM-DD') qui est en UTC.
 // Semaine dispo dès le samedi précédent
 const WEEK_STARTS = [
-  new Date('2026-05-04'), // S1 (semaine 1 du bloc)
-  new Date('2026-05-11'), // S2
-  new Date('2026-05-18'), // S3
-  new Date('2026-05-25'), // S4
+  new Date(2026, 4,  4), // S1 — 4 mai 2026 (mois 4 = mai, 0-indexé)
+  new Date(2026, 4, 11), // S2 — 11 mai
+  new Date(2026, 4, 18), // S3 — 18 mai
+  new Date(2026, 4, 25), // S4 — 25 mai
 ];
 // Unlock date = samedi avant (J-2 du lundi)
 let weekUnlockOverrides = {};
@@ -2171,14 +2173,24 @@ async function checkAccess(){
   if(!email||!code){errEl.textContent='Remplis les deux champs.';errEl.style.display='block';return;}
   if(code!==VALID_CODE){errEl.textContent='Code d\'accès incorrect.';errEl.style.display='block';return;}
   try{
-    const existing=await db('athletes?email=eq.'+encodeURIComponent(email)+'&select=id,pseudo,gender,bodyweight,club,access_type,level');
+    const existing=await db('athletes?email=eq.'+encodeURIComponent(email)+'&select=id,pseudo,gender,bodyweight,club,access_type,level,suspended');
     if(existing&&existing.length>0){
-      athlete=existing[0];saveAthlete();
+      // Athlète existant
+      if(existing[0].suspended){
+        errEl.textContent='Compte suspendu. Contacte le coach.';
+        errEl.style.display='block';
+        return;
+      }
+      athlete=existing[0];
+      // Marquer ce cycle comme validé pour cet athlète (silencieux)
+      db(`athletes?id=eq.${athlete.id}`,'PATCH',{last_access_cycle:CYCLE}).catch(()=>{});
+      saveAthlete();
       localStorage.setItem('soc_access_validated','1');
       localStorage.setItem('soc_access_email',email);
       document.getElementById('accessScreen').style.display='none';
       showApp();
     } else {
+      // Nouvel athlète, onboarding (le last_access_cycle sera mis à la création)
       localStorage.setItem('soc_access_validated','1');
       localStorage.setItem('soc_access_email',email);
       document.getElementById('accessScreen').style.display='none';

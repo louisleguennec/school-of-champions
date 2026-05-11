@@ -1107,6 +1107,153 @@ async function deleteGuest(id, pseudo){
   } catch(e){ toast('Erreur'); }
 }
 
+// VIDEOS
+// Liste exhaustive des exos du programme avec leurs vidéos hardcodées
+// (à mettre à jour quand le programme change ; "Repos"/"À venir" exclus)
+const PROG_EXOS = [
+  {n:'Adducteurs au rameur ou à la machine'},
+  {n:'Appel de jeté', video:'https://www.youtube.com/shorts/If-TUuNGp5s'},
+  {n:'Arraché'},
+  {n:'Arraché force (avec contact)'},
+  {n:'Arraché suspension'},
+  {n:'Back squat'},
+  {n:'CMJ'},
+  {n:'Cardio basse intensité', noVideo:true},
+  {n:"Chute d'arraché en instabilité", video:'https://www.youtube.com/shorts/LFmf-x1pyAk'},
+  {n:'Clamshell'},
+  {n:'Curl biceps'},
+  {n:'Développé couché'},
+  {n:'Développé militaire', video:'https://www.youtube.com/watch?v=_aISMzimYEA'},
+  {n:'Extensions lombaires GHD', video:'https://www.youtube.com/watch?v=dEDjkzFKJ-0'},
+  {n:'Face pulls'},
+  {n:'Front squat'},
+  {n:'Gainage Copenhague'},
+  {n:'Jeté des plots'},
+  {n:'Jeté force', video:'https://www.youtube.com/watch?v=ngjhO8CJvQg'},
+  {n:'Landmine barbell rotations'},
+  {n:'Leg curl', video:'https://youtu.be/n6qRAUu16vc'},
+  {n:'Leg raises'},
+  {n:'Pompes'},
+  {n:'Saut 1 haie avec élan'},
+  {n:'Single leg hip thrust'},
+  {n:'Swiss ball side plank'},
+  {n:'TBA'},
+  {n:"Tirage haut d'arraché", video:'https://youtu.be/iYBcBMu8zrA'},
+  {n:"Tirage lourd d'arraché"},
+  {n:'Tirage poulie basse (ou élastique)'},
+  {n:'Tractions (ou tirage poulie haute)'},
+  {n:'Tractions nuque (ou tirage poulie haute)'},
+  {n:'Trapbar deadlift'},
+  {n:"Warm up : Épaulé force + passage d'épaulé"},
+  {n:'Y au GHD'},
+  {n:'Épaulé debout'},
+  {n:'Épaulé des plots', video:'https://www.youtube.com/shorts/lL-Ae_D2IXk'},
+  {n:'Épaulé-Jeté'},
+];
+
+// Slug normalisé pour la clé en DB (identique à index.html getVideoUrl)
+function exoSlug(name){
+  return name.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+}
+
+async function loadVideos(){
+  try {
+    const rows = await db('exercise_videos?select=exercise_key,video_url') || [];
+    // index par clé exacte
+    const byKey = {};
+    rows.forEach(r => { byKey[r.exercise_key] = r.video_url; });
+
+    const missing = [];
+    const present = [];
+    PROG_EXOS.forEach(ex => {
+      if(ex.noVideo) return; // exclu
+      const slug = exoSlug(ex.n);
+      const dbUrl = byKey[slug] || byKey[ex.n];
+      if(dbUrl){
+        present.push({name: ex.n, slug, url: dbUrl, source: 'db'});
+      } else if(ex.video){
+        present.push({name: ex.n, slug, url: ex.video, source: 'hardcoded'});
+      } else {
+        missing.push({name: ex.n, slug});
+      }
+    });
+
+    // Section MANQUANTS — cards éditables avec input + bouton
+    const missEl = document.getElementById('missingVideoList');
+    document.getElementById('missingCount').textContent = missing.length;
+    if(!missing.length){
+      missEl.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;text-align:center">🎉 Tous les exos ont une vidéo !</div>';
+    } else {
+      missEl.innerHTML = missing.map(m => `<div style="background:var(--surface);border:1px solid rgba(232,196,104,0.25);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="font-weight:700;font-size:14px">${m.name}</div>
+          <code style="font-size:10px;color:var(--text3);font-family:monospace">${m.slug}</code>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input id="miss_${m.slug}" type="url" placeholder="https://youtube.com/..." class="table-search" style="flex:1">
+          <button class="action-btn primary" onclick="saveMissingVideo('${m.slug.replace(/'/g,"\\'")}','${m.name.replace(/'/g,"\\'")}')" style="white-space:nowrap">✓ Ajouter</button>
+        </div>
+      </div>`).join('');
+    }
+
+    // Section AVEC vidéo
+    const tbody = document.getElementById('videosTable');
+    document.getElementById('hasCount').textContent = present.length;
+    tbody.innerHTML = present.map(p => `<tr>
+      <td><strong>${p.name}</strong>${p.source==='hardcoded'?' <span class="badge inactive" style="margin-left:6px">Code</span>':''}</td>
+      <td><a href="${p.url}" target="_blank" style="color:var(--gold);font-size:12px;word-break:break-all">${p.url}</a></td>
+      <td style="white-space:nowrap">
+        ${p.source==='db' ? `
+          <button class="action-btn" onclick="editPresentVideo('${p.slug.replace(/'/g,"\\'")}','${p.name.replace(/'/g,"\\'")}','${p.url.replace(/'/g,"\\'")}')">✏️</button>
+          <button class="action-btn danger" onclick="deletePresentVideo('${p.slug.replace(/'/g,"\\'")}','${p.name.replace(/'/g,"\\'")}')">🗑</button>
+        ` : `<span style="color:var(--text3);font-size:11px">Hardcodée</span>`}
+      </td>
+    </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--text3);padding:1rem">Aucune vidéo</td></tr>';
+  } catch(e){ console.warn('Videos load failed', e); }
+}
+
+async function saveMissingVideo(slug, name){
+  const inp = document.getElementById('miss_'+slug);
+  const url = inp?.value.trim();
+  if(!url){ toast('URL requise'); return; }
+  if(!/^https?:\/\//.test(url)){ toast('URL invalide'); return; }
+  try {
+    // Vérifier si une ligne existe déjà avec ce slug
+    const existing = await db(`exercise_videos?exercise_key=eq.${encodeURIComponent(slug)}&select=exercise_key`);
+    if(existing && existing.length){
+      await db(`exercise_videos?exercise_key=eq.${encodeURIComponent(slug)}`, 'PATCH', {video_url: url});
+    } else {
+      await db('exercise_videos', 'POST', {exercise_key: slug, video_url: url});
+    }
+    toast(`✅ Vidéo ajoutée : ${name}`);
+    loadVideos();
+  } catch(e){ toast('Erreur : '+e.message); }
+}
+
+async function editPresentVideo(slug, name, currentUrl){
+  const url = prompt(`URL pour "${name}" :`, currentUrl);
+  if(url===null) return;
+  const trimmed = url.trim();
+  if(!trimmed){ toast('URL vide'); return; }
+  if(!/^https?:\/\//.test(trimmed)){ toast('URL invalide'); return; }
+  try {
+    await db(`exercise_videos?exercise_key=eq.${encodeURIComponent(slug)}`, 'PATCH', {video_url: trimmed});
+    toast('✅ Modifiée');
+    loadVideos();
+  } catch(e){ toast('Erreur : '+e.message); }
+}
+
+async function deletePresentVideo(slug, name){
+  if(!confirm(`Supprimer la vidéo de "${name}" ?`)) return;
+  try {
+    await db(`exercise_videos?exercise_key=eq.${encodeURIComponent(slug)}`, 'DELETE');
+    toast('Vidéo supprimée');
+    loadVideos();
+  } catch(e){ toast('Erreur : '+e.message); }
+}
+
 // CONFIG : Déblocage semaines + RMs optionnels
 const RM_OPTIONAL_LIST = [
   {key:'arr_force',  label:'Arr. Force'},

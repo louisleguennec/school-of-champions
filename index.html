@@ -121,6 +121,10 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .week-sel::-webkit-scrollbar{display:none}
 .week-btn{flex-shrink:0;font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap}
 .week-btn.active{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.toggle-switch{width:42px;height:24px;background:var(--surface3);border-radius:12px;border:1px solid var(--border2);cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;padding:0}
+.toggle-switch::after{content:'';position:absolute;width:18px;height:18px;background:var(--white);border-radius:50%;top:2px;left:2px;transition:left 0.2s}
+.toggle-switch.on{background:var(--gold);border-color:var(--gold)}
+.toggle-switch.on::after{left:21px;background:var(--navy)}
 
 /* PROG STATS */
 .prog-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:1rem}
@@ -437,6 +441,27 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
         <div class="banner-dot" onclick="goSlide(2)"></div>
       </div>
     </div>
+    <!-- BLOCK SELECTOR (Mai/Juin) -->
+    <div id="blockSel" style="display:flex;gap:8px;padding:0 1rem;margin-bottom:10px;flex-wrap:wrap"></div>
+    <!-- BANNER CODE JUIN (visible si l'athlète n'a pas validé LASTBLOCK26) -->
+    <div id="bannerJuinUnlock" style="display:none;margin:0 1rem 12px;padding:14px;border-radius:12px;background:linear-gradient(135deg,rgba(201,169,110,0.18),rgba(201,169,110,0.08));border:1px solid var(--gold);cursor:pointer" onclick="openCodeModal('juin26')">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:24px">🔓</div>
+        <div style="flex:1">
+          <div style="font-family:var(--font-body);font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold)">Nouveau bloc — Juin 2026</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px">Saisis ton code pour accéder au programme de juin</div>
+        </div>
+        <div style="font-size:18px;color:var(--gold)">→</div>
+      </div>
+    </div>
+    <!-- TOGGLE S4 MASTERS (visible uniquement quand juin S4 est sélectionnée) -->
+    <div id="mastersToggle" style="display:none;margin:0 1rem 12px;padding:10px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--border);align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:var(--font-body);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Version Masters</div>
+        <div style="font-size:11px;color:var(--text3)">Programme adapté Masters</div>
+      </div>
+      <button id="mastersBtn" class="toggle-switch" onclick="toggleMasters()" aria-label="Toggle Masters"></button>
+    </div>
     <div class="week-sel" id="weekSel"></div>
     <div class="prog-stats" id="progStats">
       <div class="pstat"><div class="pstat-val" id="statDays">5</div><div class="pstat-label">Jours</div></div>
@@ -616,6 +641,21 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
   </div>
 </div>
 
+<!-- CODE BLOCK MODAL -->
+<div id="codeBlockModal" onclick="if(event.target===this)closeCodeModal()" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:700;display:none;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:var(--surface);border:1px solid var(--gold);border-radius:16px;padding:1.5rem;width:100%;max-width:380px;text-align:center">
+    <div style="font-size:32px;margin-bottom:6px">🔒</div>
+    <div style="font-family:var(--font-body);font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px" id="codeBlockTitle">Bloc Juin 2026</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:1.25rem">Saisis ton code d'accès pour débloquer ce bloc.<br>Tu n'auras à le faire qu'une seule fois.</div>
+    <input id="codeBlockInput" type="text" autocomplete="off" placeholder="Code d'accès" style="width:100%;padding:14px;border-radius:10px;border:1px solid var(--border2);background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:18px;font-weight:700;letter-spacing:3px;text-transform:uppercase;text-align:center;margin-bottom:8px;outline:none" onkeydown="if(event.key==='Enter')submitBlockCode()">
+    <div id="codeBlockError" style="display:none;color:var(--red);font-size:12px;margin-bottom:8px"></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button onclick="closeCodeModal()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border2);background:none;color:var(--text2);font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">Annuler</button>
+      <button onclick="submitBlockCode()" style="flex:2;padding:12px;border-radius:10px;border:none;background:var(--gold);color:var(--navy);font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">Valider</button>
+    </div>
+  </div>
+</div>
+
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav" id="bottomNav" style="display:none">
   <div class="bottom-nav-inner">
@@ -657,7 +697,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 <script>
 const SUPA_URL = 'https://sexokzggfinzvgroqnes.supabase.co';
 const SUPA_KEY = 'sb_publishable_Lq6BcamJ5LTSKnR5t7Y2wQ_RhPv_YKX';
-const CYCLE = 'mai26';
+// CYCLE legacy : remplacé par la variable globale `currentBlock` définie plus bas dans BLOCKS
 
 // ─── SINCLAIR ─────────────────────────────────────────────
 const SINCLAIR_M = {A:0.722762521,b:175.508};
@@ -723,7 +763,7 @@ async function syncRMsAllTimeToSupabase(){
       if(existing && existing.length){
         await db(`rm_records?id=eq.${existing[0].id}`,'PATCH',{weight:w});
       } else {
-        await db('rm_records','POST',{athlete_id:athlete.id,movement,weight:w,cycle:CYCLE});
+        await db('rm_records','POST',{athlete_id:athlete.id,movement,weight:w,cycle:currentBlock});
       }
     }
     Object.keys(lbData).forEach(mov => {
@@ -768,14 +808,15 @@ async function loadActiveRMDefs(){
 // ─── SESSION LOG SYNC ─────────────────────────────────────
 async function syncSessionLog(type, data){
   if(!athlete) return;
+  if(BLOCKS[currentBlock]?.readonly) return; // mai26 archivé : pas d'écriture
   try{
     const key = `${type}_w${currentWeek+1}`;
     const value = JSON.stringify(data);
-    const existing = await db(`session_logs?athlete_id=eq.${athlete.id}&cycle=eq.${CYCLE}&week_num=eq.${currentWeek+1}&key=eq.${key}&select=id`);
+    const existing = await db(`session_logs?athlete_id=eq.${athlete.id}&cycle=eq.${currentBlock}&week_num=eq.${currentWeek+1}&key=eq.${key}&select=id`);
     if(existing && existing.length){
       await db(`session_logs?id=eq.${existing[0].id}`,'PATCH',{value, updated_at:new Date().toISOString()});
     } else {
-      await db('session_logs','POST',{athlete_id:athlete.id,cycle:CYCLE,week_num:currentWeek+1,key,value});
+      await db('session_logs','POST',{athlete_id:athlete.id,cycle:currentBlock,week_num:currentWeek+1,key,value});
     }
   } catch(e){ console.warn('Session sync failed',e); }
 }
@@ -783,7 +824,7 @@ async function syncSessionLog(type, data){
 async function loadSessionLogs(){
   if(!athlete) return;
   try{
-    const logs = await db(`session_logs?athlete_id=eq.${athlete.id}&cycle=eq.${CYCLE}&select=key,value`) || [];
+    const logs = await db(`session_logs?athlete_id=eq.${athlete.id}&cycle=eq.${currentBlock}&select=key,value`) || [];
     logs.forEach(log=>{
       try{
         const data = JSON.parse(log.value);
@@ -859,7 +900,7 @@ async function submitOnboarding(){
       athlete=existing[0];
     } else {
       const club=document.getElementById('onbClub').value.trim();
-      const created=await db('athletes','POST',{email,pseudo,gender:onbGender,bodyweight:bw,access_type:'sub',club,level:onbLevel,last_access_cycle:CYCLE});
+      const created=await db('athletes','POST',{email,pseudo,gender:onbGender,bodyweight:bw,access_type:'sub',club,level:onbLevel,last_access_cycle:currentBlock});
       athlete=created[0];
     }
     saveAthlete();
@@ -886,7 +927,7 @@ async function loadRemoteVideos(){
 let progOverrides = {};
 async function loadProgOverrides(){
   try{
-    const ov = await db(`programme_overrides?cycle=eq.${CYCLE}&select=*`) || [];
+    const ov = await db(`programme_overrides?cycle=eq.${currentBlock}&select=*`) || [];
     progOverrides = {};
     ov.forEach(o => {
       const key = `${o.day_idx}_${o.ex_idx}`;
@@ -911,14 +952,26 @@ function getVideoUrl(ex){
   return remoteVideos[remoteKey] || remoteVideos[ex.n] || ex.video || null;
 }
 
-function showApp(){
+async function showApp(){
   document.getElementById('onboarding').classList.remove('show');
   document.getElementById('app').style.display='block';
   document.getElementById('bottomNav').style.display='block';
   buildRMGrid();
+
+  // ─── Charger les blocs débloqués et choisir le bloc actif ───
+  await loadUnlockedBlocks();
+  const stored = localStorage.getItem('soc_current_block');
+  const desired = (stored && isBlockUnlocked(stored)) ? stored : chooseDefaultBlock();
+  currentBlock = desired;
+  WEEKS = BLOCKS[currentBlock].weeks;
+  WEEK_STARTS = BLOCKS[currentBlock].starts;
+  applyMastersFilter();
+  buildBlockSelector();
+
   // Select current week if unlocked, else latest unlocked
   const targetWeek = getCurrentWeekIdx();
   currentWeek = isWeekUnlocked(targetWeek) ? targetWeek : Math.max(0, ...WEEKS.map((_,i)=>isWeekUnlocked(i)?i:-1));
+  if(currentWeek < 0) currentWeek = 0;
   buildWeekSel();
   Promise.all([loadRemoteVideos(), loadProgOverrides(), loadWeekUnlocks()]).then(()=>{buildWeekSel(); renderDays(); autoScrollToToday();});
   loadLeaderboards();
@@ -1021,7 +1074,7 @@ function buildRMGrid(){
 
 // ─── PROGRAMME DATA ───────────────────────────────────────
 // ✅ 6 vidéos intégrées : Leg curl, Leg extension, Tirage épaulé, Tirage arraché, Strict HLR, Echo bike HIIT
-const WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
+const BLOCK_MAI26_WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
   {type:"main",label:"Lundi",sub:"Arraché Force · Tirage Haut · Prépa",
     warmup:[],
     main:[
@@ -1167,6 +1220,95 @@ const WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
 ]}
 ];
 
+// ───── BLOC JUIN 2026 (5 semaines incluant S4 Masters) ─────
+const BLOCK_JUIN26_WEEKS = [
+  {id:"w1",label:"S1 · 01/06",title:"Semaine 1",days:[
+    {type:"main",label:"Lundi",sub:"Arraché debout · Tirage haut d'arraché · Front squat",warmup:[],main:[{n:"Arraché debout",d:"2x2 / 70%; 1x2 / 80%; 5x1 / 85+%",rm:"arr_debout",video:"https://www.youtube.com/shorts/szLFnjevo4k",isLb:true},{n:"Tirage haut d'arraché",d:"4x2 / 80-85%",rm:"arr",video:"https://youtu.be/iYBcBMu8zrA"},{n:"Front squat",d:"4x2 / 85-90%",rm:"fs",video:"https://www.youtube.com/watch?v=g8uV9X_KN_I"},{n:"Appel de jeté",d:"6x4 (même charge que le front squat)",note:"sans pause en haut; reps enchaînées",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}],prepa:[{n:"Leg curl",d:"4x8-10 reps",video:"https://youtu.be/n6qRAUu16vc"},{n:"Single Arm Dead Hang",d:"2-3 tours / côté",note:"30-45 sec/bras fractionné : 10-15s/bras x3 ou 15-20s/bras x2",video:"https://www.youtube.com/shorts/ToMtVwEV3xA"}]},
+    {type:"rest",label:"Mardi"},
+    {type:"opt",label:"Mercredi",sub:"Épaulé debout · Tirage prise épaulé",warmup:[],main:[{n:"Épaulé debout + jeté force",d:"6x2 / 85-90+%",rm:"jet_force",note:"Monter sur un 2RM si en forme",video:"https://www.youtube.com/shorts/yIVSW9ou6kI",isLb:true},{n:"Tirage prise épaulé",d:"4x2 / 100+%",rm:"ep",note:"Sans sangles",video:"https://www.youtube.com/shorts/eRRbAvwybrE"}],prepa:[{n:"KB hip airplane",d:"2x10-15 / côté",note:"Aller chercher un étirement max en bas de la rep et engager les fessiers pour revenir en position. N'hésitez pas à charger pour rendre l'exercice difficile.",video:"https://www.youtube.com/shorts/oSU3zh1fLFI"},{n:"Tractions",d:"4x8-10 reps",note:"Si moins de 10 reps; utilisez un élastique pour vous délester",video:"https://www.youtube.com/watch?v=pHtPSleYquw"},{n:"High box jump",d:"5x5 reps"}]},
+    {type:"rest",label:"Jeudi"},
+    {type:"main",label:"Vendredi",sub:"Tirage de bras d'arraché · Arraché · Tirage prise arraché",warmup:[],main:[{n:"Tirage de bras d'arraché + OHS",d:"3x(5+5) reps (light)",note:"Focus rotation externe de l'épaule",video:"https://www.youtube.com/watch?v=cGf80O157z4"},{n:"Arraché",d:"RM du jour",rm:"arr",note:"Max 3 échecs",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Tirage prise arraché",d:"6x3 / 100-110%",rm:"arr",video:"https://www.youtube.com/shorts/Dqr52cwYdfY"}],prepa:[{n:"Tirage poulie basse",d:"6x8-10 reps",video:"https://www.youtube.com/watch?v=wNEKpum3Bcs"},{n:"Adducteurs au rameur",d:"4x10 / côté",note:"Ou Copenhagen dips",video:"https://www.youtube.com/shorts/3yh6AVeYGqg"}]},
+    {type:"main",label:"Samedi",sub:"Épaulé force · Épaulé-jeté",warmup:[],main:[{n:"Épaulé force + passage d'épaulé + jeté pause appel 3''",d:"3x(2+2+2) / 50% (du RM épaulé)",video:"https://www.youtube.com/watch?v=D7DzYTfpNek"},{n:"Épaulé-jeté",d:"RM du jour",rm:"ej",note:"Max 2 échecs",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true}],prepa:[{n:"Rotations thoraciques à la poulie",d:"2x8-12 / côté",note:"2-3 RIR. Peut être fait à l'élastique. Objectif étirement max : l'ancre de la poulie (ou de l'élastique) doit être derrière l'athlète; pas sur le côté.",video:"https://www.youtube.com/watch?v=KOWuzxXcqhA"},{n:"Reverse hyper",d:"4x15-20 reps",video:"https://www.youtube.com/shorts/NlXUhBv0JGI"},{n:"Swiss ball side plank",d:"4x20-30'' / côté",video:"https://www.youtube.com/shorts/dtpYM3kwqWM"}]}
+  ]},
+  {id:"w2",label:"S2 · 08/06",title:"Semaine 2",days:[
+    {type:"opt",label:"Lundi",sub:"Arraché force · Tirage haut d'arraché · Tirage lourd d'arraché",warmup:[],main:[{n:"Arraché force (avec contact)",d:"6x2 / 75-85%",rm:"arr_force",note:"Si bien; 2RM du jour",video:"https://www.youtube.com/shorts/SIKVjxaNVZU",isLb:true},{n:"Tirage haut d'arraché",d:"6x3 / 75-85%",rm:"arr",note:"Des plots ou suspension",video:"https://youtu.be/iYBcBMu8zrA"},{n:"Tirage lourd d'arraché",d:"6x1 / 110-130%",rm:"arr",note:"Du sol",video:"https://www.youtube.com/shorts/Dqr52cwYdfY"}],prepa:[{n:"Rotations thoraciques à la poulie",d:"2x8-12 / côté",video:"https://www.youtube.com/watch?v=KOWuzxXcqhA"},{n:"Rowing planche",d:"3-4x10 reps",note:"Lourd ! RPE 8-9",video:"https://www.youtube.com/shorts/q-OIgz24b8w"},{n:"Leg curl unilatéral",d:"3-4x10 reps / jambe",video:"https://youtu.be/n6qRAUu16vc"},{n:"Pull over au foam roller",d:"3x10 reps",note:"Light; recherche d'amplitude",video:"https://www.youtube.com/shorts/9Hfy7ojEt18"}]},
+    {type:"main",label:"Mardi",sub:"Anderson squat · Jeté des plots",warmup:[],main:[{n:"Anderson squat",d:"6x3 / 80%",rm:"squat",note:"Départ à parallèle",video:"https://www.youtube.com/watch?v=K7lOcoxnTcc"},{n:"Jeté des plots",d:"4x3 / 70%",rm:"jet",note:"Pause en fente si possible",video:"https://www.youtube.com/shorts/Xo8lVPHq510"}],prepa:[{n:"Cossack squat",d:"4x12 / côté",note:"Tempo lent",video:"https://www.youtube.com/shorts/J5rAhhGVLUA"},{n:"Extensions lombaires GHD",d:"3x10",note:"Barre nuque - lourd",video:"https://www.youtube.com/watch?v=dEDjkzFKJ-0"},{n:"Rotations externes d'épaule allongé",d:"2x10 / côté",note:"2-3 reps de réserve",video:"https://www.youtube.com/shorts/dIpVOai4pBM"},{n:"Cardio basse intensité",d:"20 minutes"}]},
+    {type:"main",label:"Mercredi",sub:"Arraché suspension · Chute d'arraché",warmup:[],main:[{n:"Arraché suspension",d:"5x2 / 80%",rm:"arr",video:"https://www.youtube.com/watch?v=JzQ4eXvrez4"},{n:"Chute d'arraché",d:"6x3 / 70%",rm:"arr",video:"https://www.youtube.com/watch?v=GTj9pliPP8E"}],prepa:[{n:"KB hip airplane",d:"2x10-15 / côté",video:"https://www.youtube.com/shorts/oSU3zh1fLFI"},{n:"Triple Broad Jump",d:"3x3 — distance max",note:"Quelques séries de chauffe puis 3 séries intensité max",video:"https://www.youtube.com/watch?v=CuXErkWUo1k"},{n:"Incline roll-ups",d:"3x8-10 reps",note:"Si besoin; faire sur banc droit. Ajuster la difficulté en inclinant + le banc !",video:"https://www.youtube.com/shorts/cLoR0gujIMw"},{n:"Stir the pot swiss ball",d:"4x15 reps / côté",video:"https://www.youtube.com/shorts/hmdMRDsfyqY"},{n:"Cardio basse intensité",d:"20 minutes"}]},
+    {type:"rest",label:"Jeudi"},
+    {type:"main",label:"Vendredi",sub:"Arraché · Jeté · Front squat",warmup:[],main:[{n:"Arraché",d:"3x3 / 70-80% puis 2RM du jour",rm:"arr",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Jeté",d:"6x2 / 75+%",rm:"jet",note:"Finir proche 2RM",video:"https://www.youtube.com/watch?v=ngjhO8CJvQg",isLb:true},{n:"Front squat",d:"3x2 / 80-85%; 3x1 / 90%",rm:"fs",video:"https://www.youtube.com/watch?v=g8uV9X_KN_I",isLb:true},{n:"Appel de jeté",d:"4x3 / 100-110%",rm:"fs",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}],prepa:[{n:"Single Leg RDL",d:"4x10 / jambe",video:"https://www.youtube.com/watch?v=3jBOfVoCBsY"},{n:"Single Arm Dead Hang",d:"2-3 tours / côté",video:"https://www.youtube.com/shorts/ToMtVwEV3xA"}]},
+    {type:"rest",label:"Samedi"}
+  ]},
+  {id:"w3",label:"S3 · 15/06",title:"Semaine 3",days:[
+    {type:"main",label:"Lundi",sub:"Arraché force · Back squat · Appel de jeté",warmup:[],main:[{n:"Arraché force",d:"6x2 / 85-92%",rm:"arr_force",note:"Monter sur un doublé lourd",video:"https://www.youtube.com/shorts/SIKVjxaNVZU",isLb:true},{n:"Back squat",d:"6x2 / 80-90%",rm:"squat",note:"Si en forme; 2RM — ne pas monter à l'échec",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ",isLb:true},{n:"Appel de jeté",d:"5x4 / 110-130%",rm:"fs",note:"Tempo lent",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}],prepa:[{n:"KB hip airplane",d:"2x10-15 / côté",video:"https://www.youtube.com/shorts/oSU3zh1fLFI"}]},
+    {type:"main",label:"Mardi",sub:"Passage d'arraché · Arraché suspension · Tirage lourd d'arraché",warmup:[],main:[{n:"Passage d'arraché",d:"3x5 light",video:"https://www.youtube.com/watch?v=UpDy-VNnUuo"},{n:"Arraché suspension",d:"3x2 / 80-85%; 3x1 / 90-95%",rm:"arr",note:"RM si en forme !",video:"https://www.youtube.com/watch?v=JzQ4eXvrez4"},{n:"Tirage lourd d'arraché",d:"6x2 / 100-120%",rm:"arr",note:"Pause 2'' aux genoux",video:"https://www.youtube.com/shorts/Dqr52cwYdfY"}],prepa:[]},
+    {type:"rest",label:"Mercredi"},
+    {type:"main",label:"Jeudi",sub:"Épaulé suspension debout · Épaulé-jeté",warmup:[],main:[{n:"Épaulé suspension debout + jeté pause fente 3''",d:"3x(3+3) / 50% (du RM épaulé)",video:"https://www.youtube.com/watch?v=0aP3tgKZcHQ"},{n:"Épaulé-jeté",d:"Montée sur une rep lourde",rm:"ej",note:"Target 95% — 1 échec max !",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true}],prepa:[{n:"Single Arm Dead Hang",d:"2-3 tours / côté",video:"https://www.youtube.com/shorts/ToMtVwEV3xA"}]},
+    {type:"rest",label:"Vendredi"},
+    {type:"opt",label:"Samedi",sub:"Épaulé debout · Arraché",warmup:[],main:[{n:"Épaulé debout + jeté force",d:"6x2 / 85+%",rm:"jet_force",note:"Finir proche 2RM. Sur le warm-up : pause 2'' sur le dip de la première rep",video:"https://www.youtube.com/shorts/d63PlCk4vcg",isLb:true},{n:"Arraché",d:"6x3 / 50%",rm:"arr",note:"Volume technique léger ! Ne pas dépasser",video:"https://www.youtube.com/shorts/9UtWOLkdGFY"}],prepa:[{n:"Triple Broad Jump",d:"3x3 — distance max",video:"https://www.youtube.com/watch?v=CuXErkWUo1k"},{n:"Rotations thoraciques à la poulie",d:"2x8-12 / côté",video:"https://www.youtube.com/watch?v=KOWuzxXcqhA"}]}
+  ]},
+  {id:"w4",label:"S4 · 22/06",title:"Semaine 4",days:[
+    {type:"opt",label:"Lundi",warmup:[],main:[],prepa:[{n:"Tractions",d:"3x8-12 reps",note:"Si moins de 8 reps; utilisez un élastique",video:"https://www.youtube.com/watch?v=pHtPSleYquw"},{n:"Rowing buste penché",d:"3x10 reps",video:"https://www.youtube.com/watch?v=9OKXDJsv37g"},{n:"Pompes",d:"3x15 reps",note:"Avec plate sur le dos si trop facile",video:"https://www.youtube.com/shorts/1e0wAhSN7SU"},{n:"Leg extension",d:"3x15 reps",video:"https://youtu.be/rCJNVrpvWeI"},{n:"Cossack squat",d:"3x10 reps / côté",note:"Reps lentes et amplitude max",video:"https://www.youtube.com/shorts/J5rAhhGVLUA"},{n:"Incline roll-ups",d:"3x8-10 reps",video:"https://www.youtube.com/shorts/cLoR0gujIMw"}]},
+    {type:"main",label:"Mardi",sub:"Arraché · Front squat · Appel de jeté",warmup:[],main:[{n:"Arraché",d:"4x2 / 70-80%",rm:"arr",video:"https://www.youtube.com/shorts/9UtWOLkdGFY"},{n:"Front squat",d:"6x2 / 75-85%",rm:"fs",video:"https://www.youtube.com/watch?v=g8uV9X_KN_I"},{n:"Appel de jeté",d:"4x4 / 100%",rm:"fs",note:"Reps rapides",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}],prepa:[{n:"Rotations thoraciques à la poulie",d:"2x8-12 / côté",video:"https://www.youtube.com/watch?v=KOWuzxXcqhA"},{n:"Leg extension",d:"3-4x15 reps",video:"https://youtu.be/rCJNVrpvWeI"}]},
+    {type:"main",label:"Mercredi",sub:"Épaulé-jeté · Tirage prise épaulé",warmup:[],main:[{n:"Épaulé-jeté",d:"2x2 / 70%; 4x1 / 80-90%",rm:"ej",note:"Pause en fente si possible",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ"},{n:"Tirage prise épaulé",d:"3x2 / 75%; 3x1 / 80-85%",rm:"deadlift",video:"https://www.youtube.com/shorts/a0t8wcFDeRg"}],prepa:[{n:"KB hip airplane",d:"2x10-15 / côté",video:"https://www.youtube.com/shorts/oSU3zh1fLFI"},{n:"Hollow hold",d:"4x30-40''",video:"https://www.youtube.com/shorts/_wBPcny-7Hc"},{n:"Single Arm Dead Hang",d:"2-3 tours / côté",video:"https://www.youtube.com/shorts/ToMtVwEV3xA"}]},
+    {type:"rest",label:"Jeudi"},
+    {type:"opt",label:"Vendredi",sub:"Arraché · Épaulé-jeté",warmup:[],main:[{n:"Arraché",d:"4x1-2 / 70-75%",rm:"arr",note:"Focus technique / vitesse",video:"https://www.youtube.com/shorts/9UtWOLkdGFY"},{n:"Épaulé-jeté",d:"4x1 / 70-75%",rm:"ej",note:"Focus technique / vitesse",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ"}],prepa:[]},
+    {type:"main",label:"Samedi",sub:"Arraché · Épaulé-jeté",warmup:[],main:[{n:"Arraché",d:"RM",rm:"arr",note:"Condition compétition ! 3 essais",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Épaulé-jeté",d:"RM",rm:"ej",note:"Condition compétition ! 3 essais",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true}],prepa:[]}
+  ]},
+  {id:"w4m",label:"S4M · 22/06",title:"Semaine 4 — Masters",days:[
+    {type:"opt",label:"Lundi",sub:"Arraché debout · Tirage haut d'arraché",warmup:[],main:[{n:"Arraché debout",d:"6x1 / 80-90%",rm:"arr_debout",video:"https://www.youtube.com/shorts/szLFnjevo4k",isLb:true},{n:"Tirage haut d'arraché",d:"4x3 / 80-85%",rm:"arr",video:"https://youtu.be/iYBcBMu8zrA"}],prepa:[{n:"KB hip airplane",d:"2x10-15 / côté",note:"À ajouter au warm-up",video:"https://www.youtube.com/shorts/oSU3zh1fLFI"},{n:"Tirage poulie haute",d:"6x12"},{n:"Single leg hip thrust",d:"4x15"},{n:"Swiss ball roll",d:"4x15"},{n:"Cardio basse intensité",d:"20 minutes"}]},
+    {type:"main",label:"Mardi",sub:"Jeté force · Back squat · Appel de jeté",warmup:[],main:[{n:"Jeté force",d:"6x2 / 80-90%",rm:"jet_force",video:"https://www.youtube.com/watch?v=ngjhO8CJvQg",isLb:true},{n:"Back squat",d:"4x2 / 80%",rm:"squat",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ",isLb:true},{n:"Appel de jeté",d:"4x(5 reps + 5'' iso dernière rep) / 90+%",rm:"fs",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}],prepa:[{n:"Rotations thoraciques à la poulie",d:"2x8-12 / côté",note:"À ajouter au warm-up",video:"https://www.youtube.com/watch?v=KOWuzxXcqhA"},{n:"Cossack squat",d:"4x10",video:"https://www.youtube.com/shorts/J5rAhhGVLUA"},{n:"Farmer carry 1 bras (élastique)",d:"3x30'' / côté",video:"https://www.youtube.com/shorts/7seHUbhlPWw"}]},
+    {type:"main",label:"Mercredi",sub:"Épaulé-jeté · Tirage lourd d'épaulé",warmup:[],main:[{n:"Épaulé-jeté",d:"3x1 / 90+%; 1x2 / 85%",rm:"ej",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Tirage lourd d'épaulé",d:"4x2 / 80-90%",rm:"ep",video:"https://www.youtube.com/shorts/a0t8wcFDeRg"}],prepa:[{n:"Abduction de hanches en glute bridge",d:"4x20",video:"https://www.youtube.com/watch?v=8bsx79VEYHA"},{n:"Incline roll-ups",d:"3x8-10 reps",video:"https://www.youtube.com/shorts/cLoR0gujIMw"},{n:"Single Arm Dead Hang",d:"2-3 tours / côté",video:"https://www.youtube.com/shorts/ToMtVwEV3xA"}]},
+    {type:"rest",label:"Jeudi"},
+    {type:"main",label:"Vendredi",sub:"Arraché · Tirage haut d'arraché",warmup:[],main:[{n:"Arraché",d:"5x2 / 80-85%",rm:"arr",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Tirage haut d'arraché",d:"4x3 / 70-80%",rm:"arr",video:"https://youtu.be/iYBcBMu8zrA"}],prepa:[{n:"Triple Broad Jump",d:"3x3 — distance max",note:"À ajouter au warm-up",video:"https://www.youtube.com/watch?v=CuXErkWUo1k"},{n:"Leg curl unilatéral",d:"3x10",video:"https://youtu.be/n6qRAUu16vc"},{n:"Farmer carry",d:"4x20-30'' no straps"},{n:"Pull over au foam roller",d:"3x10",note:"Light; recherche d'amplitude",video:"https://www.youtube.com/shorts/9Hfy7ojEt18"}]},
+    {type:"rest",label:"Samedi"}
+  ]}
+];
+
+// Définition des blocs disponibles. Le bloc actif est `currentBlock`.
+const BLOCKS = {
+  mai26: {
+    id: 'mai26',
+    label: 'Mai 2026',
+    short: 'Mai',
+    weeks: BLOCK_MAI26_WEEKS,
+    starts: [
+      new Date(2026, 4,  4), // S1
+      new Date(2026, 4, 11), // S2
+      new Date(2026, 4, 18), // S3
+      new Date(2026, 4, 25), // S4
+    ],
+    readonly: true,         // archivé : pas de soumission RM
+    code: null,             // déjà accessible à tous
+  },
+  juin26: {
+    id: 'juin26',
+    label: 'Juin 2026',
+    short: 'Juin',
+    weeks: BLOCK_JUIN26_WEEKS,
+    starts: [
+      new Date(2026, 5,  1), // S1
+      new Date(2026, 5,  8), // S2
+      new Date(2026, 5, 15), // S3
+      new Date(2026, 5, 22), // S4
+      new Date(2026, 5, 22), // S4 Masters (même date que S4 standard)
+    ],
+    readonly: false,
+    code: 'LASTBLOCK26',
+  },
+};
+
+// Variables globales liées au bloc affiché — réassignées par switchBlock()
+let currentBlock = 'mai26';
+let WEEKS = BLOCKS.mai26.weeks;
+let WEEK_STARTS = BLOCKS.mai26.starts;
+
+// Préférence S4 vs S4 Masters pour le bloc juin (par athlète, en localStorage)
+let useS4Masters = localStorage.getItem('soc_use_s4masters') === '1';
+
+// Liste des blocs débloqués pour l'athlète courant (rempli au login)
+let unlockedBlocks = new Set(['mai26']); // mai toujours dispo
+
+
 const LB_ALLTIME=[
   {key:'arr',label:'Arraché',icon:'🎯'},
   {key:'ej',label:'Épaulé-Jeté',icon:'🏋️'},
@@ -1201,10 +1343,10 @@ function saveActual(key,dIdx,val,rmKey,isLb){
 async function submitActualToLb(rmKey,weight){
   if(!rmKey||!athlete) return;
   try{
-    await db('cycle_scores','POST',{athlete_id:athlete.id,movement:rmKey,weight:weight,cycle:CYCLE,week_num:currentWeek+1});
+    await db('cycle_scores','POST',{athlete_id:athlete.id,movement:rmKey,weight:weight,cycle:currentBlock,week_num:currentWeek+1});
     const existing=await db('rm_records?athlete_id=eq.'+athlete.id+'&movement=eq.'+rmKey+'&select=weight,id');
     if(!existing||existing.length===0){
-      await db('rm_records','POST',{athlete_id:athlete.id,movement:rmKey,weight:weight,cycle:CYCLE});
+      await db('rm_records','POST',{athlete_id:athlete.id,movement:rmKey,weight:weight,cycle:currentBlock});
     } else if(weight>existing[0].weight){
       await db('rm_records?id=eq.'+existing[0].id,'PATCH',{weight:weight});
     }
@@ -1213,21 +1355,13 @@ async function submitActualToLb(rmKey,weight){
   } catch(e){console.warn('LB submit failed',e);}
 }
 
-// Dates de début de chaque semaine (lundi, minuit heure locale)
-// Note : new Date(year, monthIdx, day) crée la date à minuit dans le fuseau local,
-// contrairement à new Date('YYYY-MM-DD') qui est en UTC.
-// Semaine dispo dès le samedi précédent
-const WEEK_STARTS = [
-  new Date(2026, 4,  4), // S1 — 4 mai 2026 (mois 4 = mai, 0-indexé)
-  new Date(2026, 4, 11), // S2 — 11 mai
-  new Date(2026, 4, 18), // S3 — 18 mai
-  new Date(2026, 4, 25), // S4 — 25 mai
-];
+// WEEK_STARTS est maintenant fourni par BLOCKS[currentBlock].starts (voir plus haut)
+// Unlock date = samedi avant (J-2 du lundi)
 // Unlock date = samedi avant (J-2 du lundi)
 let weekUnlockOverrides = {};
 async function loadWeekUnlocks(){
   try{
-    const unlocks = await db(`week_unlocks?cycle=eq.${CYCLE}&select=week_num,unlocked`) || [];
+    const unlocks = await db(`week_unlocks?cycle=eq.${currentBlock}&select=week_num,unlocked`) || [];
     weekUnlockOverrides = {};
     unlocks.forEach(u => { weekUnlockOverrides[u.week_num] = u.unlocked; });
   } catch(e){}
@@ -1279,6 +1413,7 @@ function buildWeekSel(){
     };
     sel.appendChild(btn);
   });
+  updateMastersToggle();
 }
 
 function autoScrollToToday(){
@@ -1328,10 +1463,11 @@ function setRPE(key,val,el){
 }
 
 async function submitRPEToDb(key,val){
+  if(BLOCKS[currentBlock]?.readonly) return;
   try{
     const parts=key.split('_');
     await db('exercise_feelings','POST',{
-      athlete_id:athlete.id,exercise_key:key,cycle:CYCLE,
+      athlete_id:athlete.id,exercise_key:key,cycle:currentBlock,
       week_num:parseInt(parts[0])+1,day_num:parseInt(parts[1])+1,score:val
     });
   } catch(e){console.warn('RPE save failed',e);}
@@ -1546,6 +1682,7 @@ function closeScoreModal(){
 }
 async function submitScore(){
   if(!scoreModalCtx) return;
+  if(BLOCKS[currentBlock]?.readonly){ toast('📦 Bloc archivé — soumission impossible'); closeScoreModal(); return; }
   const w=parseFloat(document.getElementById('scoreInput').value);
   if(!w||isNaN(w)){toast('Entre un poids valide');return;}
   const {rmKey}=scoreModalCtx;
@@ -1556,10 +1693,10 @@ async function submitScore(){
   if(athlete){
     try{
       const exName = scoreModalCtx?.exName||'';
-      await db('cycle_scores','POST',{athlete_id:athlete.id,movement:rmKey,weight:w,cycle:CYCLE,week_num:currentWeek+1,exercise_name:exName});
+      await db('cycle_scores','POST',{athlete_id:athlete.id,movement:rmKey,weight:w,cycle:currentBlock,week_num:currentWeek+1,exercise_name:exName});
       const existing=await db(`rm_records?athlete_id=eq.${athlete.id}&movement=eq.${rmKey}&select=weight,id`);
       if(!existing||existing.length===0){
-        await db('rm_records','POST',{athlete_id:athlete.id,movement:rmKey,weight:w,cycle:CYCLE});
+        await db('rm_records','POST',{athlete_id:athlete.id,movement:rmKey,weight:w,cycle:currentBlock});
       } else if(w>existing[0].weight){
         await db(`rm_records?id=eq.${existing[0].id}`,'PATCH',{weight:w});
       }
@@ -1794,12 +1931,14 @@ async function loadFatigue(){
   const saved=document.getElementById('fatigueSaved');
   const title=document.getElementById('fatigueTitle');
   if(!athlete||!widget) return;
+  // Bloc archivé : on cache complètement le widget fatigue (consultation uniquement)
+  if(BLOCKS[currentBlock]?.readonly){ widget.style.display='none'; return; }
   const day=new Date().getDay();
   const isEnd=day>=5;
   title.textContent=isEnd?'Fatigue de fin de semaine':'Fatigue de début de semaine';
   const field=isEnd?'score_end':'score_start';
   try{
-    const existing=await db(`weekly_fatigue?athlete_id=eq.${athlete.id}&cycle=eq.${CYCLE}&week_num=eq.${currentWeek+1}&select=score_start,score_end`);
+    const existing=await db(`weekly_fatigue?athlete_id=eq.${athlete.id}&cycle=eq.${currentBlock}&week_num=eq.${currentWeek+1}&select=score_start,score_end`);
     const currentScore=existing&&existing.length?existing[0][field]:null;
     widget.style.display='block';
     btns.innerHTML='';
@@ -1811,8 +1950,8 @@ async function loadFatigue(){
         btns.querySelectorAll('button').forEach((b,j)=>{b.style.background=j+1===i?'var(--gold)':'var(--surface2)';b.style.color=j+1===i?'#fff':'var(--text2)';});
         saved.style.display='none';
         try{
-          if(existing&&existing.length){await db(`weekly_fatigue?athlete_id=eq.${athlete.id}&cycle=eq.${CYCLE}&week_num=eq.${currentWeek+1}`,'PATCH',{[field]:i});}
-          else{await db('weekly_fatigue','POST',{athlete_id:athlete.id,cycle:CYCLE,week_num:currentWeek+1,[field]:i});}
+          if(existing&&existing.length){await db(`weekly_fatigue?athlete_id=eq.${athlete.id}&cycle=eq.${currentBlock}&week_num=eq.${currentWeek+1}`,'PATCH',{[field]:i});}
+          else{await db('weekly_fatigue','POST',{athlete_id:athlete.id,cycle:currentBlock,week_num:currentWeek+1,[field]:i});}
           saved.style.display='block';toast('Fatigue enregistrée');
         } catch(e){toast('Erreur sauvegarde');}
       };
@@ -2162,6 +2301,161 @@ function toast(msg){
   setTimeout(()=>t.classList.remove('show'),2200);
 }
 
+// ─── BLOCS (Mai / Juin) ─────────────────────────────────────
+async function loadUnlockedBlocks(){
+  // mai26 toujours dispo (legacy)
+  unlockedBlocks = new Set(['mai26']);
+  if(!athlete?.id) return;
+  try {
+    const rows = await db(`athlete_blocks?athlete_id=eq.${athlete.id}&select=block_id`) || [];
+    rows.forEach(r => unlockedBlocks.add(r.block_id));
+  } catch(e){
+    console.warn('loadUnlockedBlocks failed (la table athlete_blocks existe-t-elle ?)', e);
+  }
+}
+
+function isBlockUnlocked(blockId){
+  return unlockedBlocks.has(blockId);
+}
+
+function chooseDefaultBlock(){
+  // Si l'athlète a juin → juin par défaut. Sinon mai (lecture seule).
+  return isBlockUnlocked('juin26') ? 'juin26' : 'mai26';
+}
+
+function switchBlock(blockId){
+  const b = BLOCKS[blockId];
+  if(!b) return;
+  if(!isBlockUnlocked(blockId)){
+    openCodeModal(blockId);
+    return;
+  }
+  currentBlock = blockId;
+  WEEKS = b.weeks;
+  WEEK_STARTS = b.starts;
+  // Filtrer S4 vs S4 Masters (juin) selon préférence
+  applyMastersFilter();
+  // Recalculer l'index courant en fonction des dates du nouveau bloc
+  const target = getCurrentWeekIdx();
+  currentWeek = isWeekUnlocked(target) ? target : Math.max(0, ...WEEKS.map((_,i)=>isWeekUnlocked(i)?i:-1));
+  if(currentWeek < 0) currentWeek = 0;
+  localStorage.setItem('soc_current_block', currentBlock);
+  buildBlockSelector();
+  buildWeekSel();
+  loadProgOverrides().then(()=>renderDays());
+  loadFatigue();
+}
+
+function applyMastersFilter(){
+  // Sur juin uniquement : retirer S4 standard ou S4 Masters selon préférence
+  if(currentBlock !== 'juin26') return;
+  const b = BLOCKS.juin26;
+  const filtered = b.weeks.filter(w => {
+    if(w.id === 'w4'  && useS4Masters) return false;
+    if(w.id === 'w4m' && !useS4Masters) return false;
+    return true;
+  });
+  WEEKS = filtered;
+  // Aligner WEEK_STARTS avec le filtre (mêmes dates pour w4/w4m)
+  WEEK_STARTS = filtered.map((w,_) => {
+    if(w.id === 'w1') return b.starts[0];
+    if(w.id === 'w2') return b.starts[1];
+    if(w.id === 'w3') return b.starts[2];
+    if(w.id === 'w4' || w.id === 'w4m') return b.starts[3];
+    return b.starts[0];
+  });
+}
+
+function buildBlockSelector(){
+  const el = document.getElementById('blockSel');
+  if(!el) return;
+  const blockIds = ['mai26','juin26'];
+  el.innerHTML = blockIds.map(bid => {
+    const b = BLOCKS[bid];
+    const unlocked = isBlockUnlocked(bid);
+    const isActive = bid === currentBlock;
+    const isArchived = b.readonly;
+    const bg = isActive ? 'var(--gold)' : 'var(--surface)';
+    const col = isActive ? 'var(--navy)' : (isArchived?'var(--text3)':'var(--text2)');
+    const border = isActive ? 'var(--gold)' : 'var(--border)';
+    const icon = isArchived ? '📦 ' : (unlocked?'':'🔒 ');
+    const tagArch = isArchived ? '<span style="font-size:9px;opacity:0.7;margin-left:6px">ARCHIVÉ</span>' : '';
+    return `<button onclick="switchBlock('${bid}')" style="flex:1;min-width:100px;padding:10px 14px;border-radius:10px;border:1px solid ${border};background:${bg};color:${col};font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s">${icon}${b.short}${tagArch}</button>`;
+  }).join('');
+
+  // Banner d'accès juin : visible si juin pas débloqué et qu'on est sur mai
+  const bannerJ = document.getElementById('bannerJuinUnlock');
+  if(bannerJ){
+    bannerJ.style.display = (!isBlockUnlocked('juin26')) ? 'block' : 'none';
+  }
+}
+
+function openCodeModal(blockId){
+  const b = BLOCKS[blockId];
+  if(!b || !b.code) return;
+  document.getElementById('codeBlockTitle').textContent = 'Bloc ' + b.label;
+  document.getElementById('codeBlockInput').value = '';
+  document.getElementById('codeBlockInput').dataset.target = blockId;
+  document.getElementById('codeBlockError').style.display = 'none';
+  document.getElementById('codeBlockModal').style.display = 'flex';
+  setTimeout(()=>document.getElementById('codeBlockInput').focus(), 50);
+}
+function closeCodeModal(){
+  document.getElementById('codeBlockModal').style.display = 'none';
+}
+
+async function submitBlockCode(){
+  const inp = document.getElementById('codeBlockInput');
+  const errEl = document.getElementById('codeBlockError');
+  const blockId = inp.dataset.target;
+  const code = inp.value.trim().toUpperCase();
+  const b = BLOCKS[blockId];
+  if(!b || !b.code){ closeCodeModal(); return; }
+  if(code !== b.code){
+    errEl.textContent = 'Code incorrect.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if(!athlete?.id){
+    errEl.textContent = 'Connexion requise.';
+    errEl.style.display = 'block';
+    return;
+  }
+  try {
+    // INSERT silencieux ; unique constraint protège des doublons
+    await db('athlete_blocks','POST',{athlete_id: athlete.id, block_id: blockId}).catch(()=>{});
+    unlockedBlocks.add(blockId);
+    closeCodeModal();
+    toast('✅ Bloc débloqué !');
+    switchBlock(blockId);
+  } catch(e){
+    errEl.textContent = 'Erreur : '+e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+function toggleMasters(){
+  useS4Masters = !useS4Masters;
+  localStorage.setItem('soc_use_s4masters', useS4Masters?'1':'0');
+  document.getElementById('mastersBtn').classList.toggle('on', useS4Masters);
+  applyMastersFilter();
+  // Repositionner sur la S4 du nouveau type
+  const idx = WEEKS.findIndex(w => w.id === (useS4Masters?'w4m':'w4'));
+  if(idx >= 0) currentWeek = idx;
+  buildWeekSel();
+  loadProgOverrides().then(()=>renderDays());
+}
+
+function updateMastersToggle(){
+  const el = document.getElementById('mastersToggle');
+  if(!el) return;
+  // Toggle visible uniquement sur juin S4 (ou S4M)
+  const wk = WEEKS[currentWeek];
+  const show = currentBlock === 'juin26' && wk && (wk.id === 'w4' || wk.id === 'w4m');
+  el.style.display = show ? 'flex' : 'none';
+  document.getElementById('mastersBtn').classList.toggle('on', useS4Masters);
+}
+
 // ACCESS CODE
 const VALID_CODE='JUIN0949';
 
@@ -2183,7 +2477,7 @@ async function checkAccess(){
       }
       athlete=existing[0];
       // Marquer ce cycle comme validé pour cet athlète (silencieux)
-      db(`athletes?id=eq.${athlete.id}`,'PATCH',{last_access_cycle:CYCLE}).catch(()=>{});
+      db(`athletes?id=eq.${athlete.id}`,'PATCH',{last_access_cycle:currentBlock}).catch(()=>{});
       saveAthlete();
       localStorage.setItem('soc_access_validated','1');
       localStorage.setItem('soc_access_email',email);

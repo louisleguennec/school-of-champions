@@ -1797,7 +1797,7 @@ async function loadFatigue(){
   title.textContent=isEnd?'Fatigue de fin de semaine':'Fatigue de début de semaine';
   const field=isEnd?'score_end':'score_start';
   try{
-    const existing=await db(`weekly_fatigue?athlete_id=eq.${athlete.id}&cycle=eq.juin26&week_num=eq.${currentWeek+1}&select=score_start,score_end`);
+    const existing=await db(`weekly_fatigue?athlete_id=eq.${athlete.id}&cycle=eq.${CYCLE}&week_num=eq.${currentWeek+1}&select=score_start,score_end`);
     const currentScore=existing&&existing.length?existing[0][field]:null;
     widget.style.display='block';
     btns.innerHTML='';
@@ -1809,8 +1809,8 @@ async function loadFatigue(){
         btns.querySelectorAll('button').forEach((b,j)=>{b.style.background=j+1===i?'var(--gold)':'var(--surface2)';b.style.color=j+1===i?'#fff':'var(--text2)';});
         saved.style.display='none';
         try{
-          if(existing&&existing.length){await db(`weekly_fatigue?athlete_id=eq.${athlete.id}&cycle=eq.juin26&week_num=eq.${currentWeek+1}`,'PATCH',{[field]:i});}
-          else{await db('weekly_fatigue','POST',{athlete_id:athlete.id,cycle:'juin26',week_num:currentWeek+1,[field]:i});}
+          if(existing&&existing.length){await db(`weekly_fatigue?athlete_id=eq.${athlete.id}&cycle=eq.${CYCLE}&week_num=eq.${currentWeek+1}`,'PATCH',{[field]:i});}
+          else{await db('weekly_fatigue','POST',{athlete_id:athlete.id,cycle:CYCLE,week_num:currentWeek+1,[field]:i});}
           saved.style.display='block';toast('Fatigue enregistrée');
         } catch(e){toast('Erreur sauvegarde');}
       };

@@ -1074,7 +1074,7 @@ function buildRMGrid(){
 
 // ─── PROGRAMME DATA ───────────────────────────────────────
 // ✅ 6 vidéos intégrées : Leg curl, Leg extension, Tirage épaulé, Tirage arraché, Strict HLR, Echo bike HIIT
-const BLOCK_MAI26_WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
+const BLOCK_MAI26_WEEKS=[{id:"w1",label:"S3 · 04/05",title:"Semaine 3",days:[
   {type:"main",label:"Lundi",sub:"Arraché Force · Tirage Haut · Prépa",
     warmup:[],
     main:[
@@ -1141,7 +1141,7 @@ const BLOCK_MAI26_WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
     ]
   }
 ]},
-{id:"w2",label:"S2 · 11/05",title:"Semaine 2",days:[
+{id:"w2",label:"S4 · 11/05",title:"Semaine 4",days:[
   {type:"main",label:"Lundi",sub:"CMJ · Arraché · Tirage Lourd",
     warmup:[],
     main:[
@@ -1209,14 +1209,6 @@ const BLOCK_MAI26_WEEKS=[{id:"w1",label:"S1 · 04/05",title:"Semaine 1",days:[
       {n:"Tirage poulie basse (ou élastique)",d:"3–4×12–15 reps"}
     ]
   }
-]},
-{id:"w3",label:"S3 · 18/05",title:"Semaine 3",days:[
-  {type:"rest",label:"À venir",sub:"Nouveau bloc — bientôt disponible",warmup:[],main:[{n:"À venir",d:"Le programme de la semaine 3 sera disponible prochainement."}],prepa:[]},
-  {type:"rest",label:"—",sub:"",warmup:[],main:[],prepa:[]},
-  {type:"rest",label:"—",sub:"",warmup:[],main:[],prepa:[]},
-  {type:"rest",label:"—",sub:"",warmup:[],main:[],prepa:[]},
-  {type:"rest",label:"—",sub:"",warmup:[],main:[],prepa:[]},
-  {type:"rest",label:"—",sub:"",warmup:[],main:[],prepa:[]}
 ]}
 ];
 
@@ -1272,10 +1264,8 @@ const BLOCKS = {
     short: 'Mai',
     weeks: BLOCK_MAI26_WEEKS,
     starts: [
-      new Date(2026, 4,  4), // S1
-      new Date(2026, 4, 11), // S2
-      new Date(2026, 4, 18), // S3
-      new Date(2026, 4, 25), // S4
+      new Date(2026, 4,  4), // S3 (label) — 4 mai 2026
+      new Date(2026, 4, 11), // S4 (label) — 11 mai 2026
     ],
     readonly: true,         // archivé : pas de soumission RM
     code: null,             // déjà accessible à tous
@@ -1368,6 +1358,8 @@ async function loadWeekUnlocks(){
 }
 
 function isWeekUnlocked(weekIdx){
+  // Bloc archivé (mai) : toutes les semaines accessibles en consultation
+  if(BLOCKS[currentBlock]?.readonly) return true;
   // Check manual override first
   const manual = weekUnlockOverrides[weekIdx+1];
   if(manual !== undefined) return manual;

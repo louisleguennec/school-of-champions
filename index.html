@@ -1935,9 +1935,11 @@ async function loadFatigue(){
   // Bloc archivé : on cache complètement le widget fatigue (consultation uniquement)
   if(BLOCKS[currentBlock]?.readonly){ widget.style.display='none'; return; }
   const day=new Date().getDay();
-  const isEnd=day>=5;
-  title.textContent=isEnd?'Fatigue de fin de semaine':'Fatigue de début de semaine';
-  const field=isEnd?'score_end':'score_start';
+  // Widget visible uniquement à partir du vendredi (jours 5=ven, 6=sam, 0=dim)
+  const isEnd = day===5 || day===6 || day===0;
+  if(!isEnd){ widget.style.display='none'; return; }
+  title.textContent='Fatigue de fin de semaine';
+  const field='score_end';
   try{
     const existing=await db(`weekly_fatigue?athlete_id=eq.${athlete.id}&cycle=eq.${currentBlock}&week_num=eq.${currentWeek+1}&select=score_start,score_end`);
     const currentScore=existing&&existing.length?existing[0][field]:null;
@@ -1959,7 +1961,7 @@ async function loadFatigue(){
       btns.appendChild(btn);
     }
     if(currentScore) saved.style.display='block';
-  } catch(e){console.warn('Fatigue load failed',e);widget.style.display='block';}
+  } catch(e){console.warn('Fatigue load failed',e);widget.style.display='none';}
 }
 
 // PANEL SWITCH

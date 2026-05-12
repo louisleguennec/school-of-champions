@@ -254,11 +254,16 @@ tr:hover td{background:var(--surface2)}
     <div class="page" id="pageFeelings">
       <div class="page-title">Ressentis</div>
       <div class="page-sub">Ressenti moyen par jour et par exercice</div>
-      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
+        <select id="feelingsBlock" onchange="loadFeelings()" style="background:var(--surface);border:1px solid var(--gold);border-radius:8px;padding:6px 12px;color:var(--text);font-family:var(--font-ui,sans-serif);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;outline:none;cursor:pointer">
+          <option value="juin26" selected>Juin 2026</option>
+          <option value="mai26">Mai 2026</option>
+        </select>
         <select id="feelingsWeek" onchange="loadFeelings()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
           <option value="1">Semaine 1</option>
           <option value="2">Semaine 2</option>
           <option value="3">Semaine 3</option>
+          <option value="4">Semaine 4</option>
         </select>
       </div>
       <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.25rem">
@@ -271,6 +276,12 @@ tr:hover td{background:var(--surface2)}
         <div class="page" id="pageFatigue">
       <div class="page-title">Fatigue hebdomadaire</div>
       <div class="page-sub">Moyennes des scores · 1=épuisé · 10=en forme</div>
+      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+        <select id="fatigueBlock" onchange="loadFatigueAdmin()" style="background:var(--surface);border:1px solid var(--gold);border-radius:8px;padding:6px 12px;color:var(--text);font-family:var(--font-ui,sans-serif);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;outline:none;cursor:pointer">
+          <option value="juin26" selected>Juin 2026</option>
+          <option value="mai26">Mai 2026</option>
+        </select>
+      </div>
       <div id="fatigueWeeksGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
     </div>
 
@@ -588,10 +599,12 @@ async function loadAthletes(){
   const tbody = document.getElementById('athleteTable');
   if(tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:1rem">Chargement…</td></tr>';
   try{
-    allAthletes = await db('athletes?select=*&order=created_at.desc&t='+Date.now()) || [];
+    const raw = await db('athletes?select=*&order=created_at.desc&t='+Date.now());
+    console.log('[athletes] raw response:', raw, '— type:', Array.isArray(raw)?'array':typeof raw);
+    allAthletes = Array.isArray(raw) ? raw : [];
     document.getElementById('athleteCount').textContent = allAthletes.length;
     if(!allAthletes.length){
-      console.warn('[athletes] Liste vide. Vérifie : 1) la table athletes contient des lignes, 2) la policy RLS autorise la lecture avec la clé publishable utilisée par l\'admin.');
+      console.warn('[athletes] Liste vide.\n - Si raw ci-dessus est un tableau []: la requête a réussi mais aucune ligne ne matche (table vraiment vide OU policy RLS qui filtre tout).\n - Si raw est un objet ou null: la requête a échoué silencieusement.\n - Vérifie dans Supabase > Authentication > Policies que la table `athletes` a une policy SELECT autorisant la clé publishable.');
     }
     renderAthletes(allAthletes);
   } catch(e){
@@ -688,12 +701,14 @@ async function loadAccessList(){
   if(tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1rem">Chargement…</td></tr>';
   const blockId = document.getElementById('accessBlockSel')?.value || 'juin26';
   try {
-    const rows = await db(`athlete_blocks?block_id=eq.${blockId}&select=athlete_id,block_id,unlocked_at,athletes(id,pseudo,email,club,suspended,gender)&order=unlocked_at.desc`) || [];
-    allAccess = rows.filter(r => r.athletes); // certains peuvent être orphelins
+    const raw = await db(`athlete_blocks?block_id=eq.${blockId}&select=athlete_id,block_id,unlocked_at,athletes(id,pseudo,email,club,suspended,gender)&order=unlocked_at.desc`);
+    console.log('[access] raw response:', raw);
+    const rows = Array.isArray(raw) ? raw : [];
+    allAccess = rows.filter(r => r && r.athletes);
     renderAccessList('');
   } catch(e){
     console.warn('[access] erreur:', e);
-    if(tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--red);padding:1rem">Erreur de chargement : ${e.message}<br><span style="font-size:11px;color:var(--text3)">Vérifie que la table <code>athlete_blocks</code> existe dans Supabase.</span></td></tr>`;
+    if(tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--red);padding:1rem">Erreur de chargement : ${e.message}<br><span style="font-size:11px;color:var(--text3)">Vérifie que la table <code>athlete_blocks</code> existe dans Supabase et que les policies RLS autorisent la lecture.</span></td></tr>`;
   }
 }
 
@@ -877,8 +892,9 @@ function getExName(key){
 
 async function loadFeelings(){
   const week = document.getElementById('feelingsWeek')?.value || 1;
+  const block = document.getElementById('feelingsBlock')?.value || CYCLE;
   try{
-    const data = await db(`exercise_feelings?cycle=eq.${CYCLE}&week_num=eq.${week}&select=exercise_key,score,day_num,athlete_id&order=day_num.asc,exercise_key.asc`) || [];
+    const data = await db(`exercise_feelings?cycle=eq.${block}&week_num=eq.${week}&select=exercise_key,score,day_num,athlete_id&order=day_num.asc,exercise_key.asc`) || [];
 
     const DAY_LABELS = {1:'Lundi',2:'Mardi',3:'Mercredi',4:'Jeudi',5:'Vendredi',6:'Samedi'};
     const SCORE_EMOJI = {1:'😵',2:'😓',3:'😐',4:'💪',5:'🔥'};
@@ -940,8 +956,9 @@ async function loadFeelings(){
 
 
 async function loadFatigueAdmin(){
+  const block = document.getElementById('fatigueBlock')?.value || CYCLE;
   try{
-    const fatigue = await db(`weekly_fatigue?cycle=eq.${CYCLE}&select=score_start,score_end,week_num,athlete_id`) || [];
+    const fatigue = await db(`weekly_fatigue?cycle=eq.${block}&select=score_start,score_end,week_num,athlete_id`) || [];
     const grid = document.getElementById('fatigueWeeksGrid');
     if(!grid) return;
     if(!fatigue.length){

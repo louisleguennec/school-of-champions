@@ -157,6 +157,7 @@ tr:hover td{background:var(--surface2)}
   <div class="sidebar-logo">SOC <em>Admin</em><small>School of Champions</small></div>
     <button class="nav-link active" onclick="showPage('dashboard',this)"><span class="nav-icon">📊</span>Dashboard</button>
     <button class="nav-link" onclick="showPage('athletes',this)"><span class="nav-icon">👥</span>Athlètes</button>
+    <button class="nav-link" onclick="showPage('access',this)"><span class="nav-icon">🔓</span>Accès débloqués</button>
     <button class="nav-link" onclick="showPage('feelings',this)"><span class="nav-icon">📈</span>Ressentis</button>
     <button class="nav-link" onclick="showPage('fatigue',this)"><span class="nav-icon">⚡</span>Fatigue</button>
     <button class="nav-link" onclick="showPage('leaderboard',this)"><span class="nav-icon">🏆</span>Leaderboard</button>
@@ -221,6 +222,30 @@ tr:hover td{background:var(--surface2)}
             </tr>
           </thead>
           <tbody id="athleteTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ACCESS UNLOCKS -->
+    <div class="page" id="pageAccess">
+      <div class="page-title">Accès débloqués</div>
+      <div class="page-sub">Athlètes ayant validé le code d'un bloc</div>
+      <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
+        <select id="accessBlockSel" onchange="loadAccessList()" style="background:var(--surface);border:1px solid var(--gold);border-radius:8px;padding:6px 12px;color:var(--text);font-family:var(--font-ui,sans-serif);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;outline:none;cursor:pointer">
+          <option value="juin26" selected>Juin 2026</option>
+          <option value="mai26">Mai 2026</option>
+        </select>
+        <input id="accessSearch" type="text" placeholder="🔎 Rechercher pseudo, email, club..." oninput="renderAccessList(this.value)" class="table-search" style="flex:1;min-width:220px">
+      </div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.25rem">
+        <div class="stat-card"><div class="stat-val gold" id="accessCountTotal">—</div><div class="stat-label">Athlètes débloqués</div></div>
+        <div class="stat-card"><div class="stat-val green" id="accessCountActive">—</div><div class="stat-label">Actifs</div></div>
+        <div class="stat-card"><div class="stat-val" id="accessCountSusp" style="color:var(--red)">—</div><div class="stat-label">Suspendus</div></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Athlète</th><th>Email</th><th>Club</th><th>Débloqué le</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody id="accessTable"></tbody>
         </table>
       </div>
     </div>
@@ -481,6 +506,7 @@ function showPage(name,btn){
   document.getElementById('page'+name.charAt(0).toUpperCase()+name.slice(1)).classList.add('active');
   btn.classList.add('active');
   if(name==='athletes') loadAthletes();
+  if(name==='access') loadAccessList();
   if(name==='feelings') loadFeelings();
   if(name==='videos') loadVideos();
   if(name==='guests') loadGuests();
@@ -649,6 +675,76 @@ async function toggleSuspended(id, currentlySuspended, pseudo){
     await db(`athletes?id=eq.${id}`,'PATCH',{suspended: next});
     toast(next ? 'Athlète suspendu' : 'Athlète réactivé');
     loadAthletes();
+    // Recharger la vue accès si elle est ouverte
+    if(document.getElementById('pageAccess')?.classList.contains('active')) loadAccessList();
+  } catch(e){ toast('Erreur : '+e.message); }
+}
+
+// ACCESS DÉBLOQUÉS
+let allAccess = []; // { athlete_id, block_id, unlocked_at, athlete{} }
+
+async function loadAccessList(){
+  const tbody = document.getElementById('accessTable');
+  if(tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1rem">Chargement…</td></tr>';
+  const blockId = document.getElementById('accessBlockSel')?.value || 'juin26';
+  try {
+    const rows = await db(`athlete_blocks?block_id=eq.${blockId}&select=athlete_id,block_id,unlocked_at,athletes(id,pseudo,email,club,suspended,gender)&order=unlocked_at.desc`) || [];
+    allAccess = rows.filter(r => r.athletes); // certains peuvent être orphelins
+    renderAccessList('');
+  } catch(e){
+    console.warn('[access] erreur:', e);
+    if(tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--red);padding:1rem">Erreur de chargement : ${e.message}<br><span style="font-size:11px;color:var(--text3)">Vérifie que la table <code>athlete_blocks</code> existe dans Supabase.</span></td></tr>`;
+  }
+}
+
+function renderAccessList(query){
+  const tbody = document.getElementById('accessTable');
+  if(!tbody) return;
+  const q = (query || '').toLowerCase();
+  const filtered = allAccess.filter(r => {
+    if(!q) return true;
+    const a = r.athletes;
+    return (a.pseudo||'').toLowerCase().includes(q) ||
+           (a.email||'').toLowerCase().includes(q) ||
+           (a.club||'').toLowerCase().includes(q);
+  });
+
+  // KPIs (toujours sur la liste complète, pas sur le filtre)
+  document.getElementById('accessCountTotal').textContent = allAccess.length;
+  document.getElementById('accessCountActive').textContent = allAccess.filter(r => !r.athletes.suspended).length;
+  document.getElementById('accessCountSusp').textContent = allAccess.filter(r => r.athletes.suspended).length;
+
+  if(!filtered.length){
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1.5rem">${q?'Aucun résultat':'Aucun athlète n\'a encore débloqué ce cycle'}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(r => {
+    const a = r.athletes;
+    const date = r.unlocked_at ? new Date(r.unlocked_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+    const st = a.suspended
+      ? '<span style="display:inline-block;font-family:var(--font-ui,sans-serif);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:4px;background:rgba(232,90,90,0.15);color:var(--red)">Suspendu</span>'
+      : '<span style="display:inline-block;font-family:var(--font-ui,sans-serif);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:4px;background:rgba(95,199,136,0.15);color:var(--green)">Actif</span>';
+    return `<tr>
+      <td><strong>${a.pseudo||'—'}</strong></td>
+      <td style="font-size:12px;color:var(--text2);font-family:'Inter',sans-serif">${a.email||'—'}</td>
+      <td style="font-size:12px;color:var(--text2)">${a.club||'—'}</td>
+      <td style="font-size:11px;color:var(--text3)">${date}</td>
+      <td>${st}</td>
+      <td style="white-space:nowrap">
+        <button class="action-btn ${a.suspended?'primary':'danger'}" onclick="toggleSuspended('${a.id}',${!!a.suspended},'${(a.pseudo||'').replace(/'/g,"\\'")}')">${a.suspended?'Réactiver':'Suspendre'}</button>
+        <button class="action-btn danger" onclick="revokeAccess('${r.athlete_id}','${r.block_id}','${(a.pseudo||'').replace(/'/g,"\\'")}')">Révoquer</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function revokeAccess(athleteId, blockId, pseudo){
+  if(!confirm(`Révoquer l'accès au cycle ${blockId} pour ${pseudo} ?\n\nL'athlète devra ressaisir le code pour le débloquer à nouveau.`)) return;
+  try {
+    await db(`athlete_blocks?athlete_id=eq.${athleteId}&block_id=eq.${blockId}`, 'DELETE');
+    toast('Accès révoqué');
+    loadAccessList();
   } catch(e){ toast('Erreur : '+e.message); }
 }
 

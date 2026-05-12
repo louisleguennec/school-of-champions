@@ -1371,6 +1371,9 @@ function isWeekUnlocked(weekIdx){
   // Check manual override first
   const manual = weekUnlockOverrides[weekIdx+1];
   if(manual !== undefined) return manual;
+  // S1 d'un bloc à code : toujours dispo dès que l'athlète a validé le code
+  // (le code est sa "clé d'accès", il n'a pas à attendre la date de sortie)
+  if(weekIdx === 0 && BLOCKS[currentBlock]?.code && isBlockUnlocked(currentBlock)) return true;
   // Auto: available from Saturday before
   const unlock = new Date(WEEK_STARTS[weekIdx]);
   unlock.setDate(unlock.getDate() - 2);

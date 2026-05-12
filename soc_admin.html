@@ -542,32 +542,24 @@ async function loadDashboard(){
     const feelings=await db(`exercise_feelings?cycle=eq.${CYCLE}&select=id`) || [];
     document.getElementById('statFeelings').textContent=feelings.length;
 
-    // Fatigue chart
-    const fatigue=await db(`weekly_fatigue?cycle=eq.${CYCLE}&select=week_num,score_start,score_end`) || [];
+    // Fatigue chart (uniquement fin de semaine)
+    const fatigue=await db(`weekly_fatigue?cycle=eq.${CYCLE}&select=week_num,score_end`) || [];
     const fatigueEl=document.getElementById('fatigueChart');
     const weeks={};
     fatigue.forEach(f=>{
-      if(!weeks[f.week_num]) weeks[f.week_num]={start:[],end:[]};
-      if(f.score_start!=null) weeks[f.week_num].start.push(f.score_start);
+      if(!weeks[f.week_num]) weeks[f.week_num]={end:[]};
       if(f.score_end!=null) weeks[f.week_num].end.push(f.score_end);
     });
     const sortedWeeks = Object.keys(weeks).map(Number).sort((a,b)=>a-b);
     fatigueEl.innerHTML = sortedWeeks.map(w => {
       const d = weeks[w];
-      const avgS = d.start.length ? Math.round(d.start.reduce((a,b)=>a+b,0)/d.start.length*10)/10 : null;
       const avgE = d.end.length ? Math.round(d.end.reduce((a,b)=>a+b,0)/d.end.length*10)/10 : null;
-      const colorS = avgS==null?'var(--text3)':avgS<5?'var(--red)':avgS<7?'var(--yellow)':'var(--green)';
       const colorE = avgE==null?'var(--text3)':avgE<5?'var(--red)':avgE<7?'var(--yellow)':'var(--green)';
       return `<div class="bar-row">
-          <span class="bar-label">S${w} — Début</span>
-          <div class="bar-track"><div class="bar-fill" style="width:${avgS?avgS*10:0}%;background:${colorS}"></div></div>
-          <span class="bar-val">${avgS!=null?avgS:'—'}</span>
-        </div>
-        ${avgE!==null?`<div class="bar-row">
-          <span class="bar-label" style="color:var(--text3)">S${w} — Fin</span>
-          <div class="bar-track"><div class="bar-fill" style="width:${avgE*10}%;background:${colorE}"></div></div>
-          <span class="bar-val">${avgE}</span>
-        </div>`:''}`;
+          <span class="bar-label">S${w} — Fin</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${avgE?avgE*10:0}%;background:${colorE}"></div></div>
+          <span class="bar-val">${avgE!=null?avgE:'—'}</span>
+        </div>`;
     }).join('') || '<div style="color:var(--text3);font-size:13px">Aucune donnée pour ce cycle</div>';
 
     // Feelings chart (top exos)
@@ -937,7 +929,7 @@ async function loadFeelings(){
           <td style="color:var(--text3);font-size:12px">${scores.length} rép.</td>
         </tr>`;
       }).join('');
-      return `<details class="table-wrap" style="margin-bottom:10px;padding:0" ${d===sortedDays[0]?'open':''}>
+      return `<details class="table-wrap" style="margin-bottom:10px;padding:0">
         <summary style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;cursor:pointer;list-style:none;border-bottom:1px solid var(--border)">
           <div style="display:flex;align-items:center;gap:14px">
             <span style="font-family:var(--font-body);font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:1px">${DAY_LABELS[d]||'Jour '+d}</span>
@@ -958,7 +950,7 @@ async function loadFeelings(){
 async function loadFatigueAdmin(){
   const block = document.getElementById('fatigueBlock')?.value || CYCLE;
   try{
-    const fatigue = await db(`weekly_fatigue?cycle=eq.${block}&select=score_start,score_end,week_num,athlete_id`) || [];
+    const fatigue = await db(`weekly_fatigue?cycle=eq.${block}&select=score_end,week_num,athlete_id`) || [];
     const grid = document.getElementById('fatigueWeeksGrid');
     if(!grid) return;
     if(!fatigue.length){
@@ -966,11 +958,10 @@ async function loadFatigueAdmin(){
       return;
     }
 
-    // Group by week
+    // Group by week (uniquement score_end)
     const weeks = {};
     fatigue.forEach(f => {
-      if(!weeks[f.week_num]) weeks[f.week_num] = {starts:[], ends:[], athletes:new Set()};
-      if(f.score_start!=null) weeks[f.week_num].starts.push(f.score_start);
+      if(!weeks[f.week_num]) weeks[f.week_num] = {ends:[], athletes:new Set()};
       if(f.score_end!=null) weeks[f.week_num].ends.push(f.score_end);
       if(f.athlete_id) weeks[f.week_num].athletes.add(f.athlete_id);
     });
@@ -982,31 +973,16 @@ async function loadFatigueAdmin(){
     const sortedWeeks = Object.keys(weeks).map(Number).sort((a,b)=>a-b);
     grid.innerHTML = sortedWeeks.map(w => {
       const d = weeks[w];
-      const aStart = avgOf(d.starts);
       const aEnd = avgOf(d.ends);
-      const diff = (aStart!=null && aEnd!=null) ? (aEnd - aStart) : null;
-      const diffStr = diff==null ? '—' : `${diff>0?'+':''}${diff.toFixed(1)}`;
-      const diffColor = diff==null?'var(--text3)':diff>0.3?'var(--green)':diff<-0.3?'var(--red)':'var(--text2)';
       return `<div class="stat-card" style="padding:1.25rem">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
           <div style="font-family:var(--font-body);font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px">Semaine ${w}</div>
           <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">${d.athletes.size} athlète${d.athletes.size>1?'s':''}</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-          <div>
-            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Début</div>
-            <div style="font-family:var(--font-body);font-size:30px;font-weight:900;color:${colorFor(aStart)}">${fmt(aStart)}<span style="font-size:14px;color:var(--text3);font-weight:700">/10</span></div>
-            <div style="font-size:11px;color:var(--text3)">${d.starts.length} réponse${d.starts.length>1?'s':''}</div>
-          </div>
-          <div>
-            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Fin</div>
-            <div style="font-family:var(--font-body);font-size:30px;font-weight:900;color:${colorFor(aEnd)}">${fmt(aEnd)}<span style="font-size:14px;color:var(--text3);font-weight:700">/10</span></div>
-            <div style="font-size:11px;color:var(--text3)">${d.ends.length} réponse${d.ends.length>1?'s':''}</div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border)">
-          <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Évolution</span>
-          <span style="font-family:var(--font-body);font-size:18px;font-weight:900;color:${diffColor}">${diffStr}</span>
+        <div style="text-align:center;padding:10px 0">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Fin de semaine</div>
+          <div style="font-family:var(--font-body);font-size:42px;font-weight:900;color:${colorFor(aEnd)};line-height:1">${fmt(aEnd)}<span style="font-size:18px;color:var(--text3);font-weight:700">/10</span></div>
+          <div style="font-size:11px;color:var(--text3);margin-top:6px">${d.ends.length} réponse${d.ends.length>1?'s':''}</div>
         </div>
       </div>`;
     }).join('');
@@ -1263,44 +1239,83 @@ async function deleteGuest(id, pseudo){
 // Liste exhaustive des exos du programme avec leurs vidéos hardcodées
 // (à mettre à jour quand le programme change ; "Repos"/"À venir" exclus)
 const PROG_EXOS = [
+  {n:'Abduction de hanches en glute bridge', video:'https://www.youtube.com/watch?v=8bsx79VEYHA'},
+  {n:'Adducteurs au rameur', video:'https://www.youtube.com/shorts/3yh6AVeYGqg'},
   {n:'Adducteurs au rameur ou à la machine'},
+  {n:'Anderson squat', video:'https://www.youtube.com/watch?v=K7lOcoxnTcc'},
   {n:'Appel de jeté', video:'https://www.youtube.com/shorts/If-TUuNGp5s'},
-  {n:'Arraché'},
-  {n:'Arraché force (avec contact)'},
-  {n:'Arraché suspension'},
-  {n:'Back squat'},
+  {n:'Arraché', video:'https://www.youtube.com/shorts/9UtWOLkdGFY'},
+  {n:'Arraché debout', video:'https://www.youtube.com/shorts/szLFnjevo4k'},
+  {n:'Arraché force', video:'https://www.youtube.com/shorts/SIKVjxaNVZU'},
+  {n:'Arraché force (avec contact)', video:'https://www.youtube.com/shorts/SIKVjxaNVZU'},
+  {n:'Arraché suspension', video:'https://www.youtube.com/watch?v=JzQ4eXvrez4'},
+  {n:'Back squat', video:'https://www.youtube.com/watch?v=DU2Dl83uVaQ'},
   {n:'CMJ'},
   {n:'Cardio basse intensité', noVideo:true},
+  {n:"Chute d'arraché", video:'https://www.youtube.com/watch?v=GTj9pliPP8E'},
   {n:"Chute d'arraché en instabilité", video:'https://www.youtube.com/shorts/LFmf-x1pyAk'},
   {n:'Clamshell'},
+  {n:'Cossack squat', video:'https://www.youtube.com/shorts/J5rAhhGVLUA'},
   {n:'Curl biceps'},
   {n:'Développé couché'},
   {n:'Développé militaire', video:'https://www.youtube.com/watch?v=_aISMzimYEA'},
   {n:'Extensions lombaires GHD', video:'https://www.youtube.com/watch?v=dEDjkzFKJ-0'},
   {n:'Face pulls'},
-  {n:'Front squat'},
+  {n:'Farmer carry'},
+  {n:'Farmer carry 1 bras (élastique)', video:'https://www.youtube.com/shorts/7seHUbhlPWw'},
+  {n:'Front squat', video:'https://www.youtube.com/watch?v=g8uV9X_KN_I'},
   {n:'Gainage Copenhague'},
-  {n:'Jeté des plots'},
+  {n:'High box jump'},
+  {n:'Hollow hold', video:'https://www.youtube.com/shorts/_wBPcny-7Hc'},
+  {n:'Incline roll-ups', video:'https://www.youtube.com/shorts/cLoR0gujIMw'},
+  {n:'Jeté', video:'https://www.youtube.com/watch?v=ngjhO8CJvQg'},
+  {n:'Jeté des plots', video:'https://www.youtube.com/shorts/Xo8lVPHq510'},
   {n:'Jeté force', video:'https://www.youtube.com/watch?v=ngjhO8CJvQg'},
+  {n:'KB hip airplane', video:'https://www.youtube.com/shorts/oSU3zh1fLFI'},
   {n:'Landmine barbell rotations'},
   {n:'Leg curl', video:'https://youtu.be/n6qRAUu16vc'},
+  {n:'Leg curl unilatéral', video:'https://youtu.be/n6qRAUu16vc'},
+  {n:'Leg extension', video:'https://youtu.be/rCJNVrpvWeI'},
   {n:'Leg raises'},
-  {n:'Pompes'},
+  {n:"Passage d'arraché", video:'https://www.youtube.com/watch?v=UpDy-VNnUuo'},
+  {n:'Pompes', video:'https://www.youtube.com/shorts/1e0wAhSN7SU'},
+  {n:'Pull over au foam roller', video:'https://www.youtube.com/shorts/9Hfy7ojEt18'},
+  {n:'Reverse hyper', video:'https://www.youtube.com/shorts/NlXUhBv0JGI'},
+  {n:"Rotations externes d'épaule allongé", video:'https://www.youtube.com/shorts/dIpVOai4pBM'},
+  {n:'Rotations thoraciques à la poulie', video:'https://www.youtube.com/watch?v=KOWuzxXcqhA'},
+  {n:'Rowing buste penché', video:'https://www.youtube.com/watch?v=9OKXDJsv37g'},
+  {n:'Rowing planche', video:'https://www.youtube.com/shorts/q-OIgz24b8w'},
   {n:'Saut 1 haie avec élan'},
+  {n:'Single Arm Dead Hang', video:'https://www.youtube.com/shorts/ToMtVwEV3xA'},
+  {n:'Single Leg RDL', video:'https://www.youtube.com/watch?v=3jBOfVoCBsY'},
   {n:'Single leg hip thrust'},
-  {n:'Swiss ball side plank'},
+  {n:'Stir the pot swiss ball', video:'https://www.youtube.com/shorts/hmdMRDsfyqY'},
+  {n:'Swiss ball roll'},
+  {n:'Swiss ball side plank', video:'https://www.youtube.com/shorts/dtpYM3kwqWM'},
   {n:'TBA'},
+  {n:"Tirage de bras d'arraché + OHS", video:'https://www.youtube.com/watch?v=cGf80O157z4'},
   {n:"Tirage haut d'arraché", video:'https://youtu.be/iYBcBMu8zrA'},
-  {n:"Tirage lourd d'arraché"},
+  {n:"Tirage lourd d'arraché", video:'https://www.youtube.com/shorts/Dqr52cwYdfY'},
+  {n:"Tirage lourd d'épaulé", video:'https://www.youtube.com/shorts/a0t8wcFDeRg'},
+  {n:'Tirage poulie basse', video:'https://www.youtube.com/watch?v=wNEKpum3Bcs'},
   {n:'Tirage poulie basse (ou élastique)'},
+  {n:'Tirage poulie haute'},
+  {n:'Tirage prise arraché', video:'https://www.youtube.com/shorts/Dqr52cwYdfY'},
+  {n:'Tirage prise épaulé', video:'https://www.youtube.com/shorts/eRRbAvwybrE'},
+  {n:'Tractions', video:'https://www.youtube.com/watch?v=pHtPSleYquw'},
   {n:'Tractions (ou tirage poulie haute)'},
   {n:'Tractions nuque (ou tirage poulie haute)'},
   {n:'Trapbar deadlift'},
+  {n:'Triple Broad Jump', video:'https://www.youtube.com/watch?v=CuXErkWUo1k'},
   {n:"Warm up : Épaulé force + passage d'épaulé"},
   {n:'Y au GHD'},
   {n:'Épaulé debout'},
+  {n:'Épaulé debout + jeté force', video:'https://www.youtube.com/shorts/yIVSW9ou6kI'},
   {n:'Épaulé des plots', video:'https://www.youtube.com/shorts/lL-Ae_D2IXk'},
+  {n:"Épaulé force + passage d'épaulé + jeté pause appel 3''", video:'https://www.youtube.com/watch?v=D7DzYTfpNek'},
+  {n:"Épaulé suspension debout + jeté pause fente 3''", video:'https://www.youtube.com/watch?v=0aP3tgKZcHQ'},
   {n:'Épaulé-Jeté'},
+  {n:'Épaulé-jeté', video:'https://www.youtube.com/watch?v=MA1HYzA5qlQ'}
 ];
 
 // Slug normalisé pour la clé en DB (identique à index.html getVideoUrl)
@@ -1502,3 +1517,4 @@ function toast(msg){
 </script>
 </body>
 </html>
+

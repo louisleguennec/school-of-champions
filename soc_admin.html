@@ -156,7 +156,6 @@ tr:hover td{background:var(--surface2)}
     <button onclick="toggleSidebar()" id="sidebarToggle" style="position:absolute;top:8px;right:-14px;width:28px;height:28px;background:var(--surface);border:1px solid var(--border);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;z-index:10;color:var(--text2)" title="Réduire">◀</button>
   <div class="sidebar-logo">SOC <em>Admin</em><small>School of Champions</small></div>
     <button class="nav-link active" onclick="showPage('dashboard',this)"><span class="nav-icon">📊</span>Dashboard</button>
-    <button class="nav-link" onclick="showPage('athletes',this)"><span class="nav-icon">👥</span>Athlètes</button>
     <button class="nav-link" onclick="showPage('access',this)"><span class="nav-icon">🔓</span>Accès débloqués</button>
     <button class="nav-link" onclick="showPage('feelings',this)"><span class="nav-icon">📈</span>Ressentis</button>
     <button class="nav-link" onclick="showPage('fatigue',this)"><span class="nav-icon">⚡</span>Fatigue</button>
@@ -189,40 +188,6 @@ tr:hover td{background:var(--surface2)}
           <div class="chart-title">Ressentis moyens (top exos)</div>
           <div id="feelingsChart"></div>
         </div>
-      </div>
-    </div>
-
-    <!-- ATHLETES -->
-    <div class="page" id="pageAthletes">
-      <div class="page-title">Athlètes</div>
-      <div class="page-sub">Gestion des accès · <span id="athleteCount">—</span> inscrits</div>
-      <div id="levelStats" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem"></div>
-      <div style="display:flex;gap:10px;margin-bottom:1rem">
-        <button class="action-btn primary" onclick="showAddModal()" style="padding:8px 16px;font-size:13px">+ Ajouter un athlète</button>
-        <button class="action-btn" onclick="exportCSV('athletes')" style="padding:8px 16px;font-size:13px">⬇ Export CSV athlètes</button>
-        <button class="action-btn" onclick="exportCSV('scores')" style="padding:8px 16px;font-size:13px">⬇ Export CSV scores</button>
-        <button class="action-btn" onclick="exportCSV('feelings')" style="padding:8px 16px;font-size:13px">⬇ Export CSV ressentis</button>
-      </div>
-      <div class="table-wrap">
-        <div class="table-header">
-          <div class="table-title">Liste des athlètes</div>
-          <input class="table-search" placeholder="Rechercher..." oninput="filterAthletes(this.value)" id="athleteSearch">
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Pseudo</th>
-              <th>Email</th>
-              <th>Genre</th>
-              <th>Poids</th>
-              <th>Club</th>
-                            <th>Niveau</th>
-              <th>Statut</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="athleteTable"></tbody>
-        </table>
       </div>
     </div>
 
@@ -516,7 +481,6 @@ function showPage(name,btn){
   document.querySelectorAll('.nav-link').forEach(b=>b.classList.remove('active'));
   document.getElementById('page'+name.charAt(0).toUpperCase()+name.slice(1)).classList.add('active');
   btn.classList.add('active');
-  if(name==='athletes') loadAthletes();
   if(name==='access') loadAccessList();
   if(name==='feelings') loadFeelings();
   if(name==='videos') loadVideos();
@@ -585,92 +549,8 @@ async function loadDashboard(){
   } catch(e){ console.warn('Dashboard failed:', e); }
 }
 
-// ATHLETES
-let allAthletes=[];
-async function loadAthletes(){
-  const tbody = document.getElementById('athleteTable');
-  if(tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:1rem">Chargement…</td></tr>';
-  try{
-    const raw = await db('athletes?select=*&order=created_at.desc&t='+Date.now());
-    console.log('[athletes] raw response:', raw, '— type:', Array.isArray(raw)?'array':typeof raw);
-    allAthletes = Array.isArray(raw) ? raw : [];
-    document.getElementById('athleteCount').textContent = allAthletes.length;
-    if(!allAthletes.length){
-      console.warn('[athletes] Liste vide.\n - Si raw ci-dessus est un tableau []: la requête a réussi mais aucune ligne ne matche (table vraiment vide OU policy RLS qui filtre tout).\n - Si raw est un objet ou null: la requête a échoué silencieusement.\n - Vérifie dans Supabase > Authentication > Policies que la table `athletes` a une policy SELECT autorisant la clé publishable.');
-    }
-    renderAthletes(allAthletes);
-  } catch(e){
-    console.warn('[athletes] erreur:', e);
-    if(tbody) tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--red);padding:1rem">Erreur de chargement : ${e.message}</td></tr>`;
-  }
-}
-
-const LEVEL_LABELS={'Regional':'Régional','Inter-Regional':'Inter-Rég.','Honneur':'Honneur','Elite':'Élite','Intl':'Intl'};
-const LEVEL_COLORS={'Regional':'var(--gold-soft)','Inter-Regional':'var(--gold)','Honneur':'var(--yellow)','Elite':'var(--gold)','Intl':'var(--red)'};
-
-function athleteStatus(a){
-  if(a.suspended) return {key:'suspended', label:'Suspendu', color:'var(--red)', bg:'rgba(232,90,90,0.15)'};
-  if(a.last_access_cycle === CYCLE) return {key:'active', label:'Actif', color:'var(--green)', bg:'rgba(95,199,136,0.15)'};
-  return {key:'inactive', label:'Inactif', color:'var(--text3)', bg:'rgba(122,134,153,0.15)'};
-}
-
-function renderAthletes(list){
-  const tbody=document.getElementById('athleteTable');
-  if(!list.length){
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:1.5rem">Aucun athlète. Si tu en attendais, vérifie la table <code>athletes</code> dans Supabase et les policies RLS.</td></tr>';
-    document.getElementById('levelStats').innerHTML = '';
-    return;
-  }
-  tbody.innerHTML=list.map(a=>{
-    const lvl=a.level?`<span style="font-family:var(--font-ui,sans-serif);font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(201,169,110,0.12);color:${LEVEL_COLORS[a.level]||'var(--gold)'}">${LEVEL_LABELS[a.level]||a.level}</span>`:'<span style="color:var(--text3);font-size:11px">—</span>';
-    const st = athleteStatus(a);
-    const lastAcc = a.last_access_cycle ? `<div style="font-size:9px;color:var(--text3);margin-top:2px">Dernier cycle : ${a.last_access_cycle}</div>` : '';
-    return `<tr>
-      <td><strong>${a.pseudo||'—'}</strong></td>
-      <td style="color:var(--text2);font-size:12px;font-family:'Inter',sans-serif" title="${a.email||''}">${a.email||'—'}</td>
-      <td><span class="badge ${a.gender==='F'?'f':'m'}">${a.gender==='F'?'F':'H'}</span></td>
-      <td>${a.bodyweight?a.bodyweight+' kg':'—'}</td>
-      <td style="color:var(--text2);font-size:12px">${a.club||'—'}</td>
-      <td>${lvl}</td>
-      <td>
-        <span style="display:inline-block;font-family:var(--font-ui,sans-serif);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:4px;background:${st.bg};color:${st.color}">${st.label}</span>
-        ${lastAcc}
-      </td>
-      <td style="white-space:nowrap">
-        <button class="action-btn" onclick="editPseudo('${a.id}','${(a.pseudo||'').replace(/'/g,"\\'")}')">Nom</button>
-        <button class="action-btn" onclick="editClub('${a.id}','${(a.club||'').replace(/'/g,"\\'")}')">Club</button>
-        <button class="action-btn" onclick="editLevel('${a.id}','${a.level||''}')">Niveau</button>
-        <button class="action-btn" onclick="editBodyweight('${a.id}','${a.bodyweight||''}')">Poids</button>
-        <button class="action-btn ${a.suspended?'primary':'danger'}" onclick="toggleSuspended('${a.id}',${!!a.suspended},'${(a.pseudo||'').replace(/'/g,"\\'")}')">${a.suspended?'Réactiver':'Suspendre'}</button>
-        <button class="action-btn danger" onclick="deleteAthlete('${a.id}','${(a.pseudo||'').replace(/'/g,"\\'")}')">🗑</button>
-      </td>
-    </tr>`;
-  }).join('');
-
-  // Level stats widget
-  const levelCounts={};
-  list.forEach(a=>{
-    const l=a.level||'non_renseigné';
-    levelCounts[l]=(levelCounts[l]||0)+1;
-  });
-  const el=document.getElementById('levelStats');
-  if(el){
-    el.innerHTML=Object.entries(levelCounts).map(([k,v])=>`
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 12px;display:flex;align-items:center;gap:8px">
-        <span style="font-family:var(--font-body);font-size:20px;font-weight:900;color:${LEVEL_COLORS[k]||'var(--text3)'}">${v}</span>
-        <span style="font-family:var(--font-ui,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text2)">${LEVEL_LABELS[k]||'Non renseigné'}</span>
-      </div>`).join('');
-  }
-}
-
-function filterAthletes(q){
-  const filtered=allAthletes.filter(a=>
-    (a.pseudo||'').toLowerCase().includes(q.toLowerCase())||
-    (a.email||'').toLowerCase().includes(q.toLowerCase())||
-    (a.club||'').toLowerCase().includes(q.toLowerCase())
-  );
-  renderAthletes(filtered);
-}
+// (Page Athlètes supprimée — toutes les fonctions de gestion d'athlètes
+//  utilisées par la page "Accès débloqués" sont conservées plus bas.)
 
 async function toggleSuspended(id, currentlySuspended, pseudo){
   const next = !currentlySuspended;
@@ -679,7 +559,6 @@ async function toggleSuspended(id, currentlySuspended, pseudo){
   try{
     await db(`athletes?id=eq.${id}`,'PATCH',{suspended: next});
     toast(next ? 'Athlète suspendu' : 'Athlète réactivé');
-    loadAthletes();
     // Recharger la vue accès si elle est ouverte
     if(document.getElementById('pageAccess')?.classList.contains('active')) loadAccessList();
   } catch(e){ toast('Erreur : '+e.message); }
@@ -762,7 +641,7 @@ async function editPseudo(id,current){
   try{
     await db(`athletes?id=eq.${id}`,'PATCH',{pseudo:pseudo.trim()});
     toast('Nom mis à jour');
-    loadAthletes();
+    if(document.getElementById('pageAccess')?.classList.contains('active')) loadAccessList();
   } catch(e){ toast('Erreur : '+e.message); }
 }
 
@@ -772,7 +651,7 @@ async function editClub(id,current){
   try{
     await db(`athletes?id=eq.${id}`,'PATCH',{club});
     toast('Club mis à jour');
-    loadAthletes();
+    if(document.getElementById('pageAccess')?.classList.contains('active')) loadAccessList();
   } catch(e){ toast('Erreur'); }
 }
 
@@ -785,7 +664,7 @@ async function editLevel(id, current){
   try{
     await db(`athletes?id=eq.${id}`,'PATCH',{level:lvl});
     toast('Niveau mis à jour');
-    loadAthletes();
+    if(document.getElementById('pageAccess')?.classList.contains('active')) loadAccessList();
   } catch(e){ toast('Erreur'); }
 }
 
@@ -797,7 +676,7 @@ async function editBodyweight(id, current){
   try{
     await db(`athletes?id=eq.${id}`,'PATCH',{bodyweight:val});
     toast('Poids mis à jour');
-    loadAthletes();
+    if(document.getElementById('pageAccess')?.classList.contains('active')) loadAccessList();
   } catch(e){ toast('Erreur'); }
 }
 
@@ -806,7 +685,7 @@ async function deleteAthlete(id,pseudo){
   try{
     await db(`athletes?id=eq.${id}`,'DELETE');
     toast(`${pseudo} supprimé`);
-    loadAthletes();
+    if(document.getElementById('pageAccess')?.classList.contains('active')) loadAccessList();
   } catch(e){ toast('Erreur'); }
 }
 
@@ -824,7 +703,7 @@ async function addAthlete(){
     await db('athletes','POST',{pseudo,email,gender,bodyweight,club,access_type:'sub',cycle:CYCLE});
     toast(`${pseudo} ajouté !`);
     closeModal();
-    loadAthletes();
+    if(document.getElementById('pageAccess')?.classList.contains('active')) loadAccessList();
   } catch(e){ alert('Erreur : '+e.message); }
 }
 
@@ -1517,4 +1396,3 @@ function toast(msg){
 </script>
 </body>
 </html>
-

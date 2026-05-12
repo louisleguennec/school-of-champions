@@ -1572,7 +1572,7 @@ function renderDays(){
     card.innerHTML=`
       <div class="day-prog-bar"><div class="day-prog-fill" style="width:${pct}%"></div></div>
       <div class="day-hdr ${isMain?'main':'opt'}" onclick="toggleDay(${dIdx})">
-        <div class="day-type ${isMain?'main':'opt'}">${isMain?'PRINCIPAL':'OPTIONNEL'}</div>
+        <div class="day-type ${isMain?'main':'opt'}">${isMain?'PRINCIPAL':isRest?'OFF':'OPTIONNEL'}</div>
         <div class="day-name">
           <div class="day-title ${isMain?'main':'opt'}">${day.label} ${hasLb?'<span style="color:var(--gold);font-size:14px">🏆</span>':''}</div>
           <div class="day-sub">${daySub}</div>
@@ -1819,7 +1819,7 @@ function renderProfile(){
   const el=document.getElementById('editLevel'); if(el) el.value=athlete.level||'';
   const rec=document.getElementById('myRecords');
   rec.innerHTML=LB_ALLTIME.map(m=>{
-    const val=m.key==='total'?getTotal():rms[m.key];
+    const val=rmsAllTime[m.key];
     return `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px">
       <div style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">${m.icon} ${m.label}</div>
       <div style="font-family:var(--font-body);font-size:20px;font-weight:900;color:var(--yellow)">${val?val+'kg':'—'}</div>

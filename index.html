@@ -443,17 +443,6 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
     </div>
     <!-- BLOCK SELECTOR (Mai/Juin) -->
     <div id="blockSel" style="display:flex;gap:8px;padding:0 1rem;margin-bottom:10px;flex-wrap:wrap"></div>
-    <!-- BANNER CODE JUIN (visible si l'athlète n'a pas validé LASTBLOCK26) -->
-    <div id="bannerJuinUnlock" style="display:none;margin:0 1rem 12px;padding:14px;border-radius:12px;background:linear-gradient(135deg,rgba(201,169,110,0.18),rgba(201,169,110,0.08));border:1px solid var(--gold);cursor:pointer" onclick="openCodeModal('juin26')">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="font-size:24px">🔓</div>
-        <div style="flex:1">
-          <div style="font-family:var(--font-body);font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold)">Nouveau bloc — Juin 2026</div>
-          <div style="font-size:12px;color:var(--text2);margin-top:2px">Saisis ton code pour accéder au programme de juin</div>
-        </div>
-        <div style="font-size:18px;color:var(--gold)">→</div>
-      </div>
-    </div>
     <!-- TOGGLE S4 MASTERS (visible uniquement quand juin S4 est sélectionnée) -->
     <div id="mastersToggle" style="display:none;margin:0 1rem 12px;padding:10px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--border);align-items:center;justify-content:space-between">
       <div>
@@ -2394,12 +2383,6 @@ function buildBlockSelector(){
     const tagArch = isArchived ? '<span style="font-size:9px;opacity:0.7;margin-left:6px">ARCHIVÉ</span>' : '';
     return `<button onclick="switchBlock('${bid}')" style="flex:1;min-width:100px;padding:10px 14px;border-radius:10px;border:1px solid ${border};background:${bg};color:${col};font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s">${icon}${b.short}${tagArch}</button>`;
   }).join('');
-
-  // Banner d'accès juin : visible si juin pas débloqué et qu'on est sur mai
-  const bannerJ = document.getElementById('bannerJuinUnlock');
-  if(bannerJ){
-    bannerJ.style.display = (!isBlockUnlocked('juin26')) ? 'block' : 'none';
-  }
 }
 
 function openCodeModal(blockId){
@@ -2472,8 +2455,8 @@ function updateMastersToggle(){
   document.getElementById('mastersBtn').classList.toggle('on', useS4Masters);
 }
 
-// ACCESS CODE
-const VALID_CODE='JUIN0949';
+// ACCESS CODE — code unique : débloque l'app + le bloc juin
+const VALID_CODE = 'LASTBLOCK26';
 
 async function checkAccess(){
   const email=document.getElementById('accessEmail').value.trim().toLowerCase();
@@ -2484,6 +2467,7 @@ async function checkAccess(){
   if(code!==VALID_CODE){errEl.textContent='Code d\'accès incorrect.';errEl.style.display='block';return;}
   try{
     const existing=await db('athletes?email=eq.'+encodeURIComponent(email)+'&select=id,pseudo,gender,bodyweight,club,access_type,level,suspended');
+    let isNew = false;
     if(existing&&existing.length>0){
       // Athlète existant
       if(existing[0].suspended){
@@ -2493,19 +2477,29 @@ async function checkAccess(){
       }
       athlete=existing[0];
       // Marquer ce cycle comme validé pour cet athlète (silencieux)
-      db(`athletes?id=eq.${athlete.id}`,'PATCH',{last_access_cycle:currentBlock}).catch(()=>{});
+      db(`athletes?id=eq.${athlete.id}`,'PATCH',{last_access_cycle:'juin26'}).catch(()=>{});
       saveAthlete();
-      localStorage.setItem('soc_access_validated','1');
-      localStorage.setItem('soc_access_email',email);
-      document.getElementById('accessScreen').style.display='none';
-      showApp();
     } else {
-      // Nouvel athlète, onboarding (le last_access_cycle sera mis à la création)
-      localStorage.setItem('soc_access_validated','1');
-      localStorage.setItem('soc_access_email',email);
-      document.getElementById('accessScreen').style.display='none';
+      isNew = true;
+    }
+    // Déblocage juin enregistré : local + DB (silencieux si la table n'existe pas)
+    let unlocks = [];
+    try { unlocks = JSON.parse(localStorage.getItem('soc_unlocked_blocks')||'[]'); } catch(e){}
+    if(!unlocks.includes('juin26')) unlocks.push('juin26');
+    localStorage.setItem('soc_unlocked_blocks', JSON.stringify(unlocks));
+    if(athlete?.id){
+      db('athlete_blocks','POST',{athlete_id: athlete.id, block_id: 'juin26'}).catch(e=>{
+        console.warn('[unlock] DB save failed (table athlete_blocks ?)', e);
+      });
+    }
+    localStorage.setItem('soc_access_validated','1');
+    localStorage.setItem('soc_access_email',email);
+    document.getElementById('accessScreen').style.display='none';
+    if(isNew){
       document.getElementById('onbEmail').value=email;
       document.getElementById('onboarding').classList.add('show');
+    } else {
+      showApp();
     }
   } catch(e){errEl.textContent='Erreur de connexion. Réessaie.';errEl.style.display='block';}
 }

@@ -1482,7 +1482,12 @@ function renderDays(){
     const pct=allKeys.length?Math.round(doneCount/allKeys.length*100):0;
     const isOpen=openDay===dIdx;
     const isMain=day.type==='main';
+    const isRest=day.type==='rest';
     const hasLb=(day.main||[]).some(e=>e.isLb);
+
+    // Sub par défaut pour les jours sans description
+    const REST_DEFAULT_SUB = 'Jour off : 30 minutes de mobilité / auto-massage. Light cardio et mouvements barre à vide OK';
+    const daySub = day.sub || (isRest ? REST_DEFAULT_SUB : '');
 
     const card=document.createElement('div');
     card.className='day-card'+(isOpen?' open':'');
@@ -1570,7 +1575,7 @@ function renderDays(){
         <div class="day-type ${isMain?'main':'opt'}">${isMain?'PRINCIPAL':'OPTIONNEL'}</div>
         <div class="day-name">
           <div class="day-title ${isMain?'main':'opt'}">${day.label} ${hasLb?'<span style="color:var(--gold);font-size:14px">🏆</span>':''}</div>
-          <div class="day-sub">${day.sub}</div>
+          <div class="day-sub">${daySub}</div>
         </div>
         <div class="day-right">
           ${pct===100?'<span class="day-done-badge">✓ Done</span>':''}
@@ -2300,12 +2305,21 @@ function toast(msg){
 async function loadUnlockedBlocks(){
   // mai26 toujours dispo (legacy)
   unlockedBlocks = new Set(['mai26']);
+  // Lecture local d'abord (toujours dispo, persiste même si DB plante)
+  try {
+    const local = JSON.parse(localStorage.getItem('soc_unlocked_blocks')||'[]');
+    local.forEach(b => unlockedBlocks.add(b));
+  } catch(e){}
   if(!athlete?.id) return;
+  // Complète avec DB (multi-appareils)
   try {
     const rows = await db(`athlete_blocks?athlete_id=eq.${athlete.id}&select=block_id`) || [];
     rows.forEach(r => unlockedBlocks.add(r.block_id));
+    // Re-synchroniser le local avec ce qu'on a trouvé en DB
+    const all = Array.from(unlockedBlocks).filter(b => b !== 'mai26');
+    localStorage.setItem('soc_unlocked_blocks', JSON.stringify(all));
   } catch(e){
-    console.warn('loadUnlockedBlocks failed (la table athlete_blocks existe-t-elle ?)', e);
+    console.warn('[blocks] DB unavailable, fallback localStorage. Crée la table athlete_blocks dans Supabase pour la persistence multi-appareils.', e);
   }
 }
 
@@ -2416,16 +2430,20 @@ async function submitBlockCode(){
     errEl.style.display = 'block';
     return;
   }
+  // Marquer comme débloqué en local IMMÉDIATEMENT (ne plus jamais redemander sur cet appareil)
+  unlockedBlocks.add(blockId);
+  let unlocks = [];
+  try { unlocks = JSON.parse(localStorage.getItem('soc_unlocked_blocks')||'[]'); } catch(e){}
+  if(!unlocks.includes(blockId)) unlocks.push(blockId);
+  localStorage.setItem('soc_unlocked_blocks', JSON.stringify(unlocks));
+  closeCodeModal();
+  toast('✅ Bloc débloqué !');
+  switchBlock(blockId);
+  // Tenter la persistence DB en arrière-plan (pour multi-appareils). Si la table n'existe pas, l'erreur est silencieuse côté UX.
   try {
-    // INSERT silencieux ; unique constraint protège des doublons
-    await db('athlete_blocks','POST',{athlete_id: athlete.id, block_id: blockId}).catch(()=>{});
-    unlockedBlocks.add(blockId);
-    closeCodeModal();
-    toast('✅ Bloc débloqué !');
-    switchBlock(blockId);
+    await db('athlete_blocks','POST',{athlete_id: athlete.id, block_id: blockId});
   } catch(e){
-    errEl.textContent = 'Erreur : '+e.message;
-    errEl.style.display = 'block';
+    console.warn('[block-unlock] DB save failed (table athlete_blocks ?). Le déblocage reste enregistré en local.', e);
   }
 }
 

@@ -744,15 +744,26 @@ function saveRMsAllTime(){
 }
 
 async function syncRMsAllTimeToSupabase(){
+  if(!athlete?.id){
+    console.warn('[alltime] No athlete connected, cannot sync');
+    return;
+  }
   try{
+    console.log('[alltime] Syncing PR all-time for', athlete.pseudo, '— values:', rmsAllTime);
     for(const [movement, weight] of Object.entries(rmsAllTime)){
       if(!weight) continue;
       const w = parseFloat(weight);
+      if(isNaN(w) || w <= 0){
+        console.warn('[alltime] Skipping invalid weight for', movement, '=', weight);
+        continue;
+      }
       const existing = await db(`rm_records?athlete_id=eq.${athlete.id}&movement=eq.${movement}&select=id,weight`);
       if(existing && existing.length){
         await db(`rm_records?id=eq.${existing[0].id}`,'PATCH',{weight:w});
+        console.log('[alltime] Updated', movement, '→', w, 'kg');
       } else {
         await db('rm_records','POST',{athlete_id:athlete.id,movement,weight:w,cycle:currentBlock});
+        console.log('[alltime] Inserted', movement, '→', w, 'kg');
       }
     }
     Object.keys(lbData).forEach(mov => {
@@ -763,7 +774,10 @@ async function syncRMsAllTimeToSupabase(){
     });
     renderLb();
     loadLeaderboards();
-  } catch(e){ console.warn('AllTime RM sync failed',e); }
+  } catch(e){
+    console.error('[alltime] SYNC FAILED:', e);
+    toast('Erreur sauvegarde leaderboard : '+(e.message||'inconnue'));
+  }
 }
 
 async function syncRMsToSupabase(){
@@ -1752,8 +1766,17 @@ async function loadLeaderboards(){
   try{
     lbData={};
     const records=await db('rm_records?select=weight,movement,athletes(pseudo,gender,bodyweight,club,level)');
+    const total = (records||[]).length;
+    const withAthlete = (records||[]).filter(r=>r.athletes).length;
+    console.log(`[leaderboard] ${total} records total, ${withAthlete} avec athlète lié`);
+    if(total > 0 && withAthlete === 0){
+      console.warn('[leaderboard] ⚠️ Tous les records ont athletes=null. Probable problème de policy RLS sur athletes : la jointure ne peut pas lire les champs des athlètes.');
+    }
     (records||[]).forEach(r=>{
-      if(!r.athletes) return;
+      if(!r.athletes){
+        // log limité pour éviter spam
+        return;
+      }
       if(!lbData[r.movement]) lbData[r.movement]=[];
       // Keep only best score per athlete per movement
       const existing=lbData[r.movement].find(a=>a.name===r.athletes.pseudo);

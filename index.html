@@ -2518,9 +2518,11 @@ async function checkAccess(){
   if(!email||!code){errEl.textContent='Remplis les deux champs.';errEl.style.display='block';return;}
   if(code!==VALID_CODE){errEl.textContent='Code d\'accès incorrect.';errEl.style.display='block';return;}
   try{
+    console.log('[access] checking email:', email);
     const existing=await db('athletes?email=eq.'+encodeURIComponent(email)+'&select=id,pseudo,gender,bodyweight,club,access_type,level,suspended');
+    console.log('[access] athlete lookup result:', existing);
     let isNew = false;
-    if(existing&&existing.length>0){
+    if(Array.isArray(existing) && existing.length>0){
       // Athlète existant
       if(existing[0].suspended){
         errEl.textContent='Compte suspendu. Contacte le coach.';
@@ -2529,9 +2531,10 @@ async function checkAccess(){
       }
       athlete=existing[0];
       // Marquer ce cycle comme validé pour cet athlète (silencieux)
-      db(`athletes?id=eq.${athlete.id}`,'PATCH',{last_access_cycle:'juin26'}).catch(()=>{});
+      db(`athletes?id=eq.${athlete.id}`,'PATCH',{last_access_cycle:'juin26'}).catch(e=>console.warn('[access] last_access_cycle update failed:', e));
       saveAthlete();
     } else {
+      console.log('[access] no athlete found, going to onboarding');
       isNew = true;
     }
     // Déblocage juin enregistré : local + DB (silencieux si la table n'existe pas)
@@ -2541,7 +2544,7 @@ async function checkAccess(){
     localStorage.setItem('soc_unlocked_blocks', JSON.stringify(unlocks));
     if(athlete?.id){
       db('athlete_blocks','POST',{athlete_id: athlete.id, block_id: 'juin26'}).catch(e=>{
-        console.warn('[unlock] DB save failed (table athlete_blocks ?)', e);
+        console.warn('[access] athlete_blocks insert failed:', e);
       });
     }
     localStorage.setItem('soc_access_validated','1');
@@ -2553,7 +2556,11 @@ async function checkAccess(){
     } else {
       showApp();
     }
-  } catch(e){errEl.textContent='Erreur de connexion. Réessaie.';errEl.style.display='block';}
+  } catch(e){
+    console.error('[access] FATAL ERROR:', e);
+    errEl.textContent='Erreur : '+(e.message||'connexion impossible')+'. Vérifie la console (F12).';
+    errEl.style.display='block';
+  }
 }
 
 function resetAccess(){

@@ -919,22 +919,57 @@ async function loadProgOverrides(){
     const ov = await db(`programme_overrides?cycle=eq.${currentBlock}&select=*`) || [];
     progOverrides = {};
     ov.forEach(o => {
-      const key = `${o.day_idx}_${o.ex_idx}`;
-      progOverrides[key] = o;
+      // Clé avec week_num pour matcher l'éditeur admin
+      // Compat : si pas de week_num (anciens overrides), on l'applique à toutes les semaines
+      if(o.week_num != null){
+        const key = `w${o.week_num-1}_${o.day_idx}_${o.ex_idx}`;
+        progOverrides[key] = o;
+      } else {
+        const key = `any_${o.day_idx}_${o.ex_idx}`;
+        progOverrides[key] = o;
+      }
     });
   } catch(e){ console.warn('Programme overrides failed', e); }
 }
 
-function getExDetail(dayIdx, exIdx, ex){
-  const ov = progOverrides[`${dayIdx}_${exIdx}`];
+function getExDetail(dayIdx, exIdx, ex, sIdx){
+  // exIdx ici est l'index dans la section (main ou prepa). On encode comme l'admin : sIdx*100 + exIdx
+  const encodedIdx = (sIdx||0)*100 + exIdx;
+  const ov = progOverrides[`w${currentWeek}_${dayIdx}_${encodedIdx}`] || progOverrides[`any_${dayIdx}_${encodedIdx}`];
   return {
     detail: ov?.detail || ex.d,
-    rm: ov?.rm_key || ex.rm
+    rm: ov?.rm_key || ex.rm,
+    deleted: !!ov?.deleted,
+    isLb: (ov && ov.is_lb !== null && ov.is_lb !== undefined) ? !!ov.is_lb : !!ex.isLb,
+    videoOverride: ov?.video_url || null,
   };
 }
 
+function getAddedExos(dayIdx, sIdx){
+  // Retourne la liste des exos ajoutés via admin pour ce jour + section
+  const out = [];
+  Object.entries(progOverrides).forEach(([key, ov]) => {
+    if(!ov.is_added) return;
+    if(ov.day_idx !== dayIdx) return;
+    if(Math.floor(ov.ex_idx/100) !== sIdx) return;
+    // Filtre semaine : 'w{currentWeek}_...' OU 'any_...'
+    if(!key.startsWith(`w${currentWeek}_`) && !key.startsWith('any_')) return;
+    out.push({
+      n: ov.ex_name || 'Exo ajouté',
+      d: ov.detail || '',
+      rm: ov.rm_key,
+      video: ov.video_url,
+      isLb: !!ov.is_lb,
+      _added: true,
+      _exIdx: ov.ex_idx,
+    });
+  });
+  return out;
+}
+
 function getVideoUrl(ex){
-  // Priorité : Supabase > hardcodé dans le programme
+  // Priorité : admin override (sur l'ex) > Supabase remote > hardcodé dans le programme
+  if(ex._videoOverride) return ex._videoOverride;
   const remoteKey = ex.n.toLowerCase()
     .normalize('NFD').replace(/[̀-ͯ]/g,'')
     .replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
@@ -1487,9 +1522,18 @@ function renderDays(){
       return exs.map((ex,eIdx)=>{
         const k=exId(currentWeek,dIdx,sIdx,eIdx);
         const isDone=!!checked[k];
-        const _ov = sIdx===0 ? getExDetail(dIdx, eIdx, ex) : {detail:ex.d, rm:ex.rm};
+        // Pour les exos ajoutés, on regarde directement leurs propriétés (déjà résolues par getAddedExos)
+        // Pour les exos du programme, on cherche un override
+        let _ov;
+        if(ex._added){
+          _ov = { detail: ex.d, rm: ex.rm, deleted: false, isLb: !!ex.isLb, videoOverride: ex.video };
+        } else {
+          _ov = getExDetail(dIdx, eIdx, ex, sIdx);
+        }
+        if(_ov.deleted) return ''; // exo supprimé via admin
         const detHtml=renderKg(_ov.detail, _ov.rm);
         const effectiveRm = _ov.rm;
+        const effectiveLb = _ov.isLb;
         const rpeVal=rpeScores[k]||0;
         // RPE stars avec emojis et couleurs claires
         const starsHtml=[1,2,3,4,5].map(v=>{
@@ -1498,8 +1542,10 @@ function renderDays(){
             onclick="setRPE('${k}',${v},this)" 
             title="${RPE_LABELS[v-1]}">${RPE_EMOJIS[v-1]}</span>`;
         }).join('');
-        const lbBtn=ex.isLb?`<span class="ex-lb-badge" onclick="openScoreModal('${ex.n}','${effectiveRm||ex.rm||'total'}')">🏆 Soumettre</span><span class="ex-lb-badge" onclick="openFullLb('${effectiveRm||ex.rm||'total'}','${ex.n}')" style="color:var(--gold);background:rgba(201,169,110,0.08);border-color:rgba(201,169,110,0.25)">📊 Classement</span>`:'';
-        const _videoUrl=getVideoUrl(ex);
+        const lbBtn=effectiveLb?`<span class="ex-lb-badge" onclick="openScoreModal('${ex.n}','${effectiveRm||ex.rm||'total'}')">🏆 Soumettre</span><span class="ex-lb-badge" onclick="openFullLb('${effectiveRm||ex.rm||'total'}','${ex.n}')" style="color:var(--gold);background:rgba(201,169,110,0.08);border-color:rgba(201,169,110,0.25)">📊 Classement</span>`:'';
+        // Vidéo : priorité à l'override admin
+        const exForVideo = _ov.videoOverride ? {...ex, _videoOverride: _ov.videoOverride} : ex;
+        const _videoUrl=getVideoUrl(exForVideo);
         const videoBtn=ex.noVideo?'':(_videoUrl
           ?`<span class="ex-lb-badge" onclick="openVideo('${_videoUrl}','${ex.n}')" style="cursor:pointer;color:var(--gold);background:rgba(201,169,110,0.08);border-color:rgba(201,169,110,0.25)">▶ Vidéo</span>`
           :(sIdx===0?`<span class="ex-video-ph" style="color:var(--red);border-color:rgba(232,90,90,0.3);background:var(--red-dim)">⚠ Vidéo manquante</span>`:`<span class="ex-video-ph">▶ Bientôt</span>`));
@@ -1516,7 +1562,7 @@ function renderDays(){
                 <div style="display:flex;align-items:center;gap:6px">
                   <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3)">Réalisé</span>
                   <div style="display:flex;align-items:center;gap:4px;background:var(--surface3);border:1px solid var(--border2);border-radius:7px;padding:5px 9px;flex:1;max-width:120px">
-                    <input type="number" inputmode="decimal" placeholder="—" value="${actualWeights[k]||''}" style="background:none;border:none;outline:none;color:var(--yellow);font-family:var(--font-body);font-size:17px;font-weight:700;width:100%;min-width:0" onchange="saveActual('${k}',${dIdx},this.value,'${sIdx===0?effectiveRm:ex.rm||''}','${ex.isLb?'1':'0'}')" onclick="event.stopPropagation()">
+                    <input type="number" inputmode="decimal" placeholder="—" value="${actualWeights[k]||''}" style="background:none;border:none;outline:none;color:var(--yellow);font-family:var(--font-body);font-size:17px;font-weight:700;width:100%;min-width:0" onchange="saveActual('${k}',${dIdx},this.value,'${sIdx===0?effectiveRm:ex.rm||''}','${effectiveLb?'1':'0'}')" onclick="event.stopPropagation()">
                     <span style="font-size:11px;color:var(--text3)">kg</span>
                   </div>
                   ${actualWeights[k]?'<span style="font-size:10px;color:var(--green);font-weight:700">✓</span>':''}
@@ -1553,10 +1599,16 @@ function renderDays(){
       });
       bodyHtml+=`</div>`;
     }
-    bodyHtml+=exRows(day.main||[],0);
-    if(day.prepa&&day.prepa.length){
+    // Fusionner les exos ajoutés depuis l'admin
+    const addedMain = getAddedExos(dIdx, 0);
+    const addedPrepa = getAddedExos(dIdx, 1);
+    const mergedMain = [...(day.main||[]), ...addedMain];
+    const mergedPrepa = [...(day.prepa||[]), ...addedPrepa];
+
+    bodyHtml+=exRows(mergedMain,0);
+    if(mergedPrepa.length){
       bodyHtml+=`<div class="sec-sep">Prépa physique</div>`;
-      bodyHtml+=exRows(day.prepa,1);
+      bodyHtml+=exRows(mergedPrepa,1);
     }
 
     card.innerHTML=`

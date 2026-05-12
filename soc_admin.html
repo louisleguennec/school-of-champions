@@ -1629,7 +1629,6 @@ async function loadProgEditor(){
   const wIdx = parseInt(document.getElementById('progWeekSel')?.value || 0);
   const dIdx = parseInt(document.getElementById('progDaySel')?.value || 0);
 
-  // Build week/day selectors si vides
   if(!document.getElementById('progWeekSel')?.options.length) buildProgWeekSelector();
   if(!document.getElementById('progDaySel')?.options.length) buildProgDaySelector();
 
@@ -1640,10 +1639,9 @@ async function loadProgEditor(){
     return;
   }
 
-  // Charger les overrides pour ce cycle + semaine
   list.innerHTML = '<div style="color:var(--text3);padding:1rem">Chargement…</div>';
   try {
-    const raw = await db(`programme_overrides?cycle=eq.${blockId}&week_num=eq.${wIdx+1}&select=*`);
+    const raw = await db(`programme_overrides?cycle=eq.${blockId}&week_num=eq.${wIdx+1}&day_idx=eq.${dIdx}&select=*`);
     const overrides = Array.isArray(raw) ? raw : [];
     progOverridesAdmin = {};
     overrides.forEach(o => {
@@ -1660,38 +1658,66 @@ async function loadProgEditor(){
     return;
   }
 
-  const sections = [];
-  if(day.main?.length) sections.push({sIdx:0, label:'Exercices principaux', items:day.main});
-  if(day.prepa?.length) sections.push({sIdx:1, label:'Prépa physique', items:day.prepa});
+  // Fusionner exos du programme + exos ajoutés via overrides (is_added=true)
+  // Convention ex_idx :
+  //   sIdx*100 + eIdx pour exos du programme (sIdx=0 main, sIdx=1 prepa)
+  //   sIdx*100 + 50 + n pour exos ajoutés (50+ pour éviter collision)
+  const sections = [
+    {sIdx:0, label:'Exercices principaux', items:[...(day.main||[])]},
+    {sIdx:1, label:'Prépa physique', items:[...(day.prepa||[])]},
+  ];
 
-  if(!sections.length){
-    list.innerHTML = '<div style="color:var(--text3);padding:1rem">Aucun exo sur ce jour</div>';
-    return;
-  }
+  // Récupérer les exos ajoutés (is_added=true) depuis les overrides
+  Object.values(progOverridesAdmin).forEach(o => {
+    if(!o.is_added) return;
+    const sIdx = Math.floor(o.ex_idx / 100);
+    if(sIdx === 0 || sIdx === 1){
+      sections[sIdx].items.push({
+        n: o.ex_name || 'Exo ajouté',
+        d: o.detail || '',
+        rm: o.rm_key,
+        video: o.video_url,
+        note: o.note,
+        isLb: !!o.is_lb,
+        _isAdded: true,
+        _exIdx: o.ex_idx,
+      });
+    }
+  });
 
   list.innerHTML = sections.map(sec => {
-    return `<div style="margin-bottom:1rem">
-      <div style="font-family:var(--font-ui,sans-serif);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">${sec.label}</div>
-      ${sec.items.map((ex, eIdx) => renderProgExo(blockId, wIdx, dIdx, sec.sIdx, eIdx, ex)).join('')}
+    const items = sec.items;
+    const rows = items.map((ex, eIdx) => {
+      // Calculer l'exIdx correct : ajouté → utilise _exIdx, sinon sIdx*100+eIdx
+      const exIdx = ex._isAdded ? ex._exIdx : (sec.sIdx*100 + eIdx);
+      return renderProgExo(blockId, wIdx, dIdx, sec.sIdx, exIdx, ex);
+    }).join('');
+    return `<div style="margin-bottom:1.5rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">
+        <div style="font-family:var(--font-ui,sans-serif);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold)">${sec.label}</div>
+        <button class="action-btn primary" onclick="openAddExoForm('${blockId}',${wIdx},${dIdx},${sec.sIdx})" style="padding:5px 12px;font-size:11px">+ Ajouter un exo</button>
+      </div>
+      ${rows || '<div style="color:var(--text3);font-size:12px;padding:8px 0">Aucun exo dans cette section</div>'}
+      <div id="addExoForm_${sec.sIdx}" style="display:none;background:var(--surface2);border:1px dashed var(--gold);border-radius:10px;padding:12px;margin-top:8px"></div>
     </div>`;
   }).join('');
 }
 
-function renderProgExo(blockId, wIdx, dIdx, sIdx, eIdx, ex){
-  // Pour les overrides on stocke ex_idx avec encoding section + index
-  // Convention : ex_idx = sIdx*100 + eIdx (pour différencier main 0,1,2 de prepa 0,1,2)
-  const exIdx = sIdx*100 + eIdx;
+function renderProgExo(blockId, wIdx, dIdx, sIdx, exIdx, ex){
   const key = `${wIdx}_${dIdx}_${exIdx}`;
   const ov = progOverridesAdmin[key];
   const isDeleted = ov?.deleted === true;
   const currentDetail = ov?.detail ?? ex.d ?? '';
   const currentRm = ov?.rm_key ?? ex.rm ?? '';
-  const currentName = ov?.ex_name ?? ex.n;
+  const currentVideo = ov?.video_url ?? ex.video ?? '';
+  // isLb : si override existe et a la colonne, on prend la valeur ; sinon valeur par défaut programme
+  const currentLb = (ov && ov.is_lb !== null && ov.is_lb !== undefined) ? !!ov.is_lb : !!ex.isLb;
+  const isAdded = !!ex._isAdded;
 
   const inputId = `ov_${blockId}_${wIdx}_${dIdx}_${exIdx}`;
 
   if(isDeleted){
-    return `<div style="background:rgba(232,90,90,0.05);border:1px dashed var(--red);border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;opacity:0.6">
+    return `<div style="background:rgba(232,90,90,0.05);border:1px dashed var(--red);border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;opacity:0.6;margin-bottom:8px">
       <div>
         <div style="font-family:var(--font-body);font-size:14px;font-weight:700;text-decoration:line-through">${ex.n}</div>
         <div style="font-size:11px;color:var(--red);margin-top:2px">⊘ Exo supprimé pour les athlètes</div>
@@ -1704,43 +1730,122 @@ function renderProgExo(blockId, wIdx, dIdx, sIdx, eIdx, ex){
     <div style="display:flex;align-items:start;justify-content:space-between;gap:10px;margin-bottom:10px">
       <div style="flex:1;min-width:0">
         <div style="font-family:var(--font-body);font-size:15px;font-weight:700;text-transform:uppercase">${ex.n}</div>
-        ${ov ? '<span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:var(--gold-dim);color:var(--gold);margin-top:4px">Modifié</span>' : ''}
+        <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">
+          ${ov ? '<span style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:var(--gold-dim);color:var(--gold)">Modifié</span>' : ''}
+          ${isAdded ? '<span style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:rgba(95,199,136,0.15);color:var(--green)">Ajouté</span>' : ''}
+          ${currentLb ? '<span style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:rgba(232,196,104,0.15);color:var(--yellow)">🏆 LB</span>' : ''}
+        </div>
       </div>
-      <button class="action-btn danger" onclick="deleteProgExo('${blockId}',${wIdx},${dIdx},${exIdx},'${ex.n.replace(/'/g,"\\'")}')">🗑 Supprimer</button>
+      <button class="action-btn danger" onclick="${isAdded?`deleteAddedExo('${blockId}',${wIdx},${dIdx},${exIdx},'${ex.n.replace(/'/g,"\\'")}')`:`deleteProgExo('${blockId}',${wIdx},${dIdx},${exIdx},'${ex.n.replace(/'/g,"\\'")}')`}">🗑 Supprimer</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:8px">
+      ${isAdded ? `<div>
+        <label style="display:block;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:3px">Nom de l'exo</label>
+        <input id="${inputId}_n" type="text" value="${ex.n.replace(/"/g,'&quot;')}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none">
+      </div>` : ''}
       <div>
         <label style="display:block;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:3px">Détail / Séries × % (ex: "4×2 / 80-85%")</label>
         <input id="${inputId}_d" type="text" value="${currentDetail.replace(/"/g,'&quot;')}" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none">
       </div>
-      <div style="display:flex;gap:8px;align-items:end">
-        <div style="flex:1">
-          <label style="display:block;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:3px">RM de référence</label>
-          <select id="${inputId}_r" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--text);font-size:13px;outline:none">
-            <option value="">— Aucun —</option>
-            ${RM_KEYS_LIST.map(([k,l]) => `<option value="${k}" ${k===currentRm?'selected':''}>${l}</option>`).join('')}
-          </select>
-        </div>
-        <button class="action-btn primary" onclick="saveProgExo('${blockId}',${wIdx},${dIdx},${exIdx},'${inputId}','${ex.n.replace(/'/g,"\\'")}')" style="padding:7px 14px">💾 Enregistrer</button>
+      <div>
+        <label style="display:block;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:3px">RM de référence</label>
+        <select id="${inputId}_r" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--text);font-size:13px;outline:none">
+          <option value="">— Aucun —</option>
+          ${RM_KEYS_LIST.map(([k,l]) => `<option value="${k}" ${k===currentRm?'selected':''}>${l}</option>`).join('')}
+        </select>
       </div>
+      <div>
+        <label style="display:block;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:3px">URL vidéo (optionnel)</label>
+        <input id="${inputId}_v" type="url" value="${(currentVideo||'').replace(/"/g,'&quot;')}" placeholder="https://youtube.com/..." style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--font-body);font-size:13px;outline:none">
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 0">
+        <input id="${inputId}_lb" type="checkbox" ${currentLb?'checked':''} style="width:18px;height:18px;accent-color:var(--gold);cursor:pointer">
+        <span style="font-size:12px;color:var(--text2)">🏆 Soumettre au leaderboard (les athlètes peuvent comparer leur score)</span>
+      </label>
+      <button class="action-btn primary" onclick="saveProgExo('${blockId}',${wIdx},${dIdx},${exIdx},'${inputId}','${ex.n.replace(/'/g,"\\'")}',${isAdded})" style="padding:8px;align-self:flex-start">💾 Enregistrer</button>
     </div>
   </div>`;
 }
 
-async function saveProgExo(blockId, wIdx, dIdx, exIdx, inputId, exName){
+function openAddExoForm(blockId, wIdx, dIdx, sIdx){
+  const el = document.getElementById(`addExoForm_${sIdx}`);
+  if(!el) return;
+  if(el.style.display === 'block'){ el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  const fid = `addNew_${sIdx}`;
+  el.innerHTML = `
+    <div style="font-family:var(--font-ui,sans-serif);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:10px">+ Nouvel exo</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <input id="${fid}_n" type="text" placeholder="Nom de l'exo (ex: Tractions lestées)" style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none">
+      <input id="${fid}_d" type="text" placeholder='Détail (ex: "4×8 / RPE 8")' style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none">
+      <select id="${fid}_r" style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--text);font-size:13px;outline:none">
+        <option value="">— RM de référence (optionnel) —</option>
+        ${RM_KEYS_LIST.map(([k,l]) => `<option value="${k}">${l}</option>`).join('')}
+      </select>
+      <input id="${fid}_v" type="url" placeholder="URL vidéo (optionnel)" style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--font-body);font-size:13px;outline:none">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input id="${fid}_lb" type="checkbox" style="width:18px;height:18px;accent-color:var(--gold);cursor:pointer">
+        <span style="font-size:12px;color:var(--text2)">🏆 Soumettre au leaderboard</span>
+      </label>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="action-btn" onclick="document.getElementById('addExoForm_${sIdx}').style.display='none'" style="padding:7px 14px">Annuler</button>
+        <button class="action-btn primary" onclick="createAddedExo('${blockId}',${wIdx},${dIdx},${sIdx},'${fid}')" style="padding:7px 14px">+ Créer l'exo</button>
+      </div>
+    </div>
+  `;
+}
+
+async function createAddedExo(blockId, wIdx, dIdx, sIdx, fid){
+  const name = document.getElementById(fid+'_n').value.trim();
+  const detail = document.getElementById(fid+'_d').value.trim();
+  const rmKey = document.getElementById(fid+'_r').value || null;
+  const video = document.getElementById(fid+'_v').value.trim() || null;
+  const isLb = document.getElementById(fid+'_lb').checked;
+  if(!name){ toast('Nom requis'); return; }
+
+  // Trouver le prochain ex_idx disponible (50, 51, 52...) pour cette section
+  const used = new Set();
+  Object.values(progOverridesAdmin).forEach(o => {
+    if(o.is_added && Math.floor(o.ex_idx/100) === sIdx){
+      used.add(o.ex_idx);
+    }
+  });
+  let exIdx = sIdx*100 + 50;
+  while(used.has(exIdx)) exIdx++;
+
+  try {
+    await db('programme_overrides','POST',{
+      cycle: blockId, week_num: wIdx+1, day_idx: dIdx, ex_idx: exIdx,
+      ex_name: name, detail, rm_key: rmKey, video_url: video,
+      is_lb: isLb, is_added: true, deleted: false
+    });
+    toast('✅ Exo ajouté');
+    loadProgEditor();
+  } catch(e){ toast('Erreur : '+e.message); }
+}
+
+async function saveProgExo(blockId, wIdx, dIdx, exIdx, inputId, exName, isAdded){
   const detail = document.getElementById(inputId+'_d').value.trim();
   const rmKey = document.getElementById(inputId+'_r').value || null;
+  const video = document.getElementById(inputId+'_v').value.trim() || null;
+  const isLb = document.getElementById(inputId+'_lb').checked;
+  const nameInput = document.getElementById(inputId+'_n');
+  const finalName = (isAdded && nameInput) ? nameInput.value.trim() : exName;
+  if(isAdded && !finalName){ toast('Nom requis'); return; }
+
   try {
-    // Check existing override
     const existing = await db(`programme_overrides?cycle=eq.${blockId}&week_num=eq.${wIdx+1}&day_idx=eq.${dIdx}&ex_idx=eq.${exIdx}&select=id`);
+    const payload = {
+      detail, rm_key:rmKey, ex_name:finalName,
+      video_url: video, is_lb: isLb, deleted:false
+    };
+    if(isAdded) payload.is_added = true;
     if(existing && existing.length){
-      await db(`programme_overrides?id=eq.${existing[0].id}`, 'PATCH', {
-        detail, rm_key:rmKey, ex_name:exName, deleted:false
-      });
+      await db(`programme_overrides?id=eq.${existing[0].id}`, 'PATCH', payload);
     } else {
       await db('programme_overrides','POST', {
         cycle: blockId, week_num: wIdx+1, day_idx: dIdx, ex_idx: exIdx,
-        detail, rm_key:rmKey, ex_name:exName, deleted:false
+        ...payload
       });
     }
     toast('✅ Exo mis à jour');
@@ -1765,11 +1870,19 @@ async function deleteProgExo(blockId, wIdx, dIdx, exIdx, exName){
   } catch(e){ toast('Erreur : '+e.message); }
 }
 
+async function deleteAddedExo(blockId, wIdx, dIdx, exIdx, exName){
+  if(!confirm(`Supprimer définitivement "${exName}" ?\n\nCet exo a été ajouté manuellement et sera effacé sans possibilité de restauration.`)) return;
+  try {
+    await db(`programme_overrides?cycle=eq.${blockId}&week_num=eq.${wIdx+1}&day_idx=eq.${dIdx}&ex_idx=eq.${exIdx}`, 'DELETE');
+    toast('Exo supprimé');
+    loadProgEditor();
+  } catch(e){ toast('Erreur : '+e.message); }
+}
+
 async function restoreProgExo(blockId, wIdx, dIdx, exIdx){
   try {
     const existing = await db(`programme_overrides?cycle=eq.${blockId}&week_num=eq.${wIdx+1}&day_idx=eq.${dIdx}&ex_idx=eq.${exIdx}&select=id`);
     if(existing && existing.length){
-      // Reset l'override : on remet deleted=false. Si pas d'autre modif, on peut delete la ligne.
       await db(`programme_overrides?id=eq.${existing[0].id}`, 'DELETE');
     }
     toast('Exo restauré');

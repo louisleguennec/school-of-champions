@@ -1067,15 +1067,33 @@ async function saveGuestEdit(id){
   if(!pseudo){ toast('Nom requis'); return; }
   if(!bodyweight || isNaN(bodyweight)){ toast('Poids requis'); return; }
 
+  const payload = {
+    pseudo, gender, bodyweight, level: level||null,
+    arr, ej, fs, total, squat, club: club||null
+  };
+  console.log('[guest-edit] PATCH id=', id, 'payload:', payload);
+
   try{
-    await db(`leaderboard_guests?id=eq.${id}`, 'PATCH', {
-      pseudo, gender, bodyweight, level: level||null,
-      arr, ej, fs, total, squat, club: club||null
-    });
-    toast('✅ Modifié');
+    const res = await db(`leaderboard_guests?id=eq.${id}`, 'PATCH', payload);
+    console.log('[guest-edit] Supabase response:', res);
+    if(!Array.isArray(res) || !res.length){
+      console.warn('[guest-edit] ⚠️ Supabase a renvoyé une réponse vide. La ligne id=', id, 'a-t-elle bien été modifiée ? Vérifie les policies RLS sur leaderboard_guests.');
+      toast('⚠️ Modification non confirmée par Supabase, vérifie la console');
+    } else {
+      const updated = res[0];
+      if(updated.gender !== gender){
+        console.warn('[guest-edit] ⚠️ Le gender renvoyé est', updated.gender, 'au lieu de', gender, '— possible trigger DB ou contrainte qui modifie la valeur');
+        toast('⚠️ Modif partielle : gender pas appliqué');
+      } else {
+        toast('✅ Modifié');
+      }
+    }
     editingGuestId = null;
     loadGuests();
-  } catch(e){ toast('Erreur : '+e.message); }
+  } catch(e){
+    console.error('[guest-edit] FAILED:', e);
+    toast('Erreur : '+e.message);
+  }
 }
 
 async function addGuest(){

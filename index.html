@@ -766,14 +766,8 @@ async function syncRMsAllTimeToSupabase(){
         console.log('[alltime] Inserted', movement, '→', w, 'kg');
       }
     }
-    Object.keys(lbData).forEach(mov => {
-      lbData[mov] = (lbData[mov]||[]).map(a => {
-        if(a.isMe && rmsAllTime[mov]) return {...a, weight:parseFloat(rmsAllTime[mov])};
-        return a;
-      });
-    });
-    renderLb();
-    loadLeaderboards();
+    // Recharger depuis la DB pour avoir l'état exact + ajouter l'athlète aux mouvements qu'il vient de saisir pour la première fois
+    await loadLeaderboards();
   } catch(e){
     console.error('[alltime] SYNC FAILED:', e);
     toast('Erreur sauvegarde leaderboard : '+(e.message||'inconnue'));
@@ -1468,11 +1462,12 @@ function renderKg(detail,rmKey){
   if(!rmKey||!rms[rmKey]) return detail;
   const rm=parseFloat(rms[rmKey]);
   if(isNaN(rm)) return detail;
-  return detail.replace(/(\d+)(?:–(\d+))?%\+?/g,(m,lo,hi)=>{
+  return detail.replace(/(\d+)(?:–(\d+))?%(\+)?/g,(m,lo,hi,plus)=>{
     const loK=Math.round(rm*parseInt(lo)/100);
     const hiK=hi?Math.round(rm*parseInt(hi)/100):null;
-    const pct=hi?`${lo}–${hi}%`:`${lo}%`;
-    const kgs=hiK?`${loK}–${hiK}`:`${loK}`;
+    const pSuffix = plus ? '+' : '';
+    const pct=hi?`${lo}–${hi}%${pSuffix}`:`${lo}%${pSuffix}`;
+    const kgs=hiK?`${loK}–${hiK}${pSuffix}`:`${loK}${pSuffix}`;
     return `<span class="ex-kg">${kgs}kg</span><span class="ex-pct"> ${pct}</span>`;
   });
 }
@@ -1856,7 +1851,7 @@ function renderLb(){
       <div class="lb-avatar ${a.gender==='F'?'f':'m'}">${getInitials(a.name)}</div>
       <div class="lb-info">
         <div class="lb-name">${a.name}${a.level?` <span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(0,51,102,0.4);color:var(--gold)">${levelLabels[a.level]||''}</span>`:''}</div>
-        <div class="lb-meta">${a.rawWeight}kg · ${a.bw}kg poids de corps${clubStr}</div>
+        <div class="lb-meta">${a.rawWeight}kg${a.bw?` · ${a.bw}kg poids de corps`:' · poids de corps non renseigné'}${clubStr}</div>
       </div>
       <div>
         <div class="lb-score ${rc}">${a.rawWeight}kg</div>

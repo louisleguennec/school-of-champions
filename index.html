@@ -1264,9 +1264,9 @@ const BLOCK_JUIN26_WEEKS = [
   ]},
   {id:"w3",label:"S3 · 01/06",title:"Semaine 3",days:[
     {type:"main",label:"Lundi",sub:"Arraché force · Back squat · Appel de jeté",warmup:[],main:[{n:"Arraché force",d:"6x2 / 85-92%",rm:"arr_force",note:"Monter sur un doublé lourd",video:"https://www.youtube.com/shorts/SIKVjxaNVZU",isLb:true},{n:"Back squat",d:"6x2 / 80-90%",rm:"squat",note:"Si en forme; 2RM — ne pas monter à l'échec",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ",isLb:true},{n:"Appel de jeté",d:"5x4 / 110-130%",rm:"fs",note:"Tempo lent",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}],prepa:[{n:"KB hip airplane",d:"2x10-15 / côté",video:"https://www.youtube.com/shorts/oSU3zh1fLFI"}]},
-    {type:"main",label:"Mardi",sub:"Passage d'arraché · Arraché suspension · Tirage lourd d'arraché",warmup:[],main:[{n:"Passage d'arraché",d:"3x5 light",video:"https://www.youtube.com/watch?v=UpDy-VNnUuo"},{n:"Arraché suspension",d:"3x2 / 80-85%; 3x1 / 90-95%",rm:"arr",note:"RM si en forme !",video:"https://www.youtube.com/watch?v=JzQ4eXvrez4"},{n:"Tirage lourd d'arraché",d:"6x2 / 100-120%",rm:"arr",note:"Pause 2'' aux genoux",video:"https://www.youtube.com/shorts/Dqr52cwYdfY"}],prepa:[]},
+    {type:"main",label:"Mardi",sub:"Passage d'arraché · Arraché suspension · Tirage lourd d'arraché",warmup:[],main:[{n:"Passage d'arraché",d:"3x5 light",video:"https://www.youtube.com/watch?v=UpDy-VNnUuo"},{n:"Arraché suspension",d:"3x2 / 80-85%; 3x1 / 90-95%",rm:"arr",note:"RM si en forme !",video:"https://www.youtube.com/watch?v=JzQ4eXvrez4"},{n:"Tirage lourd d'arraché",d:"6x2 / 100-120%",rm:"arr",note:"Pause 2'' aux genoux",video:"https://www.youtube.com/shorts/Dqr52cwYdfY"}],prepa:[{n:"GHD sit ups",d:"3-4x6-10 reps"},{n:"Rowing buste penché",d:"3-4x8-10 reps"},{n:"Clamshell en planche latérale",d:"3x15 reps / côté"}]},
     {type:"rest",label:"Mercredi"},
-    {type:"main",label:"Jeudi",sub:"Épaulé suspension debout · Épaulé-jeté",warmup:[],main:[{n:"Épaulé suspension debout + jeté pause fente 3''",d:"3x(3+3) / 50% (du RM épaulé)",video:"https://www.youtube.com/watch?v=0aP3tgKZcHQ"},{n:"Épaulé-jeté",d:"Montée sur une rep lourde",rm:"ej",note:"Target 95% — 1 échec max !",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true}],prepa:[{n:"Single Arm Dead Hang",d:"2-3 tours / côté",video:"https://www.youtube.com/shorts/ToMtVwEV3xA"}]},
+    {type:"main",label:"Jeudi",sub:"Épaulé suspension debout · Épaulé-jeté",warmup:[],main:[{n:"Épaulé suspension debout + jeté pause fente 3''",d:"3x(3+3) / 50% (du RM épaulé)",video:"https://www.youtube.com/watch?v=0aP3tgKZcHQ"},{n:"Épaulé-jeté",d:"Montée sur une rep lourde",rm:"ej",note:"Target 95% — 1 échec max !",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true}],prepa:[{n:"Bulgarian squats",d:"4x8 reps / jambe"},{n:"Extensions lombaires GHD",d:"4x20 reps"},{n:"Farmer carry 1 bras (élastique)",d:"3x30'' / bras"},{n:"Single Arm Dead Hang",d:"2-3 tours / côté",video:"https://www.youtube.com/shorts/ToMtVwEV3xA"}]},
     {type:"rest",label:"Vendredi"},
     {type:"opt",label:"Samedi",sub:"Épaulé debout · Arraché",warmup:[],main:[{n:"Épaulé debout + jeté force",d:"6x2 / 85+%",rm:"jet_force",note:"Finir proche 2RM. Sur le warm-up : pause 2'' sur le dip de la première rep",video:"https://www.youtube.com/shorts/d63PlCk4vcg",isLb:true},{n:"Arraché",d:"6x3 / 50%",rm:"arr",note:"Volume technique léger ! Ne pas dépasser",video:"https://www.youtube.com/shorts/9UtWOLkdGFY"}],prepa:[{n:"Triple Broad Jump",d:"3x3 — distance max",video:"https://www.youtube.com/watch?v=CuXErkWUo1k"},{n:"Rotations thoraciques à la poulie",d:"2x8-12 / côté",video:"https://www.youtube.com/watch?v=KOWuzxXcqhA"}]}
   ]},
@@ -1462,7 +1462,9 @@ function renderKg(detail,rmKey){
   if(!rmKey||!rms[rmKey]) return detail;
   const rm=parseFloat(rms[rmKey]);
   if(isNaN(rm)) return detail;
-  return detail.replace(/(\d+)(?:–(\d+))?%(\+)?/g,(m,lo,hi,plus)=>{
+  // Accepte tiret normal -, tiret demi-cadratin – et cadratin — pour les fourchettes
+  // Le + (ex: "85+%") apparaît avant le %
+  return detail.replace(/(\d+)(?:\s*[-–—]\s*(\d+))?(\+)?%/g,(m,lo,hi,plus)=>{
     const loK=Math.round(rm*parseInt(lo)/100);
     const hiK=hi?Math.round(rm*parseInt(hi)/100):null;
     const pSuffix = plus ? '+' : '';

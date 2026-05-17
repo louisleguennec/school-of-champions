@@ -2641,7 +2641,32 @@ if('serviceWorker' in navigator){
   const isSafariIOS = /iP(hone|ad|od)/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent) && !/CriOS/.test(navigator.userAgent);
   if(!isSafariIOS){
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(()=>{});
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        // Vérifier les mises à jour à chaque chargement
+        reg.update();
+
+        // Quand un nouveau service worker est trouvé et installé,
+        // on l'active immédiatement et on recharge la page.
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if(!newWorker) return;
+          newWorker.addEventListener('statechange', () => {
+            if(newWorker.state === 'installed' && navigator.serviceWorker.controller){
+              // Une nouvelle version est prête → on l'active
+              newWorker.postMessage('SKIP_WAITING');
+            }
+          });
+        });
+      }).catch(()=>{});
+
+      // Quand le nouveau service worker prend le contrôle, on recharge
+      // une seule fois pour afficher la version à jour.
+      let hasReloaded = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if(hasReloaded) return;
+        hasReloaded = true;
+        window.location.reload();
+      });
     });
   }
 }

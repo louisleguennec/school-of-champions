@@ -720,7 +720,7 @@ let actualWeights={};
 let currentWeek=0;
 let activeLeaderboards=[];
 let lbData={};
-let lbMovement='arr';
+let lbMovement='total';
 let lbGender='all';
 let scoreModalCtx=null;
 let onbGender='H';
@@ -1756,14 +1756,15 @@ async function submitScore(){
   if(BLOCKS[currentBlock]?.readonly){ toast('📦 Bloc archivé — soumission impossible'); closeScoreModal(); return; }
   const w=parseFloat(document.getElementById('scoreInput').value);
   if(!w||isNaN(w)){toast('Entre un poids valide');return;}
-  const {rmKey}=scoreModalCtx;
-  // RM non modifié — soumission LB uniquement
+  // Capturer le contexte AVANT de fermer le modal (closeScoreModal met scoreModalCtx=null)
+  const ctx = {...scoreModalCtx};
+  const rmKey = ctx.rmKey;
+  const exName = ctx.exName||'';
   toast('🏆 Score soumis !');
   closeScoreModal();
   renderDays();
   if(athlete){
     try{
-      const exName = scoreModalCtx?.exName||'';
       await db('cycle_scores','POST',{athlete_id:athlete.id,movement:rmKey,weight:w,cycle:currentBlock,week_num:currentWeek+1,exercise_name:exName});
       const existing=await db(`rm_records?athlete_id=eq.${athlete.id}&movement=eq.${rmKey}&select=weight,id`);
       if(!existing||existing.length===0){
@@ -1772,7 +1773,7 @@ async function submitScore(){
         await db(`rm_records?id=eq.${existing[0].id}`,'PATCH',{weight:w});
       }
       await loadLeaderboards();
-      openFullLb(_ctx?.rmKey||'arr', _ctx?.exName||'');
+      openFullLb(rmKey, exName);
     } catch(e){console.warn('Score save failed',e);}
   }
 }
@@ -1820,11 +1821,13 @@ async function loadLeaderboards(){
       });
     } catch(e){ console.warn('Guests load failed',e); }
 
-    // Total: use stored value from rm_records (key='total'), not calculated
-    const totalData = lbData['total'] || [];
-    // Also include athletes who have explicit total in rm_records
-    // lbData['total'] is already populated from rm_records with key='total'
-    // For guests: use their explicit total field
+    // DIAGNOSTIC : afficher le contenu du leaderboard Total
+    console.log('[leaderboard] Mouvements chargés :', Object.keys(lbData).map(k=>`${k}(${lbData[k].length})`).join(', '));
+    console.log('[leaderboard] Détail TOTAL :', (lbData['total']||[]).map(a=>`${a.name}=${a.weight}kg (genre:${a.gender||'?'}, bw:${a.bw||'?'})`));
+    if(!lbData['total'] || !lbData['total'].length){
+      console.warn('[leaderboard] ⚠️ AUCUN total chargé. Les records movement=total existent-ils en DB et leurs athletes sont-ils liés ?');
+    }
+
     document.getElementById('lbAthleteCount').textContent=new Set((records||[]).filter(r=>r.athletes).map(r=>r.athletes.pseudo)).size;
     renderLb();
   } catch(e){console.warn('LB load failed',e);}

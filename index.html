@@ -732,6 +732,20 @@ function loadLocal(){
   try{rpeScores=JSON.parse(localStorage.getItem('soc_rpe')||'{}')}catch(e){}
   try{actualWeights=JSON.parse(localStorage.getItem('soc_actual')||'{}')}catch(e){}
   try{athlete=JSON.parse(localStorage.getItem('soc_athlete')||'null')}catch(e){}
+  // Migration one-shot : purger les clés à l'ancien format positionnel "w_d_s_e"
+  // (sans préfixe de bloc) qui pouvaient mélanger mai et juin.
+  // Le nouveau format est "bloc_w_d_s_e" → commence par "mai26_" ou "juin26_".
+  if(!localStorage.getItem('soc_keymigr_v1')){
+    const isOld = k => !/^(mai26|juin26)_/.test(k);
+    [['checked',()=>checked],['rpeScores',()=>rpeScores],['actualWeights',()=>actualWeights]].forEach(([,getObj])=>{
+      const obj=getObj();
+      Object.keys(obj).forEach(k=>{ if(isOld(k)) delete obj[k]; });
+    });
+    localStorage.setItem('soc_chk', JSON.stringify(checked));
+    localStorage.setItem('soc_rpe', JSON.stringify(rpeScores));
+    localStorage.setItem('soc_actual', JSON.stringify(actualWeights));
+    localStorage.setItem('soc_keymigr_v1','1');
+  }
 }
 function saveRMs(){
   localStorage.setItem('soc_rms',JSON.stringify(rms));
@@ -822,15 +836,19 @@ async function loadSessionLogs(){
   if(!athlete) return;
   try{
     const logs = await db(`session_logs?athlete_id=eq.${athlete.id}&cycle=eq.${currentBlock}&select=key,value`) || [];
+    const isValidKey = k => /^(mai26|juin26)_/.test(k);
+    const assignValid = (target, data) => {
+      Object.keys(data||{}).forEach(k=>{ if(isValidKey(k)) target[k]=data[k]; });
+    };
     logs.forEach(log=>{
       try{
         const data = JSON.parse(log.value);
         if(log.key.startsWith('chk_w')){
-          Object.assign(checked, data);
+          assignValid(checked, data);
         } else if(log.key.startsWith('actual_w')){
-          Object.assign(actualWeights, data);
+          assignValid(actualWeights, data);
         } else if(log.key.startsWith('rpe_w')){
-          Object.assign(rpeScores, data);
+          assignValid(rpeScores, data);
         }
       } catch(e){}
     });
@@ -1339,7 +1357,7 @@ const LB_ALLTIME=[
   {key:'fs',label:'Front Squat',icon:'💪'},
 ];
 
-function exId(w,d,s,e){return `${w}_${d}_${s}_${e}`}
+function exId(w,d,s,e){return `${currentBlock}_${w}_${d}_${s}_${e}`}
 
 function toggleWarmup(dIdx){
   const el=document.getElementById('wu_'+dIdx);
@@ -1578,7 +1596,7 @@ function renderDays(){
                   </div>
                   ${actualWeights[k]?'<span style="font-size:10px;color:var(--green);font-weight:700">✓</span>':''}
                 </div>
-                ${(()=>{const prevKey=`${currentWeek-1}_${dIdx}_${sIdx}_${eIdx}`;const prev=currentWeek>0&&actualWeights[prevKey];return prev?`<div style="font-size:10px;color:var(--text3);margin-top:3px;padding-left:2px">S. précédente : <span style="color:var(--gold);font-weight:700">${prev}kg</span>${actualWeights[k]&&parseFloat(actualWeights[k])>parseFloat(prev)?'<span style="color:var(--green);margin-left:4px">▲ +'+Math.round((parseFloat(actualWeights[k])-parseFloat(prev))*10)/10+'kg</span>':actualWeights[k]&&parseFloat(actualWeights[k])<parseFloat(prev)?'<span style="color:var(--red);margin-left:4px">▼ '+Math.round((parseFloat(actualWeights[k])-parseFloat(prev))*10)/10+'kg</span>':''}</div>`:'';})()}
+                ${(()=>{const prevKey=exId(currentWeek-1,dIdx,sIdx,eIdx);const prev=currentWeek>0&&actualWeights[prevKey];return prev?`<div style="font-size:10px;color:var(--text3);margin-top:3px;padding-left:2px">S. précédente : <span style="color:var(--gold);font-weight:700">${prev}kg</span>${actualWeights[k]&&parseFloat(actualWeights[k])>parseFloat(prev)?'<span style="color:var(--green);margin-left:4px">▲ +'+Math.round((parseFloat(actualWeights[k])-parseFloat(prev))*10)/10+'kg</span>':actualWeights[k]&&parseFloat(actualWeights[k])<parseFloat(prev)?'<span style="color:var(--red);margin-left:4px">▼ '+Math.round((parseFloat(actualWeights[k])-parseFloat(prev))*10)/10+'kg</span>':''}</div>`:'';})()}
               </div>`:''}
             </div>
             ${sIdx===0?`<div class="rpe-row">
@@ -1837,9 +1855,21 @@ function renderLb(){
   buildLbMovementFilter();
   const mov=LB_ALLTIME.find(m=>m.key===lbMovement)||LB_ALLTIME[0];
   document.getElementById('lbMovTitle').innerHTML=`${mov.icon} ${mov.label} ${mov.isSinclair?'<span class="lb-cycle-badge">Sinclair</span>':''}`;
-  let pool=(lbData[lbMovement]||[]).filter(a=>lbGender==='all'||a.gender===lbGender);
+  let pool=(lbData[lbMovement]||[]);
+  // Filtre genre : si "all" on garde tout. Sinon on garde le genre demandé
+  // + les athlètes sans genre renseigné (sinon ils disparaissent complètement du leaderboard).
+  if(lbGender!=='all'){
+    pool=pool.filter(a=>{
+      const g=(a.gender||'').toUpperCase();
+      if(g!=='H'&&g!=='F'&&g!=='M') return true; // genre non renseigné → toujours visible
+      // 'M' (ancien format masculin) traité comme 'H'
+      const norm = g==='M' ? 'H' : g;
+      return norm===lbGender;
+    });
+  }
   pool=pool.map(a=>({...a,displayScore:calcSinclair(a.weight,a.bw,a.gender),rawWeight:a.weight}));
-  pool.sort((a,b)=>b.displayScore-a.displayScore);
+  // Tri par Sinclair décroissant ; les NaN/0 vont en bas mais restent affichés
+  pool.sort((a,b)=>(b.displayScore||0)-(a.displayScore||0));
   const listEl=document.getElementById('lbList');
   if(!pool.length){listEl.innerHTML=`<div class="lb-empty">Aucun score pour l'instant.<br>Sois le premier à soumettre ! 🏆</div>`;return;}
   listEl.innerHTML=pool.map((a,i)=>{
@@ -1848,6 +1878,7 @@ function renderLb(){
     const medal=r===1?'🥇':r===2?'🥈':r===3?'🥉':r;
     const clubStr=a.club?` · ${a.club}`:'';
     const levelLabels={'Regional':'RÉG','Inter-Regional':'INT-RÉG','Honneur':'HONNEUR','Elite':'ÉLITE','Intl':'INTL'};
+    const sincStr = (a.displayScore && !isNaN(a.displayScore)) ? a.displayScore.toFixed(1) : '—';
     return `<div class="lb-row ${rc} ${a.isMe?'is-me':''}">
       <div class="lb-rank ${rc}">${medal}</div>
       <div class="lb-avatar ${a.gender==='F'?'f':'m'}">${getInitials(a.name)}</div>
@@ -1857,7 +1888,7 @@ function renderLb(){
       </div>
       <div>
         <div class="lb-score ${rc}">${a.rawWeight}kg</div>
-        <div class="lb-score-sub">Sinclair ${a.displayScore.toFixed(1)}</div>
+        <div class="lb-score-sub">Sinclair ${sincStr}</div>
       </div>
     </div>`;
   }).join('');

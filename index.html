@@ -746,6 +746,15 @@ function loadLocal(){
     localStorage.setItem('soc_actual', JSON.stringify(actualWeights));
     localStorage.setItem('soc_keymigr_v1','1');
   }
+  // Migration : les anciens "Total officiel" étaient enregistrés dans rms (RM actuel)
+  // au lieu de rmsAllTime (leaderboard). On rapatrie la valeur.
+  if(!localStorage.getItem('soc_totalmigr_v1')){
+    if(rms['total'] && !rmsAllTime['total']){
+      rmsAllTime['total'] = rms['total'];
+      localStorage.setItem('soc_rms_alltime', JSON.stringify(rmsAllTime));
+    }
+    localStorage.setItem('soc_totalmigr_v1','1');
+  }
 }
 function saveRMs(){
   localStorage.setItem('soc_rms',JSON.stringify(rms));
@@ -863,6 +872,7 @@ async function loadRMsFromSupabase(){
   if(!athlete) return;
   try{
     const records = await db(`rm_records?athlete_id=eq.${athlete.id}&select=movement,weight`) || [];
+    const dbMovements = new Set(records.map(r=>r.movement));
     records.forEach(r=>{
       // All-time: always take Supabase value
       rmsAllTime[r.movement] = r.weight;
@@ -873,6 +883,13 @@ async function loadRMsFromSupabase(){
     localStorage.setItem('soc_rms_alltime', JSON.stringify(rmsAllTime));
     buildRMGrid();
     renderDays();
+    // Réparation : si l'athlète a des PR all-time en local qui ne sont pas en DB
+    // (ex: total saisi avant le fix), on les pousse vers Supabase.
+    const missing = Object.keys(rmsAllTime).filter(k => rmsAllTime[k] && !dbMovements.has(k));
+    if(missing.length){
+      console.log('[rm-repair] PR locaux absents de la DB, synchronisation :', missing);
+      syncRMsAllTimeToSupabase();
+    }
   } catch(e){ console.warn('RM load failed',e); }
 }
 function saveChecked(){
@@ -1074,16 +1091,18 @@ function buildRMGrid(){
     const f=document.createElement('div');
     f.className='rm-field';
     if(r.note){
-      f.style.cssText+='border-color:rgba(0,51,102,0.5);background:rgba(0,51,102,0.08);grid-column:span 2';
-      f.innerHTML=`<div class="rm-field-label" style="color:var(--gold)">${r.label}</div>
-        <div style="font-size:10px;color:var(--text3);margin-bottom:6px;font-style:italic">${r.note}</div>
+      f.style.cssText+='border-color:var(--gold);background:rgba(201,169,110,0.10);grid-column:span 2';
+      f.innerHTML=`<div class="rm-field-label" style="color:var(--gold)">🏆 ${r.label}</div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:8px;font-style:italic">${r.note}</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:3px">Apparaît au classement Total du leaderboard</div>
         <div class="rm-field-row">
-          <input type="number" inputmode="decimal" placeholder="—" value="${rms[r.key]||''}" data-key="${r.key}" style="font-size:22px">
+          <input type="number" inputmode="decimal" placeholder="—" value="${rmsAllTime[r.key]||''}" data-key="${r.key}" data-type="alltime" style="font-size:24px;color:var(--yellow)">
           <span class="rm-field-unit">kg</span>
         </div>`;
       f.querySelector('input').addEventListener('change',function(){
-        if(this.value) rms[r.key]=parseFloat(this.value); else delete rms[r.key];
-        saveRMs(); buildRMGrid();
+        const val = this.value ? parseFloat(this.value) : null;
+        if(val) rmsAllTime[r.key]=val; else delete rmsAllTime[r.key];
+        saveRMsAllTime(); buildRMGrid();
       });
     } else {
       f.innerHTML=`

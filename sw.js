@@ -7,7 +7,7 @@
 
 // IMPORTANT : à chaque déploiement important, incrémente ce numéro de version.
 // Ça force la suppression des vieux caches.
-const CACHE_VERSION = 'soc-v7';
+const CACHE_VERSION = 'soc-v8';
 const CACHE_NAME = CACHE_VERSION;
 
 // Fichiers de base mis en cache pour le mode hors-ligne

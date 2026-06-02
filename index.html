@@ -281,8 +281,8 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 #fullLbModal{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:550;display:none;flex-direction:column}
 #fullLbModal.show{display:flex}
 .full-lb-sheet{background:var(--bg);flex:1;overflow-y:auto;display:flex;flex-direction:column}
-.full-lb-header{background:var(--surface);padding:1rem 1rem 0.75rem;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
-.full-lb-back{background:none;border:none;color:var(--text2);font-size:14px;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:8px;padding:0}
+.full-lb-header{background:var(--surface);padding:calc(1rem + env(safe-area-inset-top, 0px)) 1rem 0.75rem;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.full-lb-back{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin-bottom:10px;padding:8px 14px;min-height:38px}
 .full-lb-title{font-family:"Barlow Condensed",sans-serif;font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:1px}
 .full-lb-subtitle{font-size:11px;color:var(--text3);margin-top:2px}
 .full-lb-body{padding:0.75rem 1rem;flex:1}

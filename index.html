@@ -734,9 +734,9 @@ function loadLocal(){
   try{athlete=JSON.parse(localStorage.getItem('soc_athlete')||'null')}catch(e){}
   // Migration one-shot : purger les clés à l'ancien format positionnel "w_d_s_e"
   // (sans préfixe de bloc) qui pouvaient mélanger mai et juin.
-  // Le nouveau format est "bloc_w_d_s_e" → commence par "mai26_" ou "juin26_".
+  // Le nouveau format est "bloc_w_d_s_e" → commence par "juin26_" ou "juillet26_".
   if(!localStorage.getItem('soc_keymigr_v1')){
-    const isOld = k => !/^(mai26|juin26)_/.test(k);
+    const isOld = k => !/^(juin26|juillet26)_/.test(k);
     [['checked',()=>checked],['rpeScores',()=>rpeScores],['actualWeights',()=>actualWeights]].forEach(([,getObj])=>{
       const obj=getObj();
       Object.keys(obj).forEach(k=>{ if(isOld(k)) delete obj[k]; });
@@ -828,7 +828,7 @@ async function loadActiveRMDefs(){
 // ─── SESSION LOG SYNC ─────────────────────────────────────
 async function syncSessionLog(type, data){
   if(!athlete) return;
-  if(BLOCKS[currentBlock]?.readonly) return; // mai26 archivé : pas d'écriture
+  if(BLOCKS[currentBlock]?.readonly) return; // bloc archivé : pas d'écriture
   try{
     const key = `${type}_w${currentWeek+1}`;
     const value = JSON.stringify(data);
@@ -845,7 +845,7 @@ async function loadSessionLogs(){
   if(!athlete) return;
   try{
     const logs = await db(`session_logs?athlete_id=eq.${athlete.id}&cycle=eq.${currentBlock}&select=key,value`) || [];
-    const isValidKey = k => /^(mai26|juin26)_/.test(k);
+    const isValidKey = k => /^(juin26|juillet26)_/.test(k);
     const assignValid = (target, data) => {
       Object.keys(data||{}).forEach(k=>{ if(isValidKey(k)) target[k]=data[k]; });
     };
@@ -1143,144 +1143,6 @@ function buildRMGrid(){
 
 // ─── PROGRAMME DATA ───────────────────────────────────────
 // ✅ 6 vidéos intégrées : Leg curl, Leg extension, Tirage épaulé, Tirage arraché, Strict HLR, Echo bike HIIT
-const BLOCK_MAI26_WEEKS=[{id:"w1",label:"S3 · 04/05",title:"Semaine 3",days:[
-  {type:"main",label:"Lundi",sub:"Arraché Force · Tirage Haut · Prépa",
-    warmup:[],
-    main:[
-      {n:"Arraché force (avec contact)",d:"8×2 / 80–90%",rm:"arr_force",note:"Du RM arraché force",isLb:true},
-      {n:"Tirage haut d'arraché",d:"6×3 / 75–80%",rm:"arr",note:"Du RM arraché"}
-    ],
-    prepa:[
-      {n:"Tractions nuque (ou tirage poulie haute)",d:"3–4×8–12 reps"},
-      {n:"Tirage poulie basse (ou élastique)",d:"3–4×12 reps"},
-      {n:"Y au GHD",d:"3–4×15 reps"},
-      {n:"Leg raises",d:"3–4×20 reps"}
-    ]
-  },
-  {type:"main",label:"Mardi",sub:"Jeté Force · Squat · Appel",
-    warmup:[],
-    main:[
-      {n:"Jeté force",d:"8×3 / 70–80%",rm:"jet_force",note:"Du RM jeté force",video:"https://www.youtube.com/watch?v=ngjhO8CJvQg"},
-      {n:"Back squat",d:"6×2 / 80–90%",rm:"squat",isLb:true},
-      {n:"Appel de jeté",d:"6×4 / 110+%",rm:"fs",note:"Du RM FS",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}
-    ],
-    prepa:[
-      {n:"Landmine barbell rotations",d:"3–4×10 reps (aller-retour)"},
-      {n:"Cardio basse intensité",d:"30 minutes / 60–70% FC max",noVideo:true}
-    ]
-  },
-  {type:"opt",label:"Mercredi",sub:"CMJ · Épaulé Debout · Prépa physique",
-    warmup:[],
-    main:[
-      {n:"CMJ",d:"5×3 mains sur les hanches, intention max !"},
-      {n:"Épaulé debout",d:"5×2 / 75–85%",rm:"ep_debout",note:"Du RM épaulé debout"}
-    ],
-    prepa:[
-      {n:"Chute d'arraché en instabilité",d:"6×6 reps",video:"https://www.youtube.com/shorts/LFmf-x1pyAk"},
-      {n:"Trapbar deadlift",d:"6×4 / 70%",rm:"deadlift",note:"Du RM deadlift · Si pas de trapbar → Clean Deadlift"},
-      {n:"Gainage Copenhague",d:"3–4×40'' par côté"}
-    ]
-  },
-  {type:"rest",label:"Jeudi",sub:"Repos · Cardio · Mobilité",
-    warmup:[],
-    main:[{n:"Repos",d:"30 min cardio light + rehab + mobilité",video:"https://www.youtube.com/watch?v=Ysk4bkyIl1s"}],
-    prepa:[]
-  },
-  {type:"main",label:"Vendredi",sub:"Arraché · Épaulé-Jeté",
-    warmup:[],
-    main:[
-      {n:"Arraché",d:"Montée sur 1 rep lourde du jour puis 1×2 / 90% de la rep lourde",rm:"arr",isLb:true},
-      {n:"Épaulé-Jeté",d:"Montée en 1×1 jusqu'à 1×1 / 90%",rm:"ej",isLb:true,note:"Du RM EJ"}
-    ],
-    prepa:[
-      {n:"Extensions lombaires GHD",d:"3–4×10 reps",video:"https://www.youtube.com/watch?v=dEDjkzFKJ-0"},
-      {n:"Leg raises",d:"3–4×20 reps"},
-      {n:"Swiss ball side plank",d:"3–4×40'' par côté",note:"Si pas de swiss ball → planche latérale classique"}
-    ]
-  },
-  {type:"main",label:"Samedi",sub:"Saut haie · Front Squat · Prépa",
-    warmup:[],
-    main:[
-      {n:"Saut 1 haie avec élan",d:"10' de montée en hauteur progressive"},
-      {n:"Front squat",d:"2×5 / 60% · 2×3 / 70% · 3×1 / 80–85%",rm:"fs",isLb:true}
-    ],
-    prepa:[
-      {n:"Développé couché",d:"5RM RPE 8 · 1×10–15 reps / 80% du x5 du jour"},
-      {n:"Curl biceps",d:"5×10–15 reps"}
-    ]
-  }
-]},
-{id:"w2",label:"S4 · 11/05",title:"Semaine 4",days:[
-  {type:"main",label:"Lundi",sub:"CMJ · Arraché · Tirage Lourd",
-    warmup:[],
-    main:[
-      {n:"CMJ",d:"5×3 mains sur les hanches, intention max !"},
-      {n:"Arraché",d:"2×2 / 80% · 6×1 / 85+%",rm:"arr",isLb:true},
-      {n:"Tirage lourd d'arraché",d:"3×3 / 80% · 3×2 / 85–90%",rm:"tla",note:"Du RM TLA"}
-    ],
-    prepa:[
-      {n:"Tractions (ou tirage poulie haute)",d:"3–4×10 reps"},
-      {n:"Pompes",d:"3–4×20 reps (lestées si possible)"},
-      {n:"Cardio basse intensité",d:"20 minutes / 60–70% FC max",noVideo:true}
-    ]
-  },
-  {type:"main",label:"Mardi",sub:"Warm Up Épaulé · Épaulé des Plots · Appel",
-    warmup:[],
-    main:[
-      {n:"Warm up : Épaulé force + passage d'épaulé",d:"3–4×(3+3 reps) lights"},
-      {n:"Épaulé des plots",d:"5×3 / 65–75% · 3×2 / 80–85%",rm:"ej",note:"Du RM épaulé",video:"https://www.youtube.com/shorts/lL-Ae_D2IXk"},
-      {n:"Appel de jeté",d:"6×5 reps tempo lent 90+%",rm:"fs",note:"Du RM FS",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}
-    ],
-    prepa:[
-      {n:"TBA",d:"5×8–10 reps"},
-      {n:"Clamshell",d:"3–4×10–15 reps / jambe"},
-      {n:"Adducteurs au rameur ou à la machine",d:"3–4×10–15 reps / jambe"}
-    ]
-  },
-  {type:"opt",label:"Mercredi",sub:"Jeté des Plots · Back squat · Appel (optionnel)",
-    warmup:[],
-    main:[
-      {n:"Jeté des plots",d:"2×3 / 70% · 5×2 / 80–85%",rm:"ej",note:"Du RM épaulé"},
-      {n:"Back squat",d:"3×3 / 70–75% · 3×2 / 80–85%",rm:"squat"},
-      {n:"Appel de jeté",d:"6×5 reps tempo lent 90+%",rm:"fs",note:"Du RM FS",video:"https://www.youtube.com/shorts/If-TUuNGp5s"}
-    ],
-    prepa:[
-      {n:"Single leg hip thrust",d:"3–4×10 reps / jambe"},
-      {n:"Leg raises",d:"3–4×20 reps"}
-    ]
-  },
-  {type:"rest",label:"Jeudi",sub:"Repos · Cardio · Mobilité",
-    warmup:[],
-    main:[{n:"Repos",d:"30 min cardio light + rehab + mobilité",video:"https://www.youtube.com/watch?v=Ysk4bkyIl1s"}],
-    prepa:[]
-  },
-  {type:"main",label:"Vendredi",sub:"Arraché Suspension · Épaulé-Jeté · Tirage",
-    warmup:[],
-    main:[
-      {n:"Arraché suspension",d:"3×2 / 70–75% · 5×2 / 80–90%",rm:"arr",isLb:true,note:"Si bien, 2RM"},
-      {n:"Épaulé-Jeté",d:"Montée sur le 1RM du jour",rm:"ej",isLb:true},
-      {n:"Tirage haut d'arraché",d:"4×2 / 80%",rm:"arr",note:"Sans sangles",video:"https://youtu.be/iYBcBMu8zrA"}
-    ],
-    prepa:[
-      {n:"Face pulls",d:"3–4×10–15 reps"},
-      {n:"Cardio basse intensité",d:"20 minutes / 60–70% FC max",noVideo:true}
-    ]
-  },
-  {type:"main",label:"Samedi",sub:"Saut haie · Développé Militaire · Front Squat",
-    warmup:[],
-    main:[
-      {n:"Saut 1 haie avec élan",d:"10' de montée en hauteur progressive"},
-      {n:"Développé militaire",d:"Montée sur 1×2 RPE 8",video:"https://www.youtube.com/watch?v=_aISMzimYEA"},
-      {n:"Front squat",d:"4×3 / 70–80% · 4×2 / 85%",rm:"fs",isLb:true}
-    ],
-    prepa:[
-      {n:"Leg curl",d:"3–4×10 reps",video:"https://youtu.be/n6qRAUu16vc"},
-      {n:"Tirage poulie basse (ou élastique)",d:"3–4×12–15 reps"}
-    ]
-  }
-]}
-];
-
 // ───── BLOC JUIN 2026 (5 semaines incluant S4 Masters) ─────
 const BLOCK_JUIN26_WEEKS = [
   {id:"w1",label:"S1 · 18/05",title:"Semaine 1",days:[
@@ -1533,18 +1395,6 @@ const BLOCK_JUILLET26_WEEKS = [
 
 // Définition des blocs disponibles. Le bloc actif est `currentBlock`.
 const BLOCKS = {
-  mai26: {
-    id: 'mai26',
-    label: 'Mai 2026',
-    short: 'Mai',
-    weeks: BLOCK_MAI26_WEEKS,
-    starts: [
-      new Date(2026, 4,  4), // S3 (label) — 4 mai 2026
-      new Date(2026, 4, 11), // S4 (label) — 11 mai 2026
-    ],
-    readonly: true,         // archivé : pas de soumission RM
-    code: null,             // déjà accessible à tous
-  },
   juin26: {
     id: 'juin26',
     label: 'Juin 2026',
@@ -1577,15 +1427,15 @@ const BLOCKS = {
 };
 
 // Variables globales liées au bloc affiché — réassignées par switchBlock()
-let currentBlock = 'mai26';
-let WEEKS = BLOCKS.mai26.weeks;
-let WEEK_STARTS = BLOCKS.mai26.starts;
+let currentBlock = 'juin26';
+let WEEKS = BLOCKS.juin26.weeks;
+let WEEK_STARTS = BLOCKS.juin26.starts;
 
 // Préférence S4 vs S4 Masters pour le bloc juin (par athlète, en localStorage)
 let useS4Masters = localStorage.getItem('soc_use_s4masters') === '1';
 
 // Liste des blocs débloqués pour l'athlète courant (rempli au login)
-let unlockedBlocks = new Set(['mai26']); // mai toujours dispo
+let unlockedBlocks = new Set(['juin26']); // juin archivé en lecture libre
 
 
 const LB_ALLTIME=[
@@ -2640,8 +2490,8 @@ function toast(msg){
 
 // ─── BLOCS (Mai / Juin) ─────────────────────────────────────
 async function loadUnlockedBlocks(){
-  // mai26 toujours dispo (legacy)
-  unlockedBlocks = new Set(['mai26']);
+  // juin26 archivé : toujours dispo en consultation
+  unlockedBlocks = new Set(['juin26']);
   // Lecture local d'abord (toujours dispo, persiste même si DB plante)
   try {
     const local = JSON.parse(localStorage.getItem('soc_unlocked_blocks')||'[]');
@@ -2653,10 +2503,10 @@ async function loadUnlockedBlocks(){
     const rows = await db(`athlete_blocks?athlete_id=eq.${athlete.id}&select=block_id`) || [];
     rows.forEach(r => unlockedBlocks.add(r.block_id));
     // Re-synchroniser le local avec ce qu'on a trouvé en DB
-    const all = Array.from(unlockedBlocks).filter(b => b !== 'mai26');
+    const all = Array.from(unlockedBlocks).filter(b => b !== 'juin26');
     localStorage.setItem('soc_unlocked_blocks', JSON.stringify(all));
   } catch(e){
-    console.warn('[blocks] DB unavailable, fallback localStorage. Crée la table athlete_blocks dans Supabase pour la persistence multi-appareils.', e);
+    console.warn('[blocks] DB unavailable, fallback localStorage.', e);
   }
 }
 
@@ -2667,8 +2517,7 @@ function isBlockUnlocked(blockId){
 function chooseDefaultBlock(){
   // Priorité décroissante : on prend le bloc actif le plus récent débloqué.
   if(isBlockUnlocked('juillet26')) return 'juillet26';
-  if(isBlockUnlocked('juin26')) return 'juin26';
-  return 'mai26';
+  return 'juin26';
 }
 
 function switchBlock(blockId){
@@ -2717,7 +2566,7 @@ function applyMastersFilter(){
 function buildBlockSelector(){
   const el = document.getElementById('blockSel');
   if(!el) return;
-  const blockIds = ['mai26','juin26'];
+  const blockIds = ['juin26','juillet26'];
   el.innerHTML = blockIds.map(bid => {
     const b = BLOCKS[bid];
     const unlocked = isBlockUnlocked(bid);

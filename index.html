@@ -1325,6 +1325,212 @@ const BLOCK_JUIN26_WEEKS = [
   ]}
 ];
 
+// ───── BLOC JUILLET 2026 — OFF SEASON · SQUAT (4 semaines) ─────
+// URLs vidéo (factorisées car beaucoup d'exos reviennent identiques sur les 4 semaines)
+const V_BROAD = "https://www.youtube.com/watch?v=c6Etg7bpFfI";
+const V_EPDEB = "https://www.youtube.com/watch?v=O32-Ae8SNIc";
+const V_SQUAT = "https://www.youtube.com/watch?v=DU2Dl83uVaQ";
+const V_SQUAT_AND = "https://www.youtube.com/watch?v=REA-q70_I2A";
+const V_SQUAT_TC = "https://www.youtube.com/watch?v=dnIdqseWaqM";
+const V_DTNG = "https://www.youtube.com/watch?v=jbFaOLdE3jY";
+const V_TRAC = "https://www.youtube.com/watch?v=HRV5YKKaeVw";
+const V_GARH = "https://www.youtube.com/watch?v=HgkCr36fVJE";
+const V_ADD = "https://www.youtube.com/watch?v=3yh6AVeYGqg";
+const V_ISO = "https://www.youtube.com/watch?v=xunzkVhX48E";
+const V_CLAM = "https://www.youtube.com/watch?v=XoxHNiqtVPM";
+const V_MOLL = "https://www.youtube.com/watch?v=NwA1N_EFTtk";
+const V_HURDLE = "https://www.youtube.com/watch?v=8yj7viZjBwU";
+const V_ARRSUS = "https://www.youtube.com/watch?v=JzQ4eXvrez4";
+const V_JETF = "https://www.youtube.com/watch?v=iaBVSJm78ko";
+const V_FS = "https://www.youtube.com/watch?v=g8uV9X_KN_I";
+const V_FS_AND = "https://www.youtube.com/watch?v=PlvZ1B8RCHY";
+const V_DC3 = "https://www.youtube.com/watch?v=SCVCLChPQFY";
+const V_DC2 = "https://www.youtube.com/watch?v=SCVCLChPQFY";
+const V_ROWPL = "https://www.youtube.com/watch?v=9OKXDJsv37g";
+const V_JETE = "https://www.youtube.com/watch?v=Xo8lVPHq510";
+const V_EXTGHD_SG = "https://www.youtube.com/watch?v=HsNbXfO1dyw";
+const V_EXTGHD_BN = "https://www.youtube.com/watch?v=dEDjkzFKJ-0";
+const V_DCLAV = "https://www.youtube.com/watch?v=yelXxVJYrww";
+const V_LEGCURL = "https://www.youtube.com/watch?v=1_x_h39Cn34";
+const V_ROTTHO = "https://www.youtube.com/watch?v=KOWuzxXcqhA";
+const V_BOXJ = "https://www.youtube.com/watch?v=Z-CficU0Ec4";
+const V_SPRINT = "https://www.youtube.com/watch?v=qy1o1gkCPdk";
+const V_DI = "https://www.youtube.com/watch?v=jMQA3XtJSgo";
+const V_ROW1B = "https://www.youtube.com/watch?v=xl1YiqQY2vA";
+
+// Helper pour le jour 1 (récurrent sur les 4 semaines, seuls les % varient)
+const j1 = (sqDet, epDet, dlDet, tracDet) => ({
+  type:"main",label:"Lundi",sub:"Broad jumps · Épaulé debout · Back squat · Deadlift TNG",warmup:[],
+  main:[
+    {n:"Broad jumps",d:"Gros warm up puis 2x1, 2x2, 2x3",note:"D'abord 1 broad jump, puis 2 enchaînés, puis 3 enchaînés. Mesurer à chaque série",video:V_BROAD},
+    {n:"Épaulé debout",d:epDet,rm:"ep_debout",note:"Si vous voulez bosser la flexion : 2 debout + 1 flexion",video:V_EPDEB,isLb:true},
+    {n:"Back squat",d:sqDet,rm:"squat",video:V_SQUAT,isLb:true},
+    {n:"Deadlift TNG",d:dlDet,rm:"deadlift",note:"Light touch au sol — ne pas dépasser RPE 6-7",video:V_DTNG},
+    {n:"Tractions (ou tirage vertical)",d:tracDet,note:"Se lester si possible, se délester si besoin",video:V_TRAC},
+    {n:"GHD Garhammer Raise",d:"2x max reps",note:"Variante sur banc incliné",video:V_GARH},
+  ],
+  prepa:[]
+});
+
+// Helper pour le jour 2 (optionnel) — quasi identique sur les 4 semaines
+const j2 = (sqDet, includeSquat = true, intervalDet = "4x 3:00 (65-75% FC max) — 2:00 récup") => ({
+  type:"opt",label:"Mardi",sub:"Renfo · cardio · mobilité",warmup:[],
+  main:[
+    ...(includeSquat ? [{n:"Back squat",d:sqDet,rm:"squat",video:V_SQUAT}] : []),
+    {n:"Adducteurs Rameur",d:"2x8-10 reps / jambe",note:"Chercher à gagner en amplitude au fur et à mesure",video:V_ADD},
+    {n:"Iso fléchisseurs de hanche en fente",d:"3x15-30'' / côté",video:V_ISO},
+    {n:"Clamshell",d:"2x10-15 reps / côté",note:"Max de résistance sur le(s) élastique(s)",video:V_CLAM},
+    {n:"Extensions mollets assis",d:"2x10 (1-2 RIR)",note:"Avec DB lourd sur les genoux, étirement max en bas",video:V_MOLL},
+    {n:"Intervalle bike ou run",d:intervalDet,note:"Cardio aérobie"},
+  ],
+  prepa:[]
+});
+
+// Helper pour le jour 5 (optionnel) — quasi identique sur les 4 semaines
+const j5 = (sprintDet, boxNote = "Bien s'échauffer hanches / sangle abdo avant, max 3 séries haute intensité") => ({
+  type:"opt",label:"Vendredi",sub:"Box jump · Sprint · Renfo",warmup:[],
+  main:[
+    {n:"Box jump avec élan",d:"Séries de 5 (10 min de travail PROGRESSIF)",note:boxNote,video:V_BOXJ},
+    {n:"Sprint (fly 10)",d:sprintDet,video:V_SPRINT},
+    {n:"Développé incliné (DB)",d:"2x8-12 reps (2-3 RIR)",video:V_DI},
+    {n:"Rowing 1 bras",d:"2x12-15 reps (2-3 RIR)",note:"Un peu d'élan OK",video:V_ROW1B},
+    {n:"Tractions (ou tirage vertical)",d:"2x8-12 reps (2-3 RIR)",note:"Lesté si possible, délesté si besoin",video:V_TRAC},
+    {n:"Intervalle bike ou run",d:"4x 2:00 (80-90% max effort) — 3:00 récup"},
+  ],
+  prepa:[]
+});
+
+const BLOCK_JUILLET26_WEEKS = [
+  // ───── SEMAINE 1 ─────
+  {id:"w1",label:"S1 · 15/06",title:"Semaine 1",days:[
+    j1("1x4 / 70%, 3x4 / 75%", "5x3 / 60-70%", "3x8-10 / 60-70%", "2x8-12 reps (1-2 RIR)"),
+    j2("1x3 / 70%, 2x3 / 80%"),
+    // J3 Mercredi
+    {type:"main",label:"Mercredi",sub:"Hurdle jump · Arraché suspension · Jeté force · Front squat · DC",warmup:[],
+     main:[
+       {n:"Hurdle jump (pause en réception)",d:"Séries de 5 (10 min de travail PROGRESSIF)",note:"3'' de pause en réception, max 3 séries haute intensité",video:V_HURDLE},
+       {n:"Arraché suspension ou arraché des plots",d:"5x3 / 60-70%",rm:"arr",note:"3 reps en - de 20 secondes obligatoirement",video:V_ARRSUS},
+       {n:"Jeté force",d:"1x5 / 70%, 2x8 / 60%",rm:"jet_force",video:V_JETF},
+       {n:"Front squat",d:"4x4 / 70%",rm:"fs",note:"Posture et amplitude impeccable",video:V_FS,isLb:true},
+       {n:"Développé couché (3'' excentrique)",d:"1x6 / 70%, 2x8 / 60%",note:"Si RM inconnu, montez sur une série RPE 7",video:V_DC3},
+       {n:"Rowing planche (ou rowing buste penché)",d:"2x8-10 (2-3 RIR)",note:"Gardez la même variante de rowing tout le block",video:V_ROWPL},
+     ],
+     prepa:[]
+    },
+    // J4 Jeudi
+    {type:"main",label:"Jeudi",sub:"Jeté · Back squat / Anderson · Lombaires · Clavicules",warmup:[],
+     main:[
+       {n:"Jeté (ou jeté nuque au choix)",d:"5x3 / 65-70%",rm:"jet",note:"Pause 1'' en fente si possible",video:V_JETE},
+       {n:"Back squat ou Anderson squat",d:"4x6 / 60%",rm:"squat",note:"Light / posture / vitesse — départ à parallèle pour le demi squat",video:V_SQUAT_AND},
+       {n:"Extensions lombaires GHD (snatch grip)",d:"1x6 reps (2-3 RIR), 2x8 (-20%)",note:"Sur GHD horizontal ou incliné",video:V_EXTGHD_SG},
+       {n:"Développé clavicules",d:"3x10 / 60-65%",video:V_DCLAV},
+       {n:"Leg curl unilatéral",d:"2x8-10 reps (1-2 RIR) / jambe",video:V_LEGCURL},
+       {n:"Rotations thoraciques à la poulie",d:"2x8-12 reps / côté (heavy !)",note:"Amplitude max — sinon, à l'élastique",video:V_ROTTHO},
+     ],
+     prepa:[]
+    },
+    j5("6-8x (10m build, 10m fly)", "Commencer light si vous n'avez pas sprinté depuis longtemps ! (80% max)"),
+    {type:"rest",label:"Samedi"}
+  ]},
+
+  // ───── SEMAINE 2 ─────
+  {id:"w2",label:"S2 · 22/06",title:"Semaine 2",days:[
+    j1("1x4 / 70%, 4x4 / 80%", "5x3 / 65-75%", "3x8-10 / 65-75%", "2x8-12 reps (1-2 RIR)"),
+    j2("1x3 / 70%, 2x3 / 80%"),
+    // J3 Mercredi S2
+    {type:"main",label:"Mercredi",sub:"Hurdle jump · Arraché suspension · Jeté force · Back squat tension continue · DC",warmup:[],
+     main:[
+       {n:"Hurdle jump (pause en réception)",d:"Séries de 5 (10 min de travail PROGRESSIF)",note:"3'' de pause en réception, max 3 séries haute intensité",video:V_HURDLE},
+       {n:"Arraché suspension ou arraché des plots",d:"5x3 / 65-75%",rm:"arr",note:"3 reps en - de 20 secondes obligatoirement",video:V_ARRSUS},
+       {n:"Jeté force",d:"1x5 / 75%, 2x8 / 65%",rm:"jet_force",video:V_JETF},
+       {n:"Back squat tension continue",d:"4x7 / 65%",rm:"squat",note:"Pas de pause en haut du squat",video:V_SQUAT_TC},
+       {n:"Développé couché (3'' excentrique)",d:"1x6 / 75%, 2x6 / 65%",note:"Si RM inconnu, montez sur une série RPE 7",video:V_DC3},
+       {n:"Rowing planche (ou rowing buste penché)",d:"2x8-10 (2-3 RIR)",note:"Gardez la même variante de rowing tout le block",video:V_ROWPL},
+     ],
+     prepa:[]
+    },
+    // J4 Jeudi S2
+    {type:"main",label:"Jeudi",sub:"Jeté · Front squat / Anderson · Lombaires · Clavicules",warmup:[],
+     main:[
+       {n:"Jeté (ou jeté nuque au choix)",d:"5x3 / 65-70%",rm:"jet",note:"Pause 1'' en fente si possible",video:V_JETE},
+       {n:"Front squat ou Anderson front squat",d:"8x3 / 60%",rm:"fs",note:"Light / posture / vitesse — départ à parallèle pour le demi squat",video:V_FS_AND},
+       {n:"Extensions lombaires GHD (snatch grip)",d:"1x6 reps (2-3 RIR), 2x8 (-20%)",note:"Sur GHD horizontal ou incliné",video:V_EXTGHD_SG},
+       {n:"Développé clavicules",d:"3x8 / 65-70%",video:V_DCLAV},
+       {n:"Leg curl unilatéral",d:"2x8-10 reps (1-2 RIR) / jambe",video:V_LEGCURL},
+       {n:"Rotations thoraciques à la poulie",d:"2x8-12 reps / côté (heavy !)",note:"Amplitude max — sinon, à l'élastique",video:V_ROTTHO},
+     ],
+     prepa:[]
+    },
+    j5("4-6x (20m build, 10m fly)", "Maximum 90% d'intensité !"),
+    {type:"rest",label:"Samedi"}
+  ]},
+
+  // ───── SEMAINE 3 ─────
+  {id:"w3",label:"S3 · 29/06",title:"Semaine 3",days:[
+    j1("1x4 / 70%, 1x4 / 80%, 1x4 / 85%, 2x4 / 80%", "5x3 / 65-75%", "3x6-8 / 70-80%", "2x8-12 reps (1-2 RIR)"),
+    j2("1x3 / 70%, 3x3 / 80%", true, "4x 3:00 (65-75% FC max) — 1:30 récup"),
+    // J3 Mercredi S3
+    {type:"main",label:"Mercredi",sub:"Hurdle jump · Arraché suspension · Jeté force · Front squat · DC",warmup:[],
+     main:[
+       {n:"Hurdle jump (pause en réception)",d:"Séries de 5 (10 min de travail PROGRESSIF)",note:"3'' de pause en réception, max 3 séries haute intensité",video:V_HURDLE},
+       {n:"Arraché suspension ou arraché des plots",d:"5x3 / 70-80%",rm:"arr",note:"3 reps en - de 20 secondes obligatoirement",video:V_ARRSUS},
+       {n:"Jeté force",d:"1x5 RPE 9, 2x5 (-10%)",rm:"jet_force",video:V_JETF},
+       {n:"Front squat",d:"4x4 / 60%",rm:"fs",note:"Posture et amplitude impeccable",video:V_FS,isLb:true},
+       {n:"Développé couché (3'' excentrique)",d:"1x5 RPE 9, 2x5 (-10%)",note:"Si RM inconnu, montez sur une série RPE 7",video:V_DC3},
+       {n:"Rowing planche (ou rowing buste penché)",d:"2x8-10 (2-3 RIR)",note:"Gardez la même variante de rowing tout le block",video:V_ROWPL},
+     ],
+     prepa:[]
+    },
+    // J4 Jeudi S3
+    {type:"main",label:"Jeudi",sub:"Jeté · Back squat / Anderson · Lombaires · Clavicules",warmup:[],
+     main:[
+       {n:"Jeté (ou jeté nuque au choix)",d:"5x3 / 65-75%",rm:"jet",note:"Pause 1'' en fente si possible",video:V_JETE},
+       {n:"Back squat ou Anderson squat",d:"3x5 / 70%",rm:"squat",note:"Light / posture / vitesse — départ à parallèle pour le demi squat",video:V_SQUAT_AND},
+       {n:"Extensions lombaires GHD (barre nuque)",d:"2x8-10 reps (2-3 RIR)",video:V_EXTGHD_BN},
+       {n:"Développé clavicules",d:"4x5 / 75%",video:V_DCLAV},
+       {n:"Leg curl unilatéral",d:"2x8-10 reps (1-2 RIR) / jambe",video:V_LEGCURL},
+       {n:"Rotations thoraciques à la poulie",d:"2x8-12 reps / côté (heavy !)",note:"Amplitude max — sinon, à l'élastique",video:V_ROTTHO},
+     ],
+     prepa:[]
+    },
+    j5("4-6x (20m build, 10m fly)", "90-95% d'intensité !"),
+    {type:"rest",label:"Samedi"}
+  ]},
+
+  // ───── SEMAINE 4 ─────
+  {id:"w4",label:"S4 · 06/07",title:"Semaine 4",days:[
+    j1("1x3 / 70%, 1x3 / 80%, 2x3 / 85%", "4x3 / 70-80%", "2x6-8 / 70-80%", "2x6-8 reps (2-3 RIR)"),
+    // J2 S4 : pas de back squat sur cette semaine de décharge
+    j2("", false, "5x 3:00 (65-75% FC max) — 1:30 récup"),
+    // J3 Mercredi S4
+    {type:"main",label:"Mercredi",sub:"Hurdle jump · Arraché suspension · Jeté force · Back squat · DC",warmup:[],
+     main:[
+       {n:"Hurdle jump (pause en réception)",d:"Séries de 5 (10 min de travail PROGRESSIF)",note:"3'' de pause en réception, max 3 séries haute intensité",video:V_HURDLE},
+       {n:"Arraché suspension ou arraché des plots",d:"5x3 / 70-80%",rm:"arr",note:"3 reps en - de 20 secondes obligatoirement",video:V_ARRSUS},
+       {n:"Jeté force",d:"3x5 / 70%",rm:"jet_force",video:V_JETF},
+       {n:"Back squat",d:"3x3 / 80%",rm:"squat",video:V_SQUAT,isLb:true},
+       {n:"Développé couché (2'' pause)",d:"1x5 RPE 7, 2x5 (-20%)",note:"Si RM inconnu, montez sur une série RPE 7",video:V_DC2},
+       {n:"Rowing planche (ou rowing buste penché)",d:"2x8-10 (2-3 RIR)",note:"Gardez la même variante de rowing tout le block",video:V_ROWPL},
+     ],
+     prepa:[]
+    },
+    // J4 Jeudi S4
+    {type:"main",label:"Jeudi",sub:"Jeté heavy · Front squat heavy · Lombaires · Clavicules",warmup:[],
+     main:[
+       {n:"Jeté (ou jeté nuque au choix)",d:"Heavy single (RPE 9)",rm:"jet",video:V_JETE,isLb:true},
+       {n:"Front squat",d:"Heavy single (RPE 8)",rm:"fs",note:"Conserver de la vitesse !",video:V_FS,isLb:true},
+       {n:"Extensions lombaires GHD (barre nuque)",d:"2x8-10 reps (2-3 RIR)",note:"Sur GHD horizontal ou incliné",video:V_EXTGHD_BN},
+       {n:"Développé clavicules",d:"2x1 / 90-93%",video:V_DCLAV},
+       {n:"Leg curl unilatéral",d:"2x8-10 reps (1-2 RIR) / jambe",video:V_LEGCURL},
+       {n:"Rotations thoraciques à la poulie",d:"2x8-12 reps / côté (heavy !)",note:"Amplitude max — sinon, à l'élastique",video:V_ROTTHO},
+     ],
+     prepa:[]
+    },
+    j5("4-6x (20m build, 10m fly)", "90-95% d'intensité !"),
+    {type:"rest",label:"Samedi"}
+  ]},
+];
+
 // Définition des blocs disponibles. Le bloc actif est `currentBlock`.
 const BLOCKS = {
   mai26: {
@@ -1351,8 +1557,22 @@ const BLOCKS = {
       new Date(2026, 5,  8), // S4 — 8 juin
       new Date(2026, 5,  8), // S4 Masters — même date que S4
     ],
-    readonly: false,
+    readonly: true,         // archivé : nouveau bloc actif = juillet
     code: 'LASTBLOCK26',
+  },
+  juillet26: {
+    id: 'juillet26',
+    label: 'Juillet 2026',
+    short: 'Juillet',
+    weeks: BLOCK_JUILLET26_WEEKS,
+    starts: [
+      new Date(2026, 5, 15), // S1 — 15 juin
+      new Date(2026, 5, 22), // S2 — 22 juin
+      new Date(2026, 5, 29), // S3 — 29 juin
+      new Date(2026, 6,  6), // S4 — 6 juillet
+    ],
+    readonly: false,
+    code: 'OFFJUILLET',
   },
 };
 
@@ -2445,8 +2665,10 @@ function isBlockUnlocked(blockId){
 }
 
 function chooseDefaultBlock(){
-  // Si l'athlète a juin → juin par défaut. Sinon mai (lecture seule).
-  return isBlockUnlocked('juin26') ? 'juin26' : 'mai26';
+  // Priorité décroissante : on prend le bloc actif le plus récent débloqué.
+  if(isBlockUnlocked('juillet26')) return 'juillet26';
+  if(isBlockUnlocked('juin26')) return 'juin26';
+  return 'mai26';
 }
 
 function switchBlock(blockId){
@@ -2580,8 +2802,11 @@ function updateMastersToggle(){
   document.getElementById('mastersBtn').classList.toggle('on', useS4Masters);
 }
 
-// ACCESS CODE — code unique : débloque l'app + le bloc juin
-const VALID_CODE = 'LASTBLOCK26';
+// ACCESS CODES — chaque code débloque l'app + le bloc correspondant
+const VALID_CODES = {
+  'LASTBLOCK26': 'juin26',
+  'OFFJUILLET': 'juillet26',
+};
 
 async function checkAccess(){
   const email=document.getElementById('accessEmail').value.trim().toLowerCase();
@@ -2589,39 +2814,40 @@ async function checkAccess(){
   const errEl=document.getElementById('accessError');
   errEl.style.display='none';
   if(!email||!code){errEl.textContent='Remplis les deux champs.';errEl.style.display='block';return;}
-  if(code!==VALID_CODE){errEl.textContent='Code d\'accès incorrect.';errEl.style.display='block';return;}
+  const unlockBlock = VALID_CODES[code];
+  if(!unlockBlock){errEl.textContent='Code d\'accès incorrect.';errEl.style.display='block';return;}
   try{
-    console.log('[access] checking email:', email);
+    console.log('[access] checking email:', email, '→ unlocks block:', unlockBlock);
     const existing=await db('athletes?email=eq.'+encodeURIComponent(email)+'&select=id,pseudo,gender,bodyweight,club,access_type,level,suspended');
     console.log('[access] athlete lookup result:', existing);
     let isNew = false;
     if(Array.isArray(existing) && existing.length>0){
-      // Athlète existant
       if(existing[0].suspended){
         errEl.textContent='Compte suspendu. Contacte le coach.';
         errEl.style.display='block';
         return;
       }
       athlete=existing[0];
-      // Marquer ce cycle comme validé pour cet athlète (silencieux)
-      db(`athletes?id=eq.${athlete.id}`,'PATCH',{last_access_cycle:'juin26'}).catch(e=>console.warn('[access] last_access_cycle update failed:', e));
+      db(`athletes?id=eq.${athlete.id}`,'PATCH',{last_access_cycle:unlockBlock}).catch(e=>console.warn('[access] last_access_cycle update failed:', e));
       saveAthlete();
     } else {
       console.log('[access] no athlete found, going to onboarding');
       isNew = true;
     }
-    // Déblocage juin enregistré : local + DB (silencieux si la table n'existe pas)
+    // Déblocage du bloc associé au code : local + DB
     let unlocks = [];
     try { unlocks = JSON.parse(localStorage.getItem('soc_unlocked_blocks')||'[]'); } catch(e){}
-    if(!unlocks.includes('juin26')) unlocks.push('juin26');
+    if(!unlocks.includes(unlockBlock)) unlocks.push(unlockBlock);
     localStorage.setItem('soc_unlocked_blocks', JSON.stringify(unlocks));
     if(athlete?.id){
-      db('athlete_blocks','POST',{athlete_id: athlete.id, block_id: 'juin26'}).catch(e=>{
+      db('athlete_blocks','POST',{athlete_id: athlete.id, block_id: unlockBlock}).catch(e=>{
         console.warn('[access] athlete_blocks insert failed:', e);
       });
     }
     localStorage.setItem('soc_access_validated','1');
     localStorage.setItem('soc_access_email',email);
+    // On retient le dernier bloc débloqué pour que showApp ouvre dessus
+    localStorage.setItem('soc_current_block', unlockBlock);
     document.getElementById('accessScreen').style.display='none';
     if(isNew){
       document.getElementById('onbEmail').value=email;

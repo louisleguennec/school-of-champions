@@ -329,14 +329,14 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 <!-- SPLASH -->
 <div id="splash">
   <div class="splash-logo">School of<br><em>Champions</em></div>
-  <div class="splash-sub">Cycle Juin 2026</div>
+  <div class="splash-sub">Cycle Août 2026</div>
   <div class="splash-bar"><div class="splash-fill" id="splashFill"></div></div>
 </div>
 
 <!-- ACCESS CODE SCREEN -->
 <div id="accessScreen" style="position:fixed;inset:0;background:var(--bg);z-index:996;display:none;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;gap:1.5rem">
   <div style="font-family:var(--font-body);font-size:42px;font-weight:900;text-transform:uppercase;letter-spacing:3px;line-height:1">School of<br><em style="color:var(--gold)">Champions</em></div>
-  <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text2)">Cycle Juin 2026</div>
+  <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text2)">Cycle Août 2026</div>
   <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px">
     <div style="font-size:13px;color:var(--text2);line-height:1.5">Entre ton email et le code d'accès reçu par email.</div>
     <input id="accessEmail" type="email" inputmode="email" placeholder="ton@email.com" style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-size:15px;outline:none;text-align:center">
@@ -414,7 +414,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
           <img src="https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/DSC_9914.jpg" alt="">
           <div class="banner-grad"></div>
           <div class="banner-text">
-            <div class="banner-eyebrow">Cycle Juin 2026</div>
+            <div class="banner-eyebrow">Cycle Août 2026</div>
             <div class="banner-title">School of <em>Champions</em></div>
           </div>
         </div>
@@ -422,7 +422,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
           <img src="https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/IMG_3134.jpg" alt="">
           <div class="banner-grad"></div>
           <div class="banner-text">
-            <div class="banner-eyebrow">Cycle Juin 2026</div>
+            <div class="banner-eyebrow">Cycle Août 2026</div>
             <div class="banner-title">School of <em>Champions</em></div>
           </div>
         </div>
@@ -430,7 +430,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
           <img src="https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/Capture%20d%E2%80%99e%CC%81cran%202024-09-12%20a%CC%80%2019.13.39.png" alt="">
           <div class="banner-grad"></div>
           <div class="banner-text">
-            <div class="banner-eyebrow">Cycle Juin 2026</div>
+            <div class="banner-eyebrow">Cycle Août 2026</div>
             <div class="banner-title">School of <em>Champions</em></div>
           </div>
         </div>
@@ -634,7 +634,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 <div id="codeBlockModal" onclick="if(event.target===this)closeCodeModal()" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:700;display:none;align-items:center;justify-content:center;padding:1rem">
   <div style="background:var(--surface);border:1px solid var(--gold);border-radius:16px;padding:1.5rem;width:100%;max-width:380px;text-align:center">
     <div style="font-size:32px;margin-bottom:6px">🔒</div>
-    <div style="font-family:var(--font-body);font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px" id="codeBlockTitle">Bloc Juin 2026</div>
+    <div style="font-family:var(--font-body);font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px" id="codeBlockTitle">Bloc Août 2026</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:1.25rem">Saisis ton code d'accès pour débloquer ce bloc.<br>Tu n'auras à le faire qu'une seule fois.</div>
     <input id="codeBlockInput" type="text" autocomplete="off" placeholder="Code d'accès" style="width:100%;padding:14px;border-radius:10px;border:1px solid var(--border2);background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:18px;font-weight:700;letter-spacing:3px;text-transform:uppercase;text-align:center;margin-bottom:8px;outline:none" onkeydown="if(event.key==='Enter')submitBlockCode()">
     <div id="codeBlockError" style="display:none;color:var(--red);font-size:12px;margin-bottom:8px"></div>
@@ -1351,18 +1351,38 @@ const BLOCK_JUILLET26_WEEKS = [
 ];
 
 // ───── BLOC AOÛT 2026 — OFF SEASON · SQUAT (Block 3/3, 4 semaines) ─────
-// URLs vidéos à ajouter depuis l'admin (page Vidéos) — beaucoup d'exos communs
-// avec juillet26 auront automatiquement leur vidéo via remote_videos si présente.
+// URLs vidéos
+const A_ARR = "https://www.youtube.com/shorts/9UtWOLkdGFY";
+const A_ARR_NHNF = "https://www.youtube.com/shorts/x7tN_An5i1s";
+const A_EP_PLOTS = "https://www.youtube.com/shorts/eVunFoevnFU";
+const A_EP_NH_JD = "https://www.youtube.com/shorts/22lvEkKPboo";
+const A_EJ = "https://www.youtube.com/watch?v=MA1HYzA5qlQ";
+const A_JET = "https://www.youtube.com/shorts/Xo8lVPHq510";
+const A_JET_FORCE = "https://www.youtube.com/watch?v=ngjhO8CJvQg";
+const A_CL_DL = "https://www.youtube.com/watch?v=DJuxEEqXrmc";
+const A_SQ = "https://www.youtube.com/watch?v=DU2Dl83uVaQ";
+const A_SQ_TC = "https://www.youtube.com/watch?v=dnIdqseWaqM";
+const A_FS = "https://www.youtube.com/watch?v=g8uV9X_KN_I";
+const A_BULG = "https://www.youtube.com/shorts/_nXMctwsUAU";
+const A_LEGC = "https://www.youtube.com/watch?v=1_x_h39Cn34";
+const A_MOLL = "https://www.youtube.com/shorts/mVabfdQ41gM";
+const A_COPEN = "https://www.youtube.com/shorts/3yh6AVeYGqg";
+const A_DCLAV = "https://www.youtube.com/watch?v=yelXxVJYrww";
+const A_DC = "https://www.youtube.com/shorts/sLuDivCj3Sg";
+const A_FP = "https://www.youtube.com/shorts/cH6GOMoADgo";
+const A_OIS = "https://www.youtube.com/watch?v=d_feFQGGVh4";
+const A_SIDE = "https://www.youtube.com/shorts/TDPOyEW_q3M";
+const A_CRUNCH = "https://www.youtube.com/shorts/bIbm-p6Q4s8";
 
 // Helper J1 (récurrent : Arraché EMOM + Épaulé + Squat + Leg curl + Crunch)
 const a1 = (arrDet, epDet, sqDet, sqBonus, extraCrunch) => ({
   type:"main",label:"Lundi",sub:"Arraché EMOM · Épaulé · Squat · Renfo",warmup:[],
   main:[
-    {n:"Arraché EMOM",d:arrDet,rm:"arr",note:"1 rep par minute",isLb:true},
-    {n:"Épaulé des plots (ou suspension)",d:epDet,rm:"ep"},
-    {n:"Squat nuque",d:sqDet,rm:"squat",note:sqBonus,isLb:true},
-    {n:"Leg curl 1 jambe",d:"2x8-10 reps / jambe (1-2 RiR)"},
-    {n:"Crunch à la poulie ou à l'élastique",d:extraCrunch,note:"Tempo lent, focus contraction"},
+    {n:"Arraché EMOM",d:arrDet,rm:"arr",note:"1 rep par minute",video:A_ARR,isLb:true},
+    {n:"Épaulé des plots (ou suspension)",d:epDet,rm:"ep",video:A_EP_PLOTS},
+    {n:"Squat nuque",d:sqDet,rm:"squat",note:sqBonus,video:A_SQ,isLb:true},
+    {n:"Leg curl 1 jambe",d:"2x8-10 reps / jambe (1-2 RiR)",video:A_LEGC},
+    {n:"Crunch à la poulie ou à l'élastique",d:extraCrunch,note:"Tempo lent, focus contraction",video:A_CRUNCH},
   ],
   prepa:[]
 });
@@ -1371,11 +1391,11 @@ const a1 = (arrDet, epDet, sqDet, sqBonus, extraCrunch) => ({
 const a2 = (sqDet, jetDet, dcDet, tvDet, oisDet, sqNote) => ({
   type:"main",label:"Mardi",sub:"Squat · Jeté · Renfo upper",warmup:[],
   main:[
-    {n:"Squat nuque",d:sqDet,rm:"squat",note:sqNote},
-    {n:"Jeté",d:jetDet,rm:"jet"},
-    {n:"Développé clavicules",d:dcDet},
+    {n:"Squat nuque",d:sqDet,rm:"squat",note:sqNote,video:A_SQ},
+    {n:"Jeté",d:jetDet,rm:"jet",video:A_JET},
+    {n:"Développé clavicules",d:dcDet,video:A_DCLAV},
     {n:"Tirage vertical : Tractions / Machine / Poulie",d:tvDet},
-    {n:"Oiseau assis",d:oisDet},
+    {n:"Oiseau assis",d:oisDet,video:A_OIS},
   ],
   prepa:[]
 });
@@ -1384,11 +1404,11 @@ const a2 = (sqDet, jetDet, dcDet, tvDet, oisDet, sqNote) => ({
 const a3 = (arrDet, epDet, bulgDet, mollDet) => ({
   type:"opt",label:"Mercredi",sub:"Optionnel · Technique haltéro & renfo",warmup:[],
   main:[
-    {n:"Arraché no hook no feet",d:arrDet,rm:"arr",note:"Ajouter un OHS si besoin de travailler la réception"},
-    {n:"Épaulé no hook + jeté debout",d:epDet,rm:"ej"},
-    {n:"Squat Bulgare",d:bulgDet},
-    {n:"Extensions mollets debout",d:mollDet},
-    {n:"Copenhagen dips",d:"2x6-8 reps / côté"},
+    {n:"Arraché no hook no feet",d:arrDet,rm:"arr",note:"Ajouter un OHS si besoin de travailler la réception",video:A_ARR_NHNF},
+    {n:"Épaulé no hook + jeté debout",d:epDet,rm:"ej",video:A_EP_NH_JD},
+    {n:"Squat Bulgare",d:bulgDet,video:A_BULG},
+    {n:"Extensions mollets debout",d:mollDet,video:A_MOLL},
+    {n:"Copenhagen dips",d:"2x6-8 reps / côté",video:A_COPEN},
   ],
   prepa:[]
 });
@@ -1397,9 +1417,9 @@ const a3 = (arrDet, epDet, bulgDet, mollDet) => ({
 const a5 = (arrDet, ejDet, dlDet, bikeDet) => ({
   type:"main",label:"Vendredi",sub:"Arraché · Épaulé-jeté · Deadlift · Cardio",warmup:[],
   main:[
-    {n:"Arraché",d:arrDet,rm:"arr",note:"Si en forme, heavy single",isLb:true},
-    {n:"Épaulé-jeté",d:ejDet,rm:"ej",note:"Si en forme, heavy single",isLb:true},
-    {n:"Clean Deadlift",d:dlDet,rm:"deadlift"},
+    {n:"Arraché",d:arrDet,rm:"arr",note:"Si en forme, heavy single",video:A_ARR,isLb:true},
+    {n:"Épaulé-jeté",d:ejDet,rm:"ej",note:"Si en forme, heavy single",video:A_EJ,isLb:true},
+    {n:"Clean Deadlift",d:dlDet,rm:"deadlift",video:A_CL_DL},
     {n:"Intervalles bike",d:bikeDet,note:"Effort RPE 8"},
   ],
   prepa:[]
@@ -1409,12 +1429,12 @@ const a5 = (arrDet, ejDet, dlDet, bikeDet) => ({
 const a6 = (jfDet, sqAltDet, dcDet, thDet, fpDet, sideDet, sqAltName) => ({
   type:"opt",label:"Samedi",sub:"Renfo optionnel · Upper + Lower",warmup:[],
   main:[
-    {n:"Jeté force",d:jfDet,rm:"jet_force"},
-    {n:sqAltName,d:sqAltDet},
-    {n:"Développé couché / dips lestés / Développé horizontal machine",d:dcDet},
+    {n:"Jeté force",d:jfDet,rm:"jet_force",video:A_JET_FORCE},
+    {n:sqAltName,d:sqAltDet,video:sqAltName.toLowerCase().includes('front')?A_FS:(sqAltName.toLowerCase().includes('tension')?A_SQ_TC:A_SQ)},
+    {n:"Développé couché / dips lestés / Développé horizontal machine",d:dcDet,video:A_DC},
     {n:"Tirage horizontal : Machine / Rowing / Poulie basse",d:thDet},
-    {n:"Facepulls",d:fpDet},
-    {n:"Side bends obliques ou side dips",d:sideDet},
+    {n:"Facepulls",d:fpDet,video:A_FP},
+    {n:"Side bends obliques ou side dips",d:sideDet,video:A_SIDE},
   ],
   prepa:[]
 });
@@ -1455,21 +1475,21 @@ const BLOCK_AOUT26_WEEKS = [
     a1("EMOM : 6x1 / 70-80%", "3x2 / 80-85%", "1x3 / 70%, 1x2 / 80%, 1x2 / 85%", "", "2x10-12 répétitions (2-3 RiR) — Plus lourd que S11 si possible"),
     {type:"main",label:"Mardi",sub:"Jeté technique · DC · Renfo léger",warmup:[],
      main:[
-       {n:"Jeté (pause fente 3'')",d:"5x3 / 50%",rm:"jet",note:"Light / Technique"},
-       {n:"Développé clavicules",d:"x1 jusqu'à RPE 8 puis 1x3 / 90% du single"},
+       {n:"Jeté (pause fente 3'')",d:"5x3 / 50%",rm:"jet",note:"Light / Technique",video:A_JET},
+       {n:"Développé clavicules",d:"x1 jusqu'à RPE 8 puis 1x3 / 90% du single",video:A_DCLAV},
        {n:"Tirage vertical : Tractions / Machine / Poulie",d:"3x5 reps (1-3 RiR) — Plus lourd que S11 si possible"},
-       {n:"Oiseau assis",d:"3x8-10 reps (1 RiR) — Plus lourd que S11 si possible"},
+       {n:"Oiseau assis",d:"3x8-10 reps (1 RiR) — Plus lourd que S11 si possible",video:A_OIS},
      ],
      prepa:[]
     },
     // J3 opt S12 : commence par un Squat RM du jour (test)
     {type:"opt",label:"Mercredi",sub:"Optionnel · Squat RM du jour + technique haltéro",warmup:[],
      main:[
-       {n:"Squat",d:"RM du jour",rm:"squat",note:"Test de RM",isLb:true},
-       {n:"Arraché no hook no feet",d:"5x2 / 60-70%",rm:"arr"},
-       {n:"Épaulé no hook + jeté debout",d:"5x(2+1) / 60-70%",rm:"ej"},
-       {n:"Squat Bulgare",d:"3x5 reps / jambe (2 RiR) — Plus lourd que S11 si possible"},
-       {n:"Copenhagen dips",d:"2x6-8 reps / côté"},
+       {n:"Squat",d:"RM du jour",rm:"squat",note:"Test de RM",video:A_SQ,isLb:true},
+       {n:"Arraché no hook no feet",d:"5x2 / 60-70%",rm:"arr",video:A_ARR_NHNF},
+       {n:"Épaulé no hook + jeté debout",d:"5x(2+1) / 60-70%",rm:"ej",video:A_EP_NH_JD},
+       {n:"Squat Bulgare",d:"3x5 reps / jambe (2 RiR) — Plus lourd que S11 si possible",video:A_BULG},
+       {n:"Copenhagen dips",d:"2x6-8 reps / côté",video:A_COPEN},
      ],
      prepa:[]
     },
@@ -1477,9 +1497,9 @@ const BLOCK_AOUT26_WEEKS = [
     // J5 S12 : bcp plus léger (peaking / semaine test)
     {type:"main",label:"Vendredi",sub:"Arraché · Épaulé-jeté · Deadlift · Cardio",warmup:[],
      main:[
-       {n:"Arraché",d:"6x2 / 50%",rm:"arr"},
-       {n:"Épaulé-jeté",d:"6x2 / 50%",rm:"ej"},
-       {n:"Clean Deadlift",d:"2x5 / 90% (du 5RM de S3)",rm:"deadlift"},
+       {n:"Arraché",d:"6x2 / 50%",rm:"arr",video:A_ARR},
+       {n:"Épaulé-jeté",d:"6x2 / 50%",rm:"ej",video:A_EJ},
+       {n:"Clean Deadlift",d:"2x5 / 90% (du 5RM de S3)",rm:"deadlift",video:A_CL_DL},
        {n:"Intervalles bike",d:"(30s ON - 30s OFF) x6",note:"Effort RPE 8"},
      ],
      prepa:[]
@@ -1487,12 +1507,12 @@ const BLOCK_AOUT26_WEEKS = [
     // J6 S12 : test RM sur exos secondaires
     {type:"opt",label:"Samedi",sub:"Renfo optionnel · Test",warmup:[],
      main:[
-       {n:"Jeté force",d:"5RM",rm:"jet_force",note:"Test de 5RM"},
-       {n:"Front squat",d:"1x1 RPE 9 (garder de la vitesse)",rm:"fs",isLb:true},
-       {n:"Développé couché / dips lestés / Développé horizontal machine",d:"3x5-6 reps (2 RiR) — Plus lourd que S11 si possible"},
+       {n:"Jeté force",d:"5RM",rm:"jet_force",note:"Test de 5RM",video:A_JET_FORCE},
+       {n:"Front squat",d:"1x1 RPE 9 (garder de la vitesse)",rm:"fs",video:A_FS,isLb:true},
+       {n:"Développé couché / dips lestés / Développé horizontal machine",d:"3x5-6 reps (2 RiR) — Plus lourd que S11 si possible",video:A_DC},
        {n:"Tirage horizontal : Machine / Rowing / Poulie basse",d:"3x5-6 reps (2 RiR) — Plus lourd que S11 si possible"},
-       {n:"Facepulls",d:"2x8-10 (lourd !) — Plus lourd que S11 si possible"},
-       {n:"Side bends obliques ou side dips",d:"2x6-8 / côté — Plus lourd que S11 si possible"},
+       {n:"Facepulls",d:"2x8-10 (lourd !) — Plus lourd que S11 si possible",video:A_FP},
+       {n:"Side bends obliques ou side dips",d:"2x6-8 / côté — Plus lourd que S11 si possible",video:A_SIDE},
      ],
      prepa:[]
     },

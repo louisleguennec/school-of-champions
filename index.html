@@ -1028,7 +1028,8 @@ async function showApp(){
   // ─── Charger les blocs débloqués et choisir le bloc actif ───
   await loadUnlockedBlocks();
   const stored = localStorage.getItem('soc_current_block');
-  const desired = (stored && isBlockUnlocked(stored)) ? stored : chooseDefaultBlock();
+  let desired = (stored && isBlockUnlocked(stored) && BLOCKS[stored]) ? stored : chooseDefaultBlock();
+  if(!BLOCKS[desired]) desired = 'juillet26';   // garde-fou : jamais de bloc inexistant
   currentBlock = desired;
   WEEKS = BLOCKS[currentBlock].weeks;
   WEEK_STARTS = BLOCKS[currentBlock].starts;

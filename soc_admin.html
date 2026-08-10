@@ -198,7 +198,7 @@ tr:hover td{background:var(--surface2)}
       <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
         <select id="accessBlockSel" onchange="loadAccessList()" style="background:var(--surface);border:1px solid var(--gold);border-radius:8px;padding:6px 12px;color:var(--text);font-family:var(--font-ui,sans-serif);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;outline:none;cursor:pointer">
           <option value="juillet26">Juillet 2026</option>
-          <option value="aout26" selected>Août 2026</option>
+          <option value="sept26" selected>Août 2026</option>
         </select>
         <input id="accessSearch" type="text" placeholder="🔎 Rechercher pseudo, email, club..." oninput="renderAccessList(this.value)" class="table-search" style="flex:1;min-width:220px">
       </div>
@@ -222,7 +222,7 @@ tr:hover td{background:var(--surface2)}
       <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
         <select id="feelingsBlock" onchange="loadFeelings()" style="background:var(--surface);border:1px solid var(--gold);border-radius:8px;padding:6px 12px;color:var(--text);font-family:var(--font-ui,sans-serif);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;outline:none;cursor:pointer">
           <option value="juillet26">Juillet 2026</option>
-          <option value="aout26" selected>Août 2026</option>
+          <option value="sept26" selected>Août 2026</option>
         </select>
         <select id="feelingsWeek" onchange="loadFeelings()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
           <option value="1">Semaine 1</option>
@@ -244,7 +244,7 @@ tr:hover td{background:var(--surface2)}
       <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
         <select id="fatigueBlock" onchange="loadFatigueAdmin()" style="background:var(--surface);border:1px solid var(--gold);border-radius:8px;padding:6px 12px;color:var(--text);font-family:var(--font-ui,sans-serif);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;outline:none;cursor:pointer">
           <option value="juillet26">Juillet 2026</option>
-          <option value="aout26" selected>Août 2026</option>
+          <option value="sept26" selected>Août 2026</option>
         </select>
       </div>
       <div id="fatigueWeeksGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
@@ -358,7 +358,7 @@ tr:hover td{background:var(--surface2)}
       <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
         <select id="progBlockSel" onchange="onProgBlockChange()" style="background:var(--surface);border:1px solid var(--gold);border-radius:8px;padding:6px 12px;color:var(--text);font-family:var(--font-ui,sans-serif);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;outline:none;cursor:pointer">
           <option value="juillet26">Juillet 2026</option>
-          <option value="aout26" selected>Août 2026</option>
+          <option value="sept26" selected>Août 2026</option>
         </select>
         <select id="progWeekSel" onchange="onProgWeekChange()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none"></select>
         <select id="progDaySel" onchange="loadProgEditor()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none"></select>
@@ -375,7 +375,7 @@ tr:hover td{background:var(--surface2)}
           <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2)">🔓 Déblocage des semaines</div>
           <select id="configBlockSel" onchange="loadWeekUnlocks()" style="background:var(--surface2);border:1px solid var(--gold);border-radius:7px;padding:6px 12px;color:var(--text);font-family:var(--font-ui,sans-serif);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;outline:none;cursor:pointer">
               <option value="juillet26">Juillet 2026</option>
-          <option value="aout26" selected>Août 2026</option>
+          <option value="sept26" selected>Août 2026</option>
           </select>
         </div>
         <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Toggle ON = semaine accessible immédiatement, indépendamment de la date de sortie automatique.</div>
@@ -439,9 +439,9 @@ tr:hover td{background:var(--surface2)}
 const SUPA_URL = 'https://sexokzggfinzvgroqnes.supabase.co';
 const SUPA_KEY = 'sb_publishable_Lq6BcamJ5LTSKnR5t7Y2wQ_RhPv_YKX';
 const ADMIN_PWD = 'M!WA77s$';
-const CYCLE = 'aout26';
+const CYCLE = 'sept26';
 const CYCLE_LABEL = 'Août 2026'; // affichage humain
-const CYCLE_CODE = 'JUIN0949'; // code mensuel courant (doit matcher VALID_CODE dans index.html)
+const CYCLE_CODE = 'ENDSEASON'; // code mensuel courant (doit matcher VALID_CODE dans index.html)
 
 const SINCLAIR_M = {A:0.722762521,b:175.508};
 const SINCLAIR_F = {A:0.787004341,b:153.655};
@@ -570,7 +570,7 @@ let allAccess = []; // { athlete_id, block_id, unlocked_at, athlete{} }
 async function loadAccessList(){
   const tbody = document.getElementById('accessTable');
   if(tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:1rem">Chargement…</td></tr>';
-  const blockId = document.getElementById('accessBlockSel')?.value || 'aout26';
+  const blockId = document.getElementById('accessBlockSel')?.value || 'sept26';
   try {
     const raw = await db(`athlete_blocks?block_id=eq.${blockId}&select=athlete_id,block_id,unlocked_at,athletes(id,pseudo,email,club,suspended,gender)&order=unlocked_at.desc`);
     console.log('[access] raw response:', raw);
@@ -1328,7 +1328,7 @@ const a6 = (jfDet, sqAltDet, dcDet, thDet, fpDet, sideDet, sqAltName) => ({
   prepa:[]
 });
 
-const BLOCK_AOUT26_WEEKS = [
+const BLOCK_SEPT26_WEEKS = [
   // ───── SEMAINE 9 (10 → 16 août) ─────
   {id:"w9",label:"S9 · 10/08",title:"Semaine 9",days:[
     a1("EMOM : 10x1 / 75%", "4x3 / 70-75%", "1x3 / 70%, 1x3 / 80%, 1x2 / 85%", "", "3x8-10 répétitions (2-3 RiR)"),
@@ -1410,7 +1410,7 @@ const BLOCK_AOUT26_WEEKS = [
 
 const PROG_BLOCKS = {
   juillet26: { label:'Juillet 2026', weeks: BLOCK_JUILLET26_WEEKS },
-  aout26: { label:'Août 2026', weeks: BLOCK_AOUT26_WEEKS },
+  sept26: { label:'Août 2026', weeks: BLOCK_SEPT26_WEEKS },
 };
 
 // VIDEOS
@@ -1715,14 +1715,14 @@ function onProgWeekChange(){
 }
 
 function buildProgWeekSelector(){
-  const blockId = document.getElementById('progBlockSel')?.value || 'aout26';
+  const blockId = document.getElementById('progBlockSel')?.value || 'sept26';
   const sel = document.getElementById('progWeekSel');
   const weeks = PROG_BLOCKS[blockId]?.weeks || [];
   sel.innerHTML = weeks.map((w,i) => `<option value="${i}">${w.label || w.title || 'S'+(i+1)}</option>`).join('');
 }
 
 function buildProgDaySelector(){
-  const blockId = document.getElementById('progBlockSel')?.value || 'aout26';
+  const blockId = document.getElementById('progBlockSel')?.value || 'sept26';
   const wIdx = parseInt(document.getElementById('progWeekSel')?.value || 0);
   const sel = document.getElementById('progDaySel');
   const week = PROG_BLOCKS[blockId]?.weeks?.[wIdx];
@@ -1736,7 +1736,7 @@ function buildProgDaySelector(){
 async function loadProgEditor(){
   const list = document.getElementById('progEditorList');
   if(!list) return;
-  const blockId = document.getElementById('progBlockSel')?.value || 'aout26';
+  const blockId = document.getElementById('progBlockSel')?.value || 'sept26';
   const wIdx = parseInt(document.getElementById('progWeekSel')?.value || 0);
   const dIdx = parseInt(document.getElementById('progDaySel')?.value || 0);
 

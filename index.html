@@ -734,9 +734,9 @@ function loadLocal(){
   try{athlete=JSON.parse(localStorage.getItem('soc_athlete')||'null')}catch(e){}
   // Migration one-shot : purger les clés à l'ancien format positionnel "w_d_s_e"
   // (sans préfixe de bloc) qui pouvaient mélanger mai et juin.
-  // Le nouveau format est "bloc_w_d_s_e" → commence par "juillet26_" ou "aout26_".
+  // Le nouveau format est "bloc_w_d_s_e" → commence par "juillet26_" ou "sept26_".
   if(!localStorage.getItem('soc_keymigr_v1')){
-    const isOld = k => !/^(juillet26|aout26)_/.test(k);
+    const isOld = k => !/^(juillet26|sept26)_/.test(k);
     [['checked',()=>checked],['rpeScores',()=>rpeScores],['actualWeights',()=>actualWeights]].forEach(([,getObj])=>{
       const obj=getObj();
       Object.keys(obj).forEach(k=>{ if(isOld(k)) delete obj[k]; });
@@ -845,7 +845,7 @@ async function loadSessionLogs(){
   if(!athlete) return;
   try{
     const logs = await db(`session_logs?athlete_id=eq.${athlete.id}&cycle=eq.${currentBlock}&select=key,value`) || [];
-    const isValidKey = k => /^(juillet26|aout26)_/.test(k);
+    const isValidKey = k => /^(juillet26|sept26)_/.test(k);
     const assignValid = (target, data) => {
       Object.keys(data||{}).forEach(k=>{ if(isValidKey(k)) target[k]=data[k]; });
     };
@@ -1439,7 +1439,7 @@ const a6 = (jfDet, sqAltDet, dcDet, thDet, fpDet, sideDet, sqAltName) => ({
   prepa:[]
 });
 
-const BLOCK_AOUT26_WEEKS = [
+const BLOCK_SEPT26_WEEKS = [
   // ───── SEMAINE 9 (10 → 16 août) ─────
   {id:"w9",label:"S9 · 10/08",title:"Semaine 9",days:[
     a1("EMOM : 10x1 / 75%", "4x3 / 70-75%", "1x3 / 70%, 1x3 / 80%, 1x2 / 85%", "", "3x8-10 répétitions (2-3 RiR)"),
@@ -1535,11 +1535,11 @@ const BLOCKS = {
     readonly: true,         // archivé : nouveau bloc actif = août
     code: 'OFFJUILLET',
   },
-  aout26: {
-    id: 'aout26',
+  sept26: {
+    id: 'sept26',
     label: 'Août 2026',
     short: 'Août',
-    weeks: BLOCK_AOUT26_WEEKS,
+    weeks: BLOCK_SEPT26_WEEKS,
     starts: [
       new Date(2026, 7, 10), // S9 — 10 août
       new Date(2026, 7, 17), // S10 — 17 août
@@ -2641,7 +2641,7 @@ function isBlockUnlocked(blockId){
 
 function chooseDefaultBlock(){
   // Priorité décroissante : on prend le bloc actif le plus récent débloqué.
-  if(isBlockUnlocked('aout26')) return 'aout26';
+  if(isBlockUnlocked('sept26')) return 'sept26';
   return 'juillet26';
 }
 
@@ -2691,7 +2691,7 @@ function applyMastersFilter(){
 function buildBlockSelector(){
   const el = document.getElementById('blockSel');
   if(!el) return;
-  const blockIds = ['juillet26','aout26'];
+  const blockIds = ['juillet26','sept26'];
   el.innerHTML = blockIds.map(bid => {
     const b = BLOCKS[bid];
     const unlocked = isBlockUnlocked(bid);
@@ -2779,7 +2779,7 @@ function updateMastersToggle(){
 // ACCESS CODES — chaque code débloque l'app + le bloc correspondant
 const VALID_CODES = {
   'OFFJUILLET': 'juillet26',
-  'ENDSEASON': 'aout26',
+  'ENDSEASON': 'sept26',
 };
 
 async function checkAccess(){

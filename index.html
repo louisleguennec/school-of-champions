@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#000d1f">
+  <meta name="theme-color" content="#003366">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="SOC">
   <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/DSC_9914.jpg">
-<meta name="theme-color" content="#000d1f">
+  <link rel="apple-touch-icon" href="https://cdn.shopify.com/s/files/1/0655/3413/2449/files/powercontest2.jpg?v=1788204335">
+<meta name="theme-color" content="#003366">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SOC">
@@ -19,30 +19,30 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
   /* Brand */
-  --navy:#000d1f;--navy-2:#061a36;--navy-3:#0d2747;--navy-4:#143055;
-  --paper:#f0ede7;--gold:#c9a96e;--gold-soft:#d9bd86;--gold-deep:#a8895a;
+  --navy:#003366;--navy-2:#00294f;--navy-3:#001d3a;--navy-4:#0a3f73;
+  --paper:#f0ede7;--gold:#003366;--gold-soft:#0a4a8a;--gold-deep:#00284d;
   --black:#1a1a1a;--white:#ffffff;
-  /* Tokens (sombre dominant) */
-  --bg:var(--navy);
-  --surface:var(--navy-2);
-  --surface2:var(--navy-3);
-  --surface3:var(--navy-4);
-  --border:rgba(201,169,110,0.15);
-  --border2:rgba(201,169,110,0.3);
-  --text:var(--white);
-  --text2:#b8c2d1;
-  --text3:#7a8699;
+  /* Tokens (clair dominant) */
+  --bg:var(--white);
+  --surface:#f5f7fa;
+  --surface2:#eaeef4;
+  --surface3:#dde4ee;
+  --border:rgba(0,51,102,0.15);
+  --border2:rgba(0,51,102,0.3);
+  --text:#12233a;
+  --text2:#4a5a6e;
+  --text3:#8394a6;
   /* Accents */
-  --red:#e85a5a;--red-dim:rgba(232,90,90,0.12);--red-glow:rgba(232,90,90,0.2);
-  --green:#5fc788;--green-dim:rgba(95,199,136,0.12);
+  --red:#d62828;--red-dim:rgba(214,40,40,0.10);--red-glow:rgba(214,40,40,0.18);
+  --green:#2e9e5b;--green-dim:rgba(46,158,91,0.12);
   --yellow:#e8c468;
   /* Or = accent principal */
-  --gold-dim:rgba(201,169,110,0.12);--gold-glow:rgba(201,169,110,0.25);
-  --silver:#b8c2d1;--bronze:#a8895a;
+  --gold-dim:rgba(0,51,102,0.12);--gold-glow:rgba(0,51,102,0.25);
+  --silver:#6b7787;--bronze:#8a6a3a;
   --silver-dim:rgba(184,194,209,0.1);--bronze-dim:rgba(168,137,90,0.12);
   /* Bleu (anciens accents) -> on les bascule sur or pour cohérence */
-  --blue-bg:rgba(201,169,110,0.08);
-  --blue-border:rgba(201,169,110,0.3);
+  --blue-bg:rgba(0,51,102,0.08);
+  --blue-border:rgba(0,51,102,0.3);
   --blue-text:var(--gold);
   /* Fonts */
   --font-title:'Barlow Condensed',sans-serif;
@@ -75,8 +75,8 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .onb-input:focus{border-color:var(--gold)}
 .onb-gender{display:flex;gap:8px}
 .onb-gender-btn{flex:1;padding:12px;border-radius:10px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);font-family:var(--font-body);font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s}
-.onb-gender-btn.active{background:var(--gold);border-color:var(--gold);color:var(--navy)}
-.onb-btn{width:100%;padding:14px;border-radius:10px;border:none;background:var(--gold);color:var(--navy);font-family:var(--font-body);font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:8px}
+.onb-gender-btn.active{background:var(--gold);border-color:var(--gold);color:var(--white)}
+.onb-btn{width:100%;padding:14px;border-radius:10px;border:none;background:var(--gold);color:var(--white);font-family:var(--font-body);font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:8px}
 .onb-btn:disabled{background:var(--surface3);color:var(--text3)}
 .onb-error{font-size:12px;color:var(--red);margin-top:6px;display:none}
 
@@ -88,10 +88,10 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .magic-sub{font-size:13px;color:var(--text2);line-height:1.6;max-width:300px}
 .magic-input-wrap{width:100%;max-width:320px;display:flex;flex-direction:column;gap:8px}
 .magic-email-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;color:var(--text);font-family:var(--font-body);font-size:15px;outline:none}
-.magic-btn{padding:12px 28px;border-radius:10px;border:none;background:var(--gold);color:var(--navy);font-family:var(--font-body);font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.magic-btn{padding:12px 28px;border-radius:10px;border:none;background:var(--gold);color:var(--white);font-family:var(--font-body);font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
 
 /* BOTTOM NAV */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,13,13,0.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom,0px);z-index:100}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom,0px);z-index:100}
 .bottom-nav-inner{display:flex;height:56px}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;color:var(--text3);transition:color 0.15s}
 .nav-item.active{color:var(--gold)}
@@ -111,7 +111,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .banner-text{position:absolute;bottom:14px;left:1rem;right:1rem}
 .banner-eyebrow{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:3px}
 .banner-title{font-family:var(--font-body);font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:#fff;line-height:1}
-.banner-title em{color:var(--gold);font-style:normal}
+.banner-title em{color:#8fbff5;font-style:normal}
 .banner-dots{position:absolute;bottom:8px;right:1rem;display:flex;gap:5px}
 .banner-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.3);transition:background 0.3s;cursor:pointer}
 .banner-dot.active{background:#fff}
@@ -120,11 +120,11 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .week-sel{display:flex;gap:8px;padding:1rem 1rem 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .week-sel::-webkit-scrollbar{display:none}
 .week-btn{flex-shrink:0;font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap}
-.week-btn.active{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.week-btn.active{background:var(--gold);color:var(--white);border-color:var(--gold)}
 .toggle-switch{width:42px;height:24px;background:var(--surface3);border-radius:12px;border:1px solid var(--border2);cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0;padding:0}
 .toggle-switch::after{content:'';position:absolute;width:18px;height:18px;background:var(--white);border-radius:50%;top:2px;left:2px;transition:left 0.2s}
 .toggle-switch.on{background:var(--gold);border-color:var(--gold)}
-.toggle-switch.on::after{left:21px;background:var(--navy)}
+.toggle-switch.on::after{left:21px;background:var(--white)}
 
 /* PROG STATS */
 .prog-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:1rem}
@@ -140,14 +140,14 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .day-prog-fill{height:100%;background:var(--gold);transition:width 0.3s}
 .day-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none}
 .day-hdr.main{background:var(--blue-bg)}
-.day-hdr.rest{background:rgba(201,169,110,0.05)}
+.day-hdr.rest{background:rgba(0,51,102,0.05)}
 .day-hdr.opt{background:var(--surface2)}
 .day-type{font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;width:52px;flex-shrink:0}
 .day-type.main{color:var(--blue-text)}
 .day-type.opt{color:var(--text3)}
 .day-name{flex:1}
 .day-title{font-family:var(--font-body);font-size:17px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
-.day-title.main{color:#ffffff}
+.day-title.main{color:var(--gold)}
 .day-title.opt{color:var(--text)}
 .day-sub{font-size:11px;color:#888;margin-top:1px}
 .day-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
@@ -168,7 +168,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .ex-check.done{background:var(--gold);border-color:var(--gold)}
 .ex-check.done::after{content:'✓';font-size:12px;color:#fff;font-weight:700}
 .ex-content{flex:1;min-width:0}
-.ex-name{font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;line-height:1.3;transition:color 0.15s;color:#fff}
+.ex-name{font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;line-height:1.3;transition:color 0.15s;color:var(--text)}
 .ex-name.done{color:var(--text3);text-decoration:line-through}
 .ex-detail{font-size:13px;color:var(--text2);line-height:1.5}
 .ex-kg{color:var(--yellow);font-weight:900;font-size:16px}
@@ -177,7 +177,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .ex-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center}
 .ex-video-ph{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:3px 8px}
 .ex-lb-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-glow);border-radius:4px;padding:3px 8px;cursor:pointer}
-.ex-lb-badge:hover{background:rgba(201,169,110,0.2)}
+.ex-lb-badge:hover{background:rgba(0,51,102,0.2)}
 
 /* RPE */
 .rpe-row{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
@@ -209,10 +209,10 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .score-unit{font-size:16px;color:var(--text2);flex-shrink:0}
 .score-btns{display:flex;gap:8px}
 .score-cancel{flex:1;padding:12px;border-radius:10px;border:1px solid var(--border2);background:none;color:var(--text2);font-family:var(--font-body);font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
-.score-submit{flex:2;padding:12px;border-radius:10px;border:none;background:var(--gold);color:var(--navy);font-family:var(--font-body);font-size:14px;font-weight:900;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.score-submit{flex:2;padding:12px;border-radius:10px;border:none;background:var(--gold);color:var(--white);font-family:var(--font-body);font-size:14px;font-weight:900;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
 
 /* FLOATING BTN */
-.fab{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom,0px) + 12px);right:1rem;background:var(--red);color:var(--navy);font-family:var(--font-body);font-weight:900;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:11px 20px;border-radius:50px;border:none;cursor:pointer;box-shadow:0 4px 24px var(--red-glow);display:none;align-items:center;gap:6px;z-index:200}
+.fab{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom,0px) + 12px);right:1rem;background:var(--red);color:var(--white);font-family:var(--font-body);font-weight:900;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:11px 20px;border-radius:50px;border:none;cursor:pointer;box-shadow:0 4px 24px var(--red-glow);display:none;align-items:center;gap:6px;z-index:200}
 .fab.show{display:flex}
 .fab:active{transform:scale(0.97)}
 
@@ -244,9 +244,9 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .lb-rank.r3{color:var(--bronze)}
 .lb-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-body);font-size:13px;font-weight:900;flex-shrink:0}
 .lb-avatar.m{background:rgba(28,46,74,0.8);color:var(--gold)}
-.lb-avatar.f{background:rgba(201,169,110,0.18);color:var(--gold-soft)}
+.lb-avatar.f{background:rgba(0,51,102,0.18);color:var(--gold-soft)}
 .lb-info{flex:1;min-width:0}
-.lb-name{font-family:var(--font-body);font-size:15px;font-weight:700;text-transform:uppercase;line-height:1;color:#fff}
+.lb-name{font-family:var(--font-body);font-size:15px;font-weight:700;text-transform:uppercase;line-height:1;color:var(--text)}
 .lb-meta{font-size:10px;color:#888;margin-top:2px}
 .lb-score{font-family:var(--font-body);font-size:20px;font-weight:900;flex-shrink:0}
 .lb-score.r1{color:var(--gold)}
@@ -271,7 +271,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 /* PROFILE */
 .profile-card{margin:1rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem}
 .profile-avatar{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-body);font-size:20px;font-weight:900;margin-bottom:10px}
-.profile-name{font-family:var(--font-body);font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#fff}
+.profile-name{font-family:var(--font-body);font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--text)}
 .profile-meta{font-size:12px;color:var(--text2);margin-top:4px}
 
 /* CONFETTI */
@@ -329,19 +329,19 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 <!-- SPLASH -->
 <div id="splash">
   <div class="splash-logo">School of<br><em>Champions</em></div>
-  <div class="splash-sub">Cycle Août 2026</div>
+  <div class="splash-sub">Cycle Septembre 2026</div>
   <div class="splash-bar"><div class="splash-fill" id="splashFill"></div></div>
 </div>
 
 <!-- ACCESS CODE SCREEN -->
 <div id="accessScreen" style="position:fixed;inset:0;background:var(--bg);z-index:996;display:none;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;gap:1.5rem">
   <div style="font-family:var(--font-body);font-size:42px;font-weight:900;text-transform:uppercase;letter-spacing:3px;line-height:1">School of<br><em style="color:var(--gold)">Champions</em></div>
-  <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text2)">Cycle Août 2026</div>
+  <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text2)">Cycle Septembre 2026</div>
   <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px">
     <div style="font-size:13px;color:var(--text2);line-height:1.5">Entre ton email et le code d'accès reçu par email.</div>
     <input id="accessEmail" type="email" inputmode="email" placeholder="ton@email.com" style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-size:15px;outline:none;text-align:center">
     <input id="accessCode" type="text" placeholder="Code d'accès" style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-size:18px;font-weight:700;letter-spacing:4px;text-transform:uppercase;outline:none;text-align:center" oninput="this.value=this.value.toUpperCase()">
-    <button onclick="checkAccess()" style="width:100%;padding:14px;border-radius:10px;border:none;background:var(--gold);color:var(--navy);font-family:var(--font-body);font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer">Accéder →</button>
+    <button onclick="checkAccess()" style="width:100%;padding:14px;border-radius:10px;border:none;background:var(--gold);color:var(--white);font-family:var(--font-body);font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer">Accéder →</button>
     <div id="accessError" style="font-size:12px;color:var(--red);display:none"></div>
   </div>
 </div>
@@ -351,7 +351,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
   <div style="font-size:48px">🔒</div>
   <div style="font-family:var(--font-body);font-size:32px;font-weight:900;text-transform:uppercase;letter-spacing:1px">Accès expiré</div>
   <div style="font-size:14px;color:var(--text2);line-height:1.7;max-width:300px">Ton abonnement est terminé ou ton code d'accès n'est plus valide.<br>Renouvelle ton abonnement pour continuer.</div>
-  <a href="https://powercamp.fr/products/school-of-champions" style="display:inline-block;padding:14px 28px;border-radius:10px;background:var(--red);color:var(--navy);font-family:var(--font-body);font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none">Renouveler mon abonnement →</a>
+  <a href="https://powercamp.fr/products/school-of-champions" style="display:inline-block;padding:14px 28px;border-radius:10px;background:var(--red);color:var(--white);font-family:var(--font-body);font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none">Renouveler mon abonnement →</a>
   <button onclick="resetAccess()" style="font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;text-decoration:underline">J'ai un nouveau code</button>
 </div>
 
@@ -411,10 +411,10 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
     <div class="banner" id="bannerEl">
       <div class="banner-slides" id="bannerSlides">
         <div class="banner-slide">
-          <img src="https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/DSC_9914.jpg" alt="">
+          <img src="https://cdn.shopify.com/s/files/1/0655/3413/2449/files/powercontest2.jpg?v=1788204335" alt="">
           <div class="banner-grad"></div>
           <div class="banner-text">
-            <div class="banner-eyebrow">Cycle Août 2026</div>
+            <div class="banner-eyebrow">Cycle Septembre 2026</div>
             <div class="banner-title">School of <em>Champions</em></div>
           </div>
         </div>
@@ -422,7 +422,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
           <img src="https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/IMG_3134.jpg" alt="">
           <div class="banner-grad"></div>
           <div class="banner-text">
-            <div class="banner-eyebrow">Cycle Août 2026</div>
+            <div class="banner-eyebrow">Cycle Septembre 2026</div>
             <div class="banner-title">School of <em>Champions</em></div>
           </div>
         </div>
@@ -430,7 +430,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
           <img src="https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/Capture%20d%E2%80%99e%CC%81cran%202024-09-12%20a%CC%80%2019.13.39.png" alt="">
           <div class="banner-grad"></div>
           <div class="banner-text">
-            <div class="banner-eyebrow">Cycle Août 2026</div>
+            <div class="banner-eyebrow">Cycle Septembre 2026</div>
             <div class="banner-title">School of <em>Champions</em></div>
           </div>
         </div>
@@ -544,7 +544,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
             <option value="Intl">International</option>
           </select>
         </div>
-        <button onclick="saveMyProfile()" style="background:var(--blue);border:none;border-radius:10px;padding:10px;color:var(--navy);font-family:var(--font-body);font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:4px">💾 Enregistrer</button>
+        <button onclick="saveMyProfile()" style="background:var(--blue);border:none;border-radius:10px;padding:10px;color:var(--white);font-family:var(--font-body);font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:4px">💾 Enregistrer</button>
       </div>
     </div>
     <div style="margin:0 1rem">
@@ -580,7 +580,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
         </div>
         <span style="margin-left:auto;color:var(--text3)">→</span>
       </a>
-      <a href="https://fr.esn.com/instagram/powercamp" target="_blank" style="display:flex;align-items:center;gap:10px;background:rgba(201,169,110,0.06);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;text-decoration:none">
+      <a href="https://fr.esn.com/instagram/powercamp" target="_blank" style="display:flex;align-items:center;gap:10px;background:rgba(0,51,102,0.06);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;text-decoration:none">
         <span style="font-size:22px">💊</span>
         <div>
           <div style="font-family:var(--font-body);font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--yellow)">Compléments ESN</div>
@@ -640,7 +640,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
     <div id="codeBlockError" style="display:none;color:var(--red);font-size:12px;margin-bottom:8px"></div>
     <div style="display:flex;gap:8px;margin-top:10px">
       <button onclick="closeCodeModal()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border2);background:none;color:var(--text2);font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">Annuler</button>
-      <button onclick="submitBlockCode()" style="flex:2;padding:12px;border-radius:10px;border:none;background:var(--gold);color:var(--navy);font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">Valider</button>
+      <button onclick="submitBlockCode()" style="flex:2;padding:12px;border-radius:10px;border:none;background:var(--gold);color:var(--white);font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">Valider</button>
     </div>
   </div>
 </div>
@@ -736,7 +736,7 @@ function loadLocal(){
   // (sans préfixe de bloc) qui pouvaient mélanger mai et juin.
   // Le nouveau format est "bloc_w_d_s_e" → commence par "aout26_" ou "sept26_".
   if(!localStorage.getItem('soc_keymigr_v1')){
-    const isOld = k => !/^(aout26|sept26)_/.test(k);
+    const isOld = k => !/^(aout26|sept26|reprise26)_/.test(k);
     [['checked',()=>checked],['rpeScores',()=>rpeScores],['actualWeights',()=>actualWeights]].forEach(([,getObj])=>{
       const obj=getObj();
       Object.keys(obj).forEach(k=>{ if(isOld(k)) delete obj[k]; });
@@ -845,7 +845,7 @@ async function loadSessionLogs(){
   if(!athlete) return;
   try{
     const logs = await db(`session_logs?athlete_id=eq.${athlete.id}&cycle=eq.${currentBlock}&select=key,value`) || [];
-    const isValidKey = k => /^(aout26|sept26)_/.test(k);
+    const isValidKey = k => /^(aout26|sept26|reprise26)_/.test(k);
     const assignValid = (target, data) => {
       Object.keys(data||{}).forEach(k=>{ if(isValidKey(k)) target[k]=data[k]; });
     };
@@ -1029,7 +1029,7 @@ async function showApp(){
   await loadUnlockedBlocks();
   const stored = localStorage.getItem('soc_current_block');
   let desired = (stored && isBlockUnlocked(stored) && BLOCKS[stored]) ? stored : chooseDefaultBlock();
-  if(!BLOCKS[desired]) desired = 'aout26';   // garde-fou : jamais de bloc inexistant
+  if(!BLOCKS[desired]) desired = 'sept26';   // garde-fou : jamais de bloc inexistant
   currentBlock = desired;
   WEEKS = BLOCKS[currentBlock].weeks;
   WEEK_STARTS = BLOCKS[currentBlock].starts;
@@ -1092,7 +1092,7 @@ function buildRMGrid(){
     const f=document.createElement('div');
     f.className='rm-field';
     if(r.note){
-      f.style.cssText+='border-color:var(--gold);background:rgba(201,169,110,0.10);grid-column:span 2';
+      f.style.cssText+='border-color:var(--gold);background:rgba(0,51,102,0.10);grid-column:span 2';
       f.innerHTML=`<div class="rm-field-label" style="color:var(--gold)">🏆 ${r.label}</div>
         <div style="font-size:10px;color:var(--text3);margin-bottom:8px;font-style:italic">${r.note}</div>
         <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:3px">Apparaît au classement Total du leaderboard</div>
@@ -1521,60 +1521,37 @@ const BLOCK_SEPT26_WEEKS = [
 ];
 
 // Définition des blocs disponibles. Le bloc actif est `currentBlock`.
-const BLOCK_AOUT26_WEEKS = [
-  // ───── SEMAINE 5 (S1 du block) ─────
-  {id:"w1",label:"S1 · 13/07",title:"Semaine 5",days:[
-    {type:"main",label:"Lundi",sub:"Lower — Saut 3 haies enchaînées · Arraché + arraché susp. basse + susp. haute · Squat nuque",warmup:[],main:[{n:"Saut 3 haies enchaînées",d:"6×3 · hauteur progressive",note:"Temps de contact au sol court !",video:"https://www.youtube.com/shorts/ONyDFBrGXYI"},{n:"Arraché + arraché susp. basse + susp. haute",d:"6×(1+1+1) / 70-75%",rm:"arr",note:"du max arraché",video:"https://www.youtube.com/shorts/eCYNHd1QO6U"},{n:"Squat nuque",d:"4×5 / 80%",rm:"squat",note:"Récup longue si besoin (4-5 min)",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ"},{n:"Clean deadlift",d:"4×3 / 70-75%",rm:"deadlift",note:"Pas de touch and go",video:"https://www.youtube.com/watch?v=DJuxEEqXrmc"},{n:"Leg curl",d:"2×8-12 · 0-1 RIR",note:"Si pas de machine, ischios au rameur",video:"https://youtu.be/n6qRAUu16vc"},{n:"Side bends (obliques)",d:"2×8-12 / côté · 1-2 RIR",note:"Excentrique lent, gros étirement !",video:"https://www.youtube.com/shorts/TDPOyEW_q3M"}],prepa:[]},
-    {type:"main",label:"Mardi",sub:"Upper — Jeté (clav ou nuque) · Squat nuque · Tractions lestées",warmup:[],main:[{n:"Jeté (clav ou nuque)",d:"5×2 / 80-85%",rm:"jet",note:"Pause en fente tant que possible !",video:"https://www.youtube.com/shorts/Xo8lVPHq510"},{n:"Squat nuque",d:"4×3 / 85%",rm:"squat",note:"Récup longue si besoin (4-5 min)",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ"},{n:"Tractions lestées",d:"6×3 · 2-3 RIR",video:"https://www.youtube.com/shorts/xcT6MpgyUX0"},{n:"Développé militaire",d:"6×3 / 80+% · 2 RIR",note:"Pause clavicules à chaque rep",video:"https://www.youtube.com/shorts/7BU-kIzQses"},{n:"Facepulls",d:"3×10-12 · 1-2 RIR",video:"https://www.youtube.com/shorts/cH6GOMoADgo"}],prepa:[]},
-    {type:"opt",label:"Mercredi",sub:"Lower — Double Broad jump · Épaulé debout + épaulé · Squat bulgare",warmup:[],main:[{n:"Double Broad jump",d:"6×2 · intensité progressive",note:"Réception statique sur le 2e saut ou no rep !",video:"https://www.youtube.com/watch?v=CuXErkWUo1k"},{n:"Épaulé debout + épaulé",d:"6×(1+2) / 70-75%",rm:"ep",note:"Vitesse de passage des coudes !",video:"https://www.youtube.com/shorts/48q1HaT2LMo"},{n:"Squat bulgare",d:"2×4-6 / jambe",note:"Récupérer entre chaque jambe",video:"https://www.youtube.com/shorts/_nXMctwsUAU"},{n:"Adducteurs rameur ou Copenhagen",d:"2×8-12 · 2-3 RIR",note:"Récupérer entre chaque jambe",video:"https://www.youtube.com/shorts/3yh6AVeYGqg"},{n:"Hip airplane lesté",d:"2×6-10 / jambe · 2-3 RIR",note:"Amplitude max, tempo lent",video:"https://www.youtube.com/watch?v=en1o2Qzs2rc"}],prepa:[]},
-    {type:"opt",label:"Jeudi",sub:"Upper — Jeté force · Rowing planche · Développé couché (ou dips lestés)",warmup:[],main:[{n:"Jeté force",d:"6×3 / 70-75%",rm:"jet_force",note:"Pause overhead 5″ sur la dernière rep",video:"https://www.youtube.com/watch?v=ngjhO8CJvQg"},{n:"Rowing planche",d:"6×3 · 1-2 RIR",video:"https://www.youtube.com/shorts/q-OIgz24b8w"},{n:"Développé couché (ou dips lestés)",d:"6×3 / 80+% · 2 RIR",video:"https://www.youtube.com/shorts/sLuDivCj3Sg"},{n:"Oiseau buste penché",d:"3×10-12 · 1-2 RIR",video:"https://www.youtube.com/watch?v=S8NK1FJc9Qg"},{n:"Echo bike / ski erg / run",d:"20-30 min · zone 2-3",note:"60-75% FC max",video:"https://www.youtube.com/watch?v=9xfUu652CMg"}],prepa:[]},
-    {type:"main",label:"Vendredi",sub:"Full body — Arraché no hook / no feet · Arraché · Épaulé-jeté",warmup:[],main:[{n:"Arraché no hook / no feet",d:"4×3 / 50%",rm:"arr",note:"du max arraché",video:"https://www.youtube.com/shorts/x7tN_An5i1s"},{n:"Arraché",d:"8×1 / 75-80%",rm:"arr",note:"du max arraché",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Épaulé-jeté",d:"8×1 / 75-80%",rm:"ej",note:"du max EJ",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Front squat",d:"4×3 / 75%",rm:"fs",note:"du max FS",video:"https://www.youtube.com/watch?v=g8uV9X_KN_I"},{n:"Overhead crunch",d:"2×6-10 · 2-3 RIR",note:"Amplitude max, tempo lent",video:"https://www.youtube.com/watch?v=vygFhLGfaM0"}],prepa:[]},
-    {type:"opt",label:"Samedi",sub:"Athlete Day — Skips for height · Skips for distance · High pogo",warmup:[],main:[{n:"Skips for height",d:"4×20m",video:"https://www.youtube.com/watch?v=hkCYJw88OE0"},{n:"Skips for distance",d:"4×20m",video:"https://www.youtube.com/watch?v=um2R-OEz0-Q"},{n:"High pogo",d:"4×10-15",video:"https://www.youtube.com/shorts/MjYONTxslr8"},{n:"Sprints",d:"6-8× (10m build + 10m fly)",noVideo:true},{n:"Tempo runs",d:"10× 20″ ON / 1'10 OFF",noVideo:true},{n:"Triceps au choix",d:"2×8-12 · 0-1 RIR",noVideo:true},{n:"Biceps au choix",d:"2×8-12 · 0-1 RIR",noVideo:true}],prepa:[]},
+const BLOCK_REPRISE26_WEEKS = [
+  {id:"w1",label:"S1 · 07/09",title:"Semaine 1",days:[
+    {type:"main",label:"Lundi",sub:"Arraché (pause genoux 2'') · Puis, drop sets arraché suspension · Epaulé + épaulé susp basse (3'' excentrique) + jeté deb + jeté",warmup:[],main:[{n:"Arraché (pause genoux 2'')",d:"5x2 / 70-80%, 3x1 / 85+% (du RM arraché)",rm:"arr",note:"Monter RPE 8 max",video:"https://www.youtube.com/shorts/9UtWOLkdGFY"},{n:"Puis, drop sets arraché suspension",d:"3x3 autour de 50%, pause en réception si besoin de mobilité",rm:"arr",note:"Travail technique light après l'arraché",video:"https://www.youtube.com/watch?v=JzQ4eXvrez4"},{n:"Epaulé + épaulé susp basse (3'' excentrique) + jeté deb + jeté",d:"4x(1+1+1+1) / 50% (du RM EJ)",rm:"ej",note:"Travail technique light",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ"},{n:"Clean deadlift (suspension basse)",d:"5x3 / 100+% (du RM épaulé), monter RPE 7 max",rm:"ep",note:"Placements similaires à l'épaulé",video:"https://www.youtube.com/watch?v=DJuxEEqXrmc"},{n:"Leg curl",d:"3x 8-12 (2-3 RIR)",video:"https://www.youtube.com/watch?v=1_x_h39Cn34"},{n:"Leg extension (ou cyclist squats)",d:"3x 8-12 (2-3 RIR)"}],prepa:[]},
+    {type:"main",label:"Mardi",sub:"Thruster nuque (prise jeté) · Squat nuque · Développé militaire",warmup:[],main:[{n:"Thruster nuque (prise jeté)",d:"Montée en x2 jusqu'à 50% puis 4x1 / 60+% (du RM squat nuque)",rm:"squat",note:"Monter tant que bien, stop si échec",video:"https://www.youtube.com/shorts/HrqYbaiSJ5A"},{n:"Squat nuque",d:"4x3 / 70-80%, 3x1 / 85+% (du RM squat nuque)",rm:"squat",note:"Monter RPE 8 max",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ",isLb:true},{n:"Développé militaire",d:"3x3 / 80% puis montée en x1 jusqu'à rep lourde (RPE 9)",note:"Stop avant l'échec",video:"https://www.youtube.com/watch?v=yelXxVJYrww"},{n:"Tirage haut d'arraché suspension",d:"4x5 / 50-60% (du RM arraché)",rm:"arr",note:"Ou chute d'arraché si point faible chute",video:"https://www.youtube.com/watch?v=sl7KRa4Px8E"},{n:"Rowing planche ou rowing 1 bras",d:"3x 6-8 reps (2-3 RIR)",video:"https://www.youtube.com/shorts/q-OIgz24b8w"},{n:"Lu raises + oiseau buste penché",d:"3x (10+10 reps enchaînées)",note:"Conditioning épaules",video:"https://www.youtube.com/shorts/J7zEP4WujbQ"}],prepa:[]},
+    {type:"opt",label:"Mercredi",sub:"Arraché debout + OHS · Epaulé-jeté · Drop sets épaulé suspension + jeté debout",warmup:[],main:[{n:"Arraché debout + OHS",d:"5x2(1+1) / 50% (du RM arraché)",rm:"arr",note:"En no feet si besoin de travailler la trajectoire et l'extension",video:"https://www.youtube.com/shorts/6Ka3MPlK2-o"},{n:"Epaulé-jeté",d:"5x2 / 65-75%, 3x1 / 80-85% (du RM EJ)",rm:"ej",note:"Monter RPE 7 max",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Drop sets épaulé suspension + jeté debout",d:"3x(2+1) autour de 50%",rm:"ej",note:"Travail technique light après l'EJ",video:"https://www.youtube.com/shorts/22lvEkKPboo"},{n:"Snatch deadlift",d:"5x2 / 110+% (du RM arraché), RPE 8 max",rm:"arr",note:"Placements similaires à l'arraché",video:"https://www.youtube.com/watch?v=mp9gtX-JqB0"},{n:"Abducteurs (machine ou clamshell)",d:"3x 10-15 (2-3 RIR)",video:"https://www.youtube.com/shorts/XoxHNiqtVPM"},{n:"Adducteurs (machine ou au rameur)",d:"3x 10-15 (2-3 RIR)"}],prepa:[]},
+    {type:"main",label:"Jeudi",sub:"Arraché · Épaulé-jeté · Clean deadlift",warmup:[],main:[{n:"Arraché",d:"4x2 / 75-80%, 3x1 / 85-90% (du RM arraché)",rm:"arr",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Épaulé-jeté",d:"3x(1+3) / 70%, 2x(1+2) / 75%, 3x1 / 80-90% (du RM EJ)",rm:"ej",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Clean deadlift",d:"2x3 / 100%, 2x3 / 110+% (du RM épaulé), RPE 8 max",rm:"ep",note:"Placements similaires à l'épaulé",video:"https://www.youtube.com/watch?v=DJuxEEqXrmc"},{n:"Saut 1 haie (ou 1 box) avec élan",d:"Possibilité de le faire en warm up",note:"10-15 min de montée progressive",video:"https://www.youtube.com/shorts/EVrwo7lkTCA"},{n:"Développé couché",d:"6x3 (2-3 RIR)",video:"https://www.youtube.com/shorts/sLuDivCj3Sg"}],prepa:[]},
+    {type:"opt",label:"Vendredi",sub:"Jeté force · FS · Développé militaire",warmup:[],main:[{n:"Jeté force",d:"4x3 / 70-80%, 3x1-2 / 85+% (du RM jeté force)",rm:"jet_force",note:"Monter tant que bien, stop si échec",video:"https://www.youtube.com/watch?v=ngjhO8CJvQg"},{n:"FS",d:"3x2 / 70-75%, 3x1 / 80+% (du RM FS)",rm:"fs",note:"RPE 8 max, en pause si besoin de mobilité",video:"https://www.youtube.com/watch?v=g8uV9X_KN_I"},{n:"Développé militaire",d:"Montée en x1 jusqu'à rep lourde (RPE 8-9)",note:"Stop avant l'échec",video:"https://www.youtube.com/watch?v=yelXxVJYrww"},{n:"Arraché suspension + OHS (pause 2'')",d:"5x(3+2) / 50-60% (du RM arraché)",rm:"arr",video:"https://www.youtube.com/watch?v=JzQ4eXvrez4"},{n:"Tractions lestées",d:"3x 5-6 (2-3 RIR) + 1 série max reps sans leste"},{n:"Facepulls",d:"3x 10-15 (2-3 RIR)",video:"https://www.youtube.com/shorts/cH6GOMoADgo"}],prepa:[]},
   ]},
-  // ───── SEMAINE 6 (S2 du block) ─────
-  {id:"w2",label:"S2 · 20/07",title:"Semaine 6",days:[
-    {type:"main",label:"Lundi",sub:"Lower — Saut 3 haies enchaînées · Arraché + arraché susp. basse · Squat nuque",warmup:[],main:[{n:"Saut 3 haies enchaînées",d:"6×3 · hauteur progressive",note:"Temps de contact au sol court !",video:"https://www.youtube.com/shorts/ONyDFBrGXYI"},{n:"Arraché + arraché susp. basse",d:"6×(1+1) / 80-85%",rm:"arr",note:"du max arraché",video:"https://www.youtube.com/watch?v=ZJxwRfQ-TBo"},{n:"Squat nuque",d:"1×3/70%, 1×3/80%, 1×2/85%",rm:"squat",note:"Récup longue si besoin (4-5 min)",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ"},{n:"Clean deadlift",d:"4×3 / 75-80%",rm:"deadlift",note:"Pas de touch and go",video:"https://www.youtube.com/watch?v=DJuxEEqXrmc"},{n:"Leg curl",d:"2×8-12 · 0-1 RIR",note:"Si pas de machine, ischios au rameur",video:"https://youtu.be/n6qRAUu16vc"},{n:"Side bends (obliques)",d:"2×8-12 / côté · 1-2 RIR",note:"Excentrique lent, gros étirement !",video:"https://www.youtube.com/shorts/TDPOyEW_q3M"}],prepa:[]},
-    {type:"main",label:"Mardi",sub:"Upper — Jeté (clav ou nuque) · Squat nuque · Tractions lestées",warmup:[],main:[{n:"Jeté (clav ou nuque)",d:"5×2 / 80-85%",rm:"jet",note:"Pause en fente tant que possible !",video:"https://www.youtube.com/shorts/Xo8lVPHq510"},{n:"Squat nuque",d:"1×4/70%, 1×4/80%",rm:"squat",note:"Récup longue si besoin (4-5 min)",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ"},{n:"Tractions lestées",d:"5×3 · 2 RIR",note:"Plus lourd que S5 si possible",video:"https://www.youtube.com/shorts/xcT6MpgyUX0"},{n:"Développé militaire",d:"5×3 / 80+% · 1-2 RIR — si en forme, RM du jour",note:"Pause clavicules à chaque rep",video:"https://www.youtube.com/shorts/7BU-kIzQses"},{n:"Facepulls",d:"3×10-12 · 1-2 RIR",video:"https://www.youtube.com/shorts/cH6GOMoADgo"}],prepa:[]},
-    {type:"opt",label:"Mercredi",sub:"Lower — Double Broad jump · Épaulé debout + épaulé · Squat bulgare",warmup:[],main:[{n:"Double Broad jump",d:"6×2 · intensité progressive",note:"Réception statique sur le 2e saut ou no rep !",video:"https://www.youtube.com/watch?v=CuXErkWUo1k"},{n:"Épaulé debout + épaulé",d:"6×(1+1) / 75-80%",rm:"ep",note:"Vitesse de passage des coudes !",video:"https://www.youtube.com/shorts/48q1HaT2LMo"},{n:"Squat bulgare",d:"2×4-6 / jambe",note:"Plus lourd que S5 si possible",video:"https://www.youtube.com/shorts/_nXMctwsUAU"},{n:"Adducteurs rameur ou Copenhagen",d:"2×8-12 · 2-3 RIR",note:"Récupérer entre chaque jambe",video:"https://www.youtube.com/shorts/3yh6AVeYGqg"},{n:"Hip airplane lesté",d:"2×6-10 / jambe · 2-3 RIR",note:"Amplitude max, tempo lent",video:"https://www.youtube.com/watch?v=en1o2Qzs2rc"}],prepa:[]},
-    {type:"opt",label:"Jeudi",sub:"Upper — Jeté force · Rowing planche · Développé couché (ou dips lestés)",warmup:[],main:[{n:"Jeté force",d:"6×3 / 75-80%",rm:"jet_force",note:"Pause overhead 5″ sur la dernière rep",video:"https://www.youtube.com/watch?v=ngjhO8CJvQg"},{n:"Rowing planche",d:"5×3 · 2 RIR",note:"Plus lourd que S5 si possible",video:"https://www.youtube.com/shorts/q-OIgz24b8w"},{n:"Développé couché (ou dips lestés)",d:"5×3 / 80+% · 1-2 RIR",video:"https://www.youtube.com/shorts/sLuDivCj3Sg"},{n:"Oiseau buste penché",d:"3×10-12 · 1-2 RIR",video:"https://www.youtube.com/watch?v=S8NK1FJc9Qg"},{n:"Echo bike / ski erg / run",d:"20-30 min · zone 2-3",note:"60-75% FC max",video:"https://www.youtube.com/watch?v=9xfUu652CMg"}],prepa:[]},
-    {type:"main",label:"Vendredi",sub:"Full body — Arraché no hook / no feet · Arraché · Épaulé-jeté",warmup:[],main:[{n:"Arraché no hook / no feet",d:"4×3 / 50%",rm:"arr",note:"du max arraché",video:"https://www.youtube.com/shorts/x7tN_An5i1s"},{n:"Arraché",d:"8×1 / 75-85%",rm:"arr",note:"du max arraché",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Épaulé-jeté",d:"8×1 / 75-85%",rm:"ej",note:"du max EJ",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Squat tension continue",d:"4×7 / 70%",rm:"squat",note:"Plus lourd que le block 1 hors saison !",video:"https://www.youtube.com/shorts/iBm7KZVFd54"},{n:"Overhead crunch",d:"2×6-10 · 2-3 RIR",note:"Amplitude max, tempo lent",video:"https://www.youtube.com/watch?v=vygFhLGfaM0"}],prepa:[]},
-    {type:"opt",label:"Samedi",sub:"Athlete Day — Skips for height · Skips for distance · High pogo",warmup:[],main:[{n:"Skips for height",d:"4×20m",video:"https://www.youtube.com/watch?v=hkCYJw88OE0"},{n:"Skips for distance",d:"4×20m",video:"https://www.youtube.com/watch?v=um2R-OEz0-Q"},{n:"High pogo",d:"4×10-15",video:"https://www.youtube.com/shorts/MjYONTxslr8"},{n:"Sprints",d:"6-8× (10m build + 10m fly)",noVideo:true},{n:"Tempo runs",d:"8× 20″ ON / 1'10 OFF",noVideo:true},{n:"Triceps au choix",d:"2×8-12 · 0-1 RIR",noVideo:true},{n:"Biceps au choix",d:"2×8-12 · 0-1 RIR",noVideo:true}],prepa:[]},
+  {id:"w2",label:"S2 · 14/09",title:"Semaine 2",days:[
+    {type:"main",label:"Lundi",sub:"Arraché (pause genoux 2'') · Puis, drop sets arraché suspension · Epaulé + épaulé susp basse (3'' excentrique) + jeté deb + jeté",warmup:[],main:[{n:"Arraché (pause genoux 2'')",d:"4x2 / 75-80%, 5x1 / 85-90% (du RM arraché)",rm:"arr",note:"Monter RPE 8 max",video:"https://www.youtube.com/shorts/9UtWOLkdGFY"},{n:"Puis, drop sets arraché suspension",d:"3x3 autour de 50%, pause en réception si besoin de mobilité",rm:"arr",note:"Travail technique light après l'arraché",video:"https://www.youtube.com/watch?v=JzQ4eXvrez4"},{n:"Epaulé + épaulé susp basse (3'' excentrique) + jeté deb + jeté",d:"4x(1+1+1+1) / 50-55% (du RM EJ)",rm:"ej",note:"Travail technique light",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ"},{n:"Clean deadlift (suspension basse)",d:"5x2-3 / 100+% (du RM épaulé), monter RPE 8 max",rm:"ep",note:"Placements similaires à l'épaulé",video:"https://www.youtube.com/watch?v=DJuxEEqXrmc"},{n:"Leg curl",d:"3x 8-12 (2-3 RIR)",video:"https://www.youtube.com/watch?v=1_x_h39Cn34"},{n:"Leg extension (ou cyclist squats)",d:"3x 8-12 (2-3 RIR)"}],prepa:[]},
+    {type:"main",label:"Mardi",sub:"Thruster nuque (prise jeté) · Squat nuque · Développé militaire",warmup:[],main:[{n:"Thruster nuque (prise jeté)",d:"Montée en x2 jusqu'à 50% puis 4x1 / 60+% (du RM squat nuque)",rm:"squat",note:"Monter tant que bien, stop si échec",video:"https://www.youtube.com/shorts/HrqYbaiSJ5A"},{n:"Squat nuque",d:"4x3 / 70-80%, 3x1 / 85+% (du RM squat nuque)",rm:"squat",note:"Monter RPE 8 max",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ",isLb:true},{n:"Développé militaire",d:"3x3 / 80% puis montée en x1 jusqu'à rep lourde (RPE 9)",note:"Stop avant l'échec",video:"https://www.youtube.com/watch?v=yelXxVJYrww"},{n:"Tirage haut d'arraché suspension",d:"4x5 / 50-60% (du RM arraché)",rm:"arr",note:"Ou chute d'arraché si point faible chute",video:"https://www.youtube.com/watch?v=sl7KRa4Px8E"},{n:"Rowing planche ou rowing 1 bras",d:"3x 6-8 reps (2-3 RIR)",video:"https://www.youtube.com/shorts/q-OIgz24b8w"},{n:"Lu raises + oiseau buste penché",d:"3x (10+10 reps enchaînées)",note:"Conditioning épaules",video:"https://www.youtube.com/shorts/J7zEP4WujbQ"}],prepa:[]},
+    {type:"opt",label:"Mercredi",sub:"Arraché debout + OHS · Epaulé-jeté · Drop sets épaulé suspension + jeté debout",warmup:[],main:[{n:"Arraché debout + OHS",d:"5x2(1+1) / 50-55% (du RM arraché)",rm:"arr",note:"En no feet si besoin de travailler la trajectoire et l'extension",video:"https://www.youtube.com/shorts/6Ka3MPlK2-o"},{n:"Epaulé-jeté",d:"5x2 / 70-80%, 2x1 / 85-90% (du RM EJ)",rm:"ej",note:"Si bien, rep bonus",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Drop sets épaulé suspension + jeté debout",d:"3x(2+1) autour de 50%",rm:"ej",note:"Travail technique light après l'EJ",video:"https://www.youtube.com/shorts/22lvEkKPboo"},{n:"Snatch deadlift",d:"3x3 / 110-120%, 3x1 / 120+% (du RM arraché), RPE 8 max",rm:"arr",note:"Placements similaires à l'arraché",video:"https://www.youtube.com/watch?v=mp9gtX-JqB0"},{n:"Abducteurs (machine ou clamshell)",d:"3x 10-15 (2-3 RIR)",video:"https://www.youtube.com/shorts/XoxHNiqtVPM"},{n:"Adducteurs (machine ou au rameur)",d:"3x 10-15 (2-3 RIR)"}],prepa:[]},
+    {type:"main",label:"Jeudi",sub:"Arraché · Épaulé-jeté · Clean deadlift",warmup:[],main:[{n:"Arraché",d:"5x1 / 85+%",rm:"arr",note:"2 échecs max",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Épaulé-jeté",d:"5x1 / 85+%",rm:"ej",note:"2 échecs max",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Clean deadlift",d:"5x2 / 110+% (du RM épaulé), monter RPE 8 max",rm:"ep",note:"Placements similaires à l'épaulé",video:"https://www.youtube.com/watch?v=DJuxEEqXrmc"},{n:"Saut 1 haie (ou 1 box) avec élan",d:"Possibilité de le faire en warm up",note:"10-15 min de montée progressive",video:"https://www.youtube.com/shorts/EVrwo7lkTCA"},{n:"Développé couché",d:"6x3 (2-3 RIR)",video:"https://www.youtube.com/shorts/sLuDivCj3Sg"}],prepa:[]},
+    {type:"opt",label:"Vendredi",sub:"Jeté force · FS · Développé militaire",warmup:[],main:[{n:"Jeté force",d:"4x3 / 70-80%, 3x1-2 / 85+% (du RM jeté force)",rm:"jet_force",note:"Monter tant que bien, stop si échec",video:"https://www.youtube.com/watch?v=ngjhO8CJvQg"},{n:"FS",d:"3x2 / 70-75%, 3x1 / 80+% (du RM FS)",rm:"fs",note:"RPE 8 max, en pause si besoin de mobilité",video:"https://www.youtube.com/watch?v=g8uV9X_KN_I"},{n:"Développé militaire",d:"Montée en x1 jusqu'à rep lourde (RPE 8-9)",video:"https://www.youtube.com/watch?v=yelXxVJYrww"},{n:"Arraché suspension + OHS (pause 2'')",d:"5x(3+2) / 50-60% (du RM arraché)",rm:"arr",video:"https://www.youtube.com/watch?v=JzQ4eXvrez4"},{n:"Tractions lestées",d:"3x 5-6 (2-3 RIR) + 1 série max reps sans leste"},{n:"Facepulls",d:"3x 10-15 (2-3 RIR)",video:"https://www.youtube.com/shorts/cH6GOMoADgo"}],prepa:[]},
   ]},
-  // ───── SEMAINE 7 (S3 du block) ─────
-  {id:"w3",label:"S3 · 27/07",title:"Semaine 7",days:[
-    {type:"main",label:"Lundi",sub:"Lower — Saut 3 haies enchaînées · Arraché force · Squat nuque",warmup:[],main:[{n:"Saut 3 haies enchaînées",d:"6×3 · hauteur progressive",note:"Temps de contact au sol court !",video:"https://www.youtube.com/shorts/ONyDFBrGXYI"},{n:"Arraché force",d:"6× 1-2 / 80+%",rm:"arr_force",note:"du max arraché force",video:"https://www.youtube.com/watch?v=ndJ3u4nH43E"},{n:"Squat nuque",d:"1×3/80%, 3×3/85%",rm:"squat",note:"Récup longue si besoin (4-5 min)",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ"},{n:"Clean deadlift",d:"4×3 / 80-85%",rm:"deadlift",note:"Garder 2-3 reps de réserve ! Pas de touch and go",video:"https://www.youtube.com/watch?v=DJuxEEqXrmc"},{n:"Leg curl",d:"2×8-12 · 0-1 RIR",note:"Si pas de machine, ischios au rameur",video:"https://youtu.be/n6qRAUu16vc"},{n:"Side bends (obliques)",d:"2×8-12 / côté · 1-2 RIR",note:"Excentrique lent, gros étirement !",video:"https://www.youtube.com/shorts/TDPOyEW_q3M"}],prepa:[]},
-    {type:"main",label:"Mardi",sub:"Upper — Jeté (clav ou nuque) · Squat nuque · Tractions lestées",warmup:[],main:[{n:"Jeté (clav ou nuque)",d:"Montée 1 rep RPE 8 puis 3×2 (retirer 20% de la charge montée)",rm:"jet",note:"Pause en fente tant que possible !",video:"https://www.youtube.com/shorts/Xo8lVPHq510"},{n:"Squat nuque",d:"1×2/70%, 1×2/80%, 1×2/85%, 1×1/90%",rm:"squat",note:"Récup longue si besoin (4-5 min)",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ"},{n:"Tractions lestées",d:"5×3 · 2 RIR",note:"Plus lourd que S6 si possible",video:"https://www.youtube.com/shorts/xcT6MpgyUX0"},{n:"Développé militaire",d:"2×3/80%, 3×2 plus lourd",note:"Pause clavicules à chaque rep",video:"https://www.youtube.com/shorts/7BU-kIzQses"},{n:"Facepulls",d:"3×10-12 · 1-2 RIR",video:"https://www.youtube.com/shorts/cH6GOMoADgo"}],prepa:[]},
-    {type:"opt",label:"Mercredi",sub:"Lower — Double Broad jump · Épaulé · Squat bulgare",warmup:[],main:[{n:"Double Broad jump",d:"6×2 · intensité progressive",note:"Réception statique sur le 2e saut ou no rep !",video:"https://www.youtube.com/watch?v=CuXErkWUo1k"},{n:"Épaulé",d:"6×1 / 80-85%",rm:"ep",note:"Vitesse de passage des coudes !",video:"https://www.youtube.com/watch?v=Ty14ogq_Vok"},{n:"Squat bulgare",d:"2×5 / jambe",note:"Plus lourd que S6 si possible",video:"https://www.youtube.com/shorts/_nXMctwsUAU"},{n:"Adducteurs rameur ou Copenhagen",d:"2×8-12 · 2-3 RIR",note:"Récupérer entre chaque jambe",video:"https://www.youtube.com/shorts/3yh6AVeYGqg"},{n:"Hip airplane lesté",d:"2×6-10 / jambe · 2-3 RIR",note:"Amplitude max, tempo lent",video:"https://www.youtube.com/watch?v=en1o2Qzs2rc"}],prepa:[]},
-    {type:"opt",label:"Jeudi",sub:"Upper — Jeté force · Rowing planche · Développé couché (ou dips lestés)",warmup:[],main:[{n:"Jeté force",d:"6×3 / 75-80%",rm:"jet_force",note:"Pause overhead 5″ sur la dernière rep",video:"https://www.youtube.com/watch?v=ngjhO8CJvQg"},{n:"Rowing planche",d:"5×3 · 2 RIR",note:"Plus lourd que S6 si possible",video:"https://www.youtube.com/shorts/q-OIgz24b8w"},{n:"Développé couché (ou dips lestés)",d:"5×3 / 80+% · 1-2 RIR",video:"https://www.youtube.com/shorts/sLuDivCj3Sg"},{n:"Oiseau buste penché",d:"2×10-12 · 1-2 RIR",video:"https://www.youtube.com/watch?v=S8NK1FJc9Qg"},{n:"Echo bike / ski erg / run",d:"20-30 min · zone 2-3",note:"60-75% FC max",video:"https://www.youtube.com/watch?v=9xfUu652CMg"}],prepa:[]},
-    {type:"main",label:"Vendredi",sub:"Full body — Arraché no hook / no feet · Arraché · Épaulé-jeté",warmup:[],main:[{n:"Arraché no hook / no feet",d:"4×3 / 50%",rm:"arr",note:"du max arraché",video:"https://www.youtube.com/shorts/x7tN_An5i1s"},{n:"Arraché",d:"8×1 / 75+%",rm:"arr",note:"Format snake : +3% si réussite, -3% si échec",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Épaulé-jeté",d:"8×1 / 75+%",rm:"ej",note:"Format snake : +3% si réussite, -3% si échec",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Front squat",d:"6×4 / 65%",rm:"fs",note:"du max FS",video:"https://www.youtube.com/watch?v=g8uV9X_KN_I"},{n:"Overhead crunch",d:"2×6-10 · 2-3 RIR",note:"Amplitude max, tempo lent",video:"https://www.youtube.com/watch?v=vygFhLGfaM0"}],prepa:[]},
-    {type:"opt",label:"Samedi",sub:"Athlete Day — Skips for height · Skips for distance · High pogo",warmup:[],main:[{n:"Skips for height",d:"4×20m",video:"https://www.youtube.com/watch?v=hkCYJw88OE0"},{n:"Skips for distance",d:"4×20m",video:"https://www.youtube.com/watch?v=um2R-OEz0-Q"},{n:"High pogo",d:"4×10-15",video:"https://www.youtube.com/shorts/MjYONTxslr8"},{n:"Sprints",d:"6-8× (20m build + 10m fly)",noVideo:true},{n:"Tempo runs",d:"10× 20″ ON / 1'10 OFF",noVideo:true},{n:"Triceps au choix",d:"2×8-12 · 0-1 RIR",noVideo:true},{n:"Biceps au choix",d:"2×8-12 · 0-1 RIR",noVideo:true}],prepa:[]},
+  {id:"w3",label:"S3 · 21/09",title:"Semaine 3",days:[
+    {type:"main",label:"Lundi",sub:"Arraché · Puis, drop sets arraché suspension · Epaulé + épaulé susp basse (3'' excentrique) + jeté deb + jeté",warmup:[],main:[{n:"Arraché",d:"6x2 / 75+% (du RM arraché), montée jusqu'au 2RM du jour",rm:"arr",note:"Max 2 échecs",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Puis, drop sets arraché suspension",d:"3x3 autour de 50%, pause en réception si besoin de mobilité",rm:"arr",note:"Travail technique light après l'arraché",video:"https://www.youtube.com/watch?v=JzQ4eXvrez4"},{n:"Epaulé + épaulé susp basse (3'' excentrique) + jeté deb + jeté",d:"4x(1+1+1+1) / 50-60% (du RM EJ)",rm:"ej",note:"Travail technique light",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ"},{n:"Clean deadlift (suspension basse)",d:"5x1-3 / 100+% (du RM épaulé), monter RPE 8 max",rm:"ep",note:"Placements similaires à l'épaulé",video:"https://www.youtube.com/watch?v=DJuxEEqXrmc"},{n:"Leg curl",d:"3x 8-12 (2-3 RIR)",video:"https://www.youtube.com/watch?v=1_x_h39Cn34"},{n:"Leg extension (ou cyclist squats)",d:"3x 8-12 (2-3 RIR)"}],prepa:[]},
+    {type:"main",label:"Mardi",sub:"Thruster nuque (prise jeté) · Squat nuque · Développé militaire",warmup:[],main:[{n:"Thruster nuque (prise jeté)",d:"2RM du jour (RPE 9)",rm:"squat",video:"https://www.youtube.com/shorts/HrqYbaiSJ5A"},{n:"Squat nuque",d:"2RM du jour (RPE 9)",rm:"squat",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ",isLb:true},{n:"Développé militaire",d:"5x1-2 / 80-90% (du RM développé)",note:"Stop avant l'échec",video:"https://www.youtube.com/watch?v=yelXxVJYrww"},{n:"Tirage haut d'arraché suspension",d:"4x5 / 50-60% (du RM arraché)",rm:"arr",note:"Ou chute d'arraché si point faible chute",video:"https://www.youtube.com/watch?v=sl7KRa4Px8E"},{n:"Rowing planche ou rowing 1 bras",d:"3x 6-8 reps (2-3 RIR)",video:"https://www.youtube.com/shorts/q-OIgz24b8w"},{n:"Lu raises + oiseau buste penché",d:"3x (10+10 reps enchaînées)",note:"Conditioning épaules",video:"https://www.youtube.com/shorts/J7zEP4WujbQ"}],prepa:[]},
+    {type:"opt",label:"Mercredi",sub:"Arraché debout + OHS · Epaulé-jeté · Drop sets épaulé suspension + jeté debout",warmup:[],main:[{n:"Arraché debout + OHS",d:"5x2(1+1) / 50-60% (du RM arraché)",rm:"arr",note:"En no feet si besoin de travailler la trajectoire et l'extension",video:"https://www.youtube.com/shorts/6Ka3MPlK2-o"},{n:"Epaulé-jeté",d:"2x2 / 75%, 2x2 / 80%, 2x1 / 85% (du RM EJ)",rm:"ej",note:"Si bien, rep bonus",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Drop sets épaulé suspension + jeté debout",d:"3x(2+1) autour de 50%",rm:"ej",note:"Travail technique light après l'EJ",video:"https://www.youtube.com/shorts/22lvEkKPboo"},{n:"Snatch deadlift",d:"2x3 / 110%, puis montée sur 1x1 RPE 8 max",rm:"arr",note:"Placements similaires à l'arraché",video:"https://www.youtube.com/watch?v=mp9gtX-JqB0"},{n:"Abducteurs (machine ou clamshell)",d:"3x 10-15 (2-3 RIR)",video:"https://www.youtube.com/shorts/XoxHNiqtVPM"},{n:"Adducteurs (machine ou au rameur)",d:"3x 10-15 (2-3 RIR)"}],prepa:[]},
+    {type:"main",label:"Jeudi",sub:"Arraché · Épaulé-jeté · Clean deadlift",warmup:[],main:[{n:"Arraché",d:"2x2 / 80%, 5x1 / 85-95% (du RM arraché)",rm:"arr",note:"2 échecs max",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Épaulé-jeté",d:"2x2 / 80%, 5x1 / 85-95% (du RM EJ)",rm:"ej",note:"2 échecs max",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Clean deadlift",d:"2x3 / 100%, 2x2 / 110%, 3x1 / 120+% (du RM épaulé), RPE 8 max",rm:"ep",note:"Placements similaires à l'épaulé",video:"https://www.youtube.com/watch?v=DJuxEEqXrmc"},{n:"Saut 1 haie (ou 1 box) avec élan",d:"Possibilité de le faire en warm up",note:"10-15 min de montée progressive",video:"https://www.youtube.com/shorts/EVrwo7lkTCA"},{n:"Développé couché",d:"6x3 (2-3 RIR)",video:"https://www.youtube.com/shorts/sLuDivCj3Sg"}],prepa:[]},
+    {type:"opt",label:"Vendredi",sub:"Jeté force · Pause FS · Développé militaire",warmup:[],main:[{n:"Jeté force",d:"2x2 / 70%, 2x2 / 80%, 3x1 / 85+% (du RM jeté force)",rm:"jet_force",note:"Monter tant que bien, stop si échec",video:"https://www.youtube.com/watch?v=ngjhO8CJvQg"},{n:"Pause FS",d:"5x2 / 70% (du RM FS)",rm:"fs",note:"Pause 2'' en flexion",video:"https://www.youtube.com/watch?v=g8uV9X_KN_I"},{n:"Développé militaire",d:"3x5 / 70% (du RM développé)",video:"https://www.youtube.com/watch?v=yelXxVJYrww"},{n:"Arraché suspension + OHS (pause 2'')",d:"5x(3+2) / 50-60% (du RM arraché)",rm:"arr",video:"https://www.youtube.com/watch?v=JzQ4eXvrez4"},{n:"Tractions lestées",d:"3x 5-6 (2-3 RIR) + 1 série max reps sans leste"},{n:"Facepulls",d:"3x 10-15 (2-3 RIR)",video:"https://www.youtube.com/shorts/cH6GOMoADgo"}],prepa:[]},
   ]},
-  // ───── SEMAINE 8 (S4 du block) ─────
-  {id:"w4",label:"S4 · 03/08",title:"Semaine 8",days:[
-    {type:"main",label:"Lundi",sub:"Lower — Arraché force · Squat nuque · Clean deadlift",warmup:[],main:[{n:"Arraché force",d:"6× 1-2 / 80+%",rm:"arr_force",note:"Barre de départ arraché si compét en fin de semaine",video:"https://www.youtube.com/watch?v=ndJ3u4nH43E"},{n:"Squat nuque",d:"3× (1/85%, 1/90%, 1/95%)",rm:"squat",note:"Récup longue si besoin (4-5 min)",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ",isLb:true},{n:"Clean deadlift",d:"2×2 / 90%",rm:"deadlift",note:"Garder 2-3 reps de réserve ! Pas de touch and go",video:"https://www.youtube.com/watch?v=DJuxEEqXrmc"},{n:"Leg curl",d:"2×8-12 · 0-1 RIR",note:"Si pas de machine, ischios au rameur",video:"https://youtu.be/n6qRAUu16vc"},{n:"Side bends (obliques)",d:"2×8-12 / côté · 1-2 RIR",note:"Excentrique lent, gros étirement !",video:"https://www.youtube.com/shorts/TDPOyEW_q3M"}],prepa:[]},
-    {type:"main",label:"Mardi",sub:"Upper — Jeté (clav ou nuque) · Squat nuque · Tractions lestées",warmup:[],main:[{n:"Jeté (clav ou nuque)",d:"Montée 1 rep RPE 8 (pas de drop sets)",rm:"jet",note:"Pause en fente tant que possible !",video:"https://www.youtube.com/shorts/Xo8lVPHq510"},{n:"Squat nuque",d:"3×3 / 70%",rm:"squat",note:"Récup longue si besoin (4-5 min)",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ",isLb:true},{n:"Tractions lestées",d:"5×3 · 1 RIR",note:"Plus lourd que S6 si possible",video:"https://www.youtube.com/shorts/xcT6MpgyUX0"},{n:"Développé militaire",d:"1RM du jour",video:"https://www.youtube.com/shorts/7BU-kIzQses"},{n:"Facepulls",d:"2×10-12 · 1-2 RIR",video:"https://www.youtube.com/shorts/cH6GOMoADgo"}],prepa:[]},
-    {type:"opt",label:"Mercredi",sub:"Lower — Épaulé · Squat bulgare · Adducteurs rameur ou Copenhagen",warmup:[],main:[{n:"Épaulé",d:"6×1 / 80-85%",rm:"ep",note:"Vitesse de passage des coudes !",video:"https://www.youtube.com/watch?v=Ty14ogq_Vok"},{n:"Squat bulgare",d:"2×5 / jambe",note:"Plus lourd que S7 si possible",video:"https://www.youtube.com/shorts/_nXMctwsUAU"},{n:"Adducteurs rameur ou Copenhagen",d:"2×8-12 · 2-3 RIR",note:"Récupérer entre chaque jambe",video:"https://www.youtube.com/shorts/3yh6AVeYGqg"},{n:"Hip airplane lesté",d:"2×6-10 / jambe · 2-3 RIR",note:"Amplitude max, tempo lent",video:"https://www.youtube.com/watch?v=en1o2Qzs2rc"}],prepa:[]},
-    {type:"opt",label:"Jeudi",sub:"Upper — Rowing planche · Développé couché (ou dips lestés) · Oiseau buste penché",warmup:[],main:[{n:"Rowing planche",d:"5×3 · 1 RIR",video:"https://www.youtube.com/shorts/q-OIgz24b8w"},{n:"Développé couché (ou dips lestés)",d:"5×3 · 1 RIR",video:"https://www.youtube.com/shorts/sLuDivCj3Sg"},{n:"Oiseau buste penché",d:"2×10-12 · 1-2 RIR",video:"https://www.youtube.com/watch?v=S8NK1FJc9Qg"},{n:"Echo bike / ski erg / run",d:"20-30 min · zone 2-3",note:"60-75% FC max",video:"https://www.youtube.com/watch?v=9xfUu652CMg"},{n:"Mobilité",d:"10-20 min",noVideo:true}],prepa:[]},
-    {type:"main",label:"Vendredi",sub:"Full body — Squat nuque · Arraché · Épaulé-jeté",warmup:[],main:[{n:"Squat nuque",d:"3RM (RPE 8) · viser 90+%",rm:"squat",note:"du max squat",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ",isLb:true},{n:"Arraché",d:"Montée 1 rep lourde du jour",rm:"arr",note:"max 3 échecs",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Épaulé-jeté",d:"Montée 1 rep lourde du jour",rm:"ej",note:"max 2 échecs",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Overhead crunch",d:"2×6-10 · 2-3 RIR",note:"Amplitude max, tempo lent",video:"https://www.youtube.com/watch?v=vygFhLGfaM0"}],prepa:[]},
-    {type:"opt",label:"Samedi",sub:"Athlete Day — Skips for height · Skips for distance · High pogo",warmup:[],main:[{n:"Skips for height",d:"4×20m",video:"https://www.youtube.com/watch?v=hkCYJw88OE0"},{n:"Skips for distance",d:"4×20m",video:"https://www.youtube.com/watch?v=um2R-OEz0-Q"},{n:"High pogo",d:"4×10-15",video:"https://www.youtube.com/shorts/MjYONTxslr8"},{n:"Sprints",d:"6-8× 20m",noVideo:true},{n:"Tempo runs",d:"10× 20″ ON / 1'10 OFF",noVideo:true},{n:"Triceps au choix",d:"2×8-12 · 0-1 RIR",noVideo:true},{n:"Biceps au choix",d:"2×8-12 · 0-1 RIR",noVideo:true}],prepa:[]},
+  {id:"w4",label:"S4 · 28/09",title:"Semaine 4 — Max / Comp",days:[
+    {type:"main",label:"Lundi",sub:"Arraché no hook / no feet (warm up) · Arraché · Puis, drop sets arraché suspension",warmup:[],main:[{n:"Arraché no hook / no feet (warm up)",d:"3x3 / 50-60% (du RM arraché)",rm:"arr",video:"https://www.youtube.com/shorts/x7tN_An5i1s"},{n:"Arraché",d:"6x1 / 85-93% (du RM arraché)",rm:"arr",note:"Condition compet",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Puis, drop sets arraché suspension",d:"3x3 autour de 50%, pause en réception si besoin de mobilité",rm:"arr",note:"Travail technique light après l'arraché",video:"https://www.youtube.com/watch?v=JzQ4eXvrez4"},{n:"Épaulé-jeté",d:"6x(2+1) / 80-90% (du RM EJ)",rm:"ej",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Leg curl",d:"3x 8-12 (2-3 RIR)",video:"https://www.youtube.com/watch?v=1_x_h39Cn34"},{n:"Leg extension (ou cyclist squats)",d:"3x 8-12 (2-3 RIR)"}],prepa:[]},
+    {type:"main",label:"Mardi",sub:"Développé militaire · Thruster nuque (prise jeté) · Squat nuque",warmup:[],main:[{n:"Développé militaire",d:"3x2 / 80% (du RM développé)",video:"https://www.youtube.com/watch?v=yelXxVJYrww"},{n:"Thruster nuque (prise jeté)",d:"3x1 / 65-70% (du RM squat)",rm:"squat",note:"Monter RPE 8 max",video:"https://www.youtube.com/shorts/HrqYbaiSJ5A"},{n:"Squat nuque",d:"5x1 / 85-90% (du RM squat)",rm:"squat",note:"Monter RPE 8 max",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ",isLb:true},{n:"Rowing planche ou rowing 1 bras",d:"3x 6-8 reps (2-3 RIR)",video:"https://www.youtube.com/shorts/q-OIgz24b8w"},{n:"Lu raises + oiseau buste penché",d:"3x (10+10 reps enchaînées)",note:"Conditioning épaules",video:"https://www.youtube.com/shorts/J7zEP4WujbQ"}],prepa:[]},
+    {type:"opt",label:"Mercredi",sub:"Arraché suspension + chute d'arraché · Epaulé debout + jeté · FS",warmup:[],main:[{n:"Arraché suspension + chute d'arraché",d:"6x(2+1) / 50-60%, 2x(1+1) / 70-75% (du RM arraché)",rm:"arr",video:"https://www.youtube.com/watch?v=JzQ4eXvrez4"},{n:"Epaulé debout + jeté",d:"6x2(1+1) / 50-60%, 2x(1+1) / 70-75% (du RM EJ)",rm:"ej",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ"},{n:"FS",d:"2x3 / 60%, 2x2 / 70%, 2x1 / 80% (du RM FS)",rm:"fs",video:"https://www.youtube.com/watch?v=g8uV9X_KN_I"},{n:"Abducteurs (machine ou clamshell)",d:"3x 10-15 (2-3 RIR)",video:"https://www.youtube.com/shorts/XoxHNiqtVPM"},{n:"Adducteurs (machine ou au rameur)",d:"3x 10-15 (2-3 RIR)"}],prepa:[]},
+    {type:"opt",label:"Jeudi",sub:"Arraché · Épaulé-jeté · Jeté force",warmup:[],main:[{n:"Arraché",d:"3x 2-3 / 60% (du RM arraché)",rm:"arr",note:"2 échecs max",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Épaulé-jeté",d:"3x(2+1) / 60% (du RM EJ)",rm:"ej",note:"2 échecs max",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Jeté force",d:"3x2 / 70-80% (du RM jeté force)",rm:"jet_force",video:"https://www.youtube.com/watch?v=ngjhO8CJvQg"},{n:"Squat clavicules",d:"3x3 / 70% (du RM FS)",rm:"fs",video:"https://www.youtube.com/watch?v=g8uV9X_KN_I"},{n:"Récupération",d:"Repos complet · mobilité · marche"}],prepa:[]},
+    {type:"main",label:"Vendredi",sub:"Arraché · Épaulé-jeté · Squat nuque",warmup:[],main:[{n:"Arraché",d:"RM du jour",rm:"arr",note:"2 échecs max",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Épaulé-jeté",d:"RM du jour",rm:"ej",note:"2 échecs max",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Squat nuque",d:"2RM du jour",rm:"squat",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ",isLb:true}],prepa:[]},
   ]},
 ];
-
 const BLOCKS = {
-  aout26: {
-    id: 'aout26',
-    label: 'Juil/Août 2026',
-    short: 'Juil/Août',
-    weeks: BLOCK_AOUT26_WEEKS,
-    starts: [
-      new Date(2026, 6, 13), // S5 — 13 juillet
-      new Date(2026, 6, 20), // S6 — 20 juillet
-      new Date(2026, 6, 27), // S7 — 27 juillet
-      new Date(2026, 7,  3), // S8 —  3 août
-    ],
-    readonly: true,
-    code: 'AOUTPWC',
-  },
   sept26: {
     id: 'sept26',
     label: 'Août 2026',
@@ -1586,21 +1563,35 @@ const BLOCKS = {
       new Date(2026, 7, 24), // S11 — 24 août
       new Date(2026, 7, 31), // S12 — 31 août
     ],
-    readonly: false,
+    readonly: true,     // archivé mais accessible librement
     code: 'ENDSEASON',
+  },
+  reprise26: {
+    id: 'reprise26',
+    label: 'Septembre 2026',
+    short: 'Sept',
+    weeks: BLOCK_REPRISE26_WEEKS,
+    starts: [
+      new Date(2026, 8, 7),  // S1 — 7 sept
+      new Date(2026, 8, 14), // S2 — 14 sept
+      new Date(2026, 8, 21), // S3 — 21 sept
+      new Date(2026, 8, 28), // S4 — 28 sept
+    ],
+    readonly: false,
+    code: 'SOCSEPT',
   },
 };
 
 // Variables globales liées au bloc affiché — réassignées par switchBlock()
-let currentBlock = 'aout26';
-let WEEKS = BLOCKS.aout26.weeks;
-let WEEK_STARTS = BLOCKS.aout26.starts;
+let currentBlock = 'sept26';
+let WEEKS = BLOCKS.sept26.weeks;
+let WEEK_STARTS = BLOCKS.sept26.starts;
 
 // Préférence S4 vs S4 Masters pour le bloc juin (par athlète, en localStorage)
 let useS4Masters = localStorage.getItem('soc_use_s4masters') === '1';
 
 // Liste des blocs débloqués pour l'athlète courant (rempli au login)
-let unlockedBlocks = new Set(['aout26']); // juillet archivé en lecture libre
+let unlockedBlocks = new Set(['sept26']); // août archivé en lecture libre
 
 
 const LB_ALLTIME=[
@@ -1825,12 +1816,12 @@ function renderDays(){
             onclick="setRPE('${k}',${v},this)" 
             title="${RPE_LABELS[v-1]}">${RPE_EMOJIS[v-1]}</span>`;
         }).join('');
-        const lbBtn=effectiveLb?`<span class="ex-lb-badge" onclick="openScoreModal('${ex.n}','${effectiveRm||ex.rm||'total'}')">🏆 Soumettre</span><span class="ex-lb-badge" onclick="openFullLb('${effectiveRm||ex.rm||'total'}','${ex.n}')" style="color:var(--gold);background:rgba(201,169,110,0.08);border-color:rgba(201,169,110,0.25)">📊 Classement</span>`:'';
+        const lbBtn=effectiveLb?`<span class="ex-lb-badge" onclick="openScoreModal('${ex.n}','${effectiveRm||ex.rm||'total'}')">🏆 Soumettre</span><span class="ex-lb-badge" onclick="openFullLb('${effectiveRm||ex.rm||'total'}','${ex.n}')" style="color:var(--gold);background:rgba(0,51,102,0.08);border-color:rgba(0,51,102,0.25)">📊 Classement</span>`:'';
         // Vidéo : priorité à l'override admin
         const exForVideo = _ov.videoOverride ? {...ex, _videoOverride: _ov.videoOverride} : ex;
         const _videoUrl=getVideoUrl(exForVideo);
         const videoBtn=ex.noVideo?'':(_videoUrl
-          ?`<span class="ex-lb-badge" onclick="openVideo('${_videoUrl}','${ex.n}')" style="cursor:pointer;color:var(--gold);background:rgba(201,169,110,0.08);border-color:rgba(201,169,110,0.25)">▶ Vidéo</span>`
+          ?`<span class="ex-lb-badge" onclick="openVideo('${_videoUrl}','${ex.n}')" style="cursor:pointer;color:var(--gold);background:rgba(0,51,102,0.08);border-color:rgba(0,51,102,0.25)">▶ Vidéo</span>`
           :(sIdx===0?`<span class="ex-video-ph" style="color:var(--red);border-color:rgba(232,90,90,0.3);background:var(--red-dim)">⚠ Vidéo manquante</span>`:`<span class="ex-video-ph">▶ Bientôt</span>`));
         return `<div class="ex-row">
           <div class="ex-check${isDone?' done':''}" onclick="toggleCheck('${k}',this,${dIdx})"></div>
@@ -2157,7 +2148,7 @@ function renderProfile(){
   const av=document.getElementById('profileAvatar');
   av.textContent=getInitials(athlete.pseudo);
   av.className='profile-avatar '+(athlete.gender==='F'?'f':'m');
-  if(athlete.gender==='F'){av.style.background='rgba(201,169,110,0.18)';av.style.color='var(--gold-soft)';}
+  if(athlete.gender==='F'){av.style.background='rgba(0,51,102,0.18)';av.style.color='var(--gold-soft)';}
   else{av.style.background='rgba(28,46,74,0.8)';av.style.color='var(--gold)';}
   const levelLabels={regional:'Régional',interregional:'Inter-régional',honneur:'France Honneur',elite:'France Élite',international:'International'};
   document.getElementById('profileName').textContent=athlete.pseudo;
@@ -2656,7 +2647,7 @@ function toast(msg){
 // ─── BLOCS (Mai / Juin) ─────────────────────────────────────
 async function loadUnlockedBlocks(){
   // aout26 archivé : toujours dispo en consultation
-  unlockedBlocks = new Set(['aout26']);
+  unlockedBlocks = new Set(['sept26']);
   // Lecture local d'abord (toujours dispo, persiste même si DB plante)
   try {
     const local = JSON.parse(localStorage.getItem('soc_unlocked_blocks')||'[]');
@@ -2668,7 +2659,7 @@ async function loadUnlockedBlocks(){
     const rows = await db(`athlete_blocks?athlete_id=eq.${athlete.id}&select=block_id`) || [];
     rows.forEach(r => unlockedBlocks.add(r.block_id));
     // Re-synchroniser le local avec ce qu'on a trouvé en DB
-    const all = Array.from(unlockedBlocks).filter(b => b !== 'aout26');
+    const all = Array.from(unlockedBlocks).filter(b => b !== 'sept26');
     localStorage.setItem('soc_unlocked_blocks', JSON.stringify(all));
   } catch(e){
     console.warn('[blocks] DB unavailable, fallback localStorage.', e);
@@ -2681,8 +2672,8 @@ function isBlockUnlocked(blockId){
 
 function chooseDefaultBlock(){
   // Priorité décroissante : on prend le bloc actif le plus récent débloqué.
-  if(isBlockUnlocked('sept26')) return 'sept26';
-  return 'aout26';
+  if(isBlockUnlocked('reprise26')) return 'reprise26';
+  return 'sept26';
 }
 
 function switchBlock(blockId){
@@ -2731,7 +2722,7 @@ function applyMastersFilter(){
 function buildBlockSelector(){
   const el = document.getElementById('blockSel');
   if(!el) return;
-  const blockIds = ['aout26','sept26'];
+  const blockIds = ['reprise26','sept26'];
   el.innerHTML = blockIds.map(bid => {
     const b = BLOCKS[bid];
     const unlocked = isBlockUnlocked(bid);
@@ -2818,8 +2809,8 @@ function updateMastersToggle(){
 
 // ACCESS CODES — chaque code débloque l'app + le bloc correspondant
 const VALID_CODES = {
-  'AOUTPWC': 'aout26',
   'ENDSEASON': 'sept26',
+  'SOCSEPT': 'reprise26',
 };
 
 async function checkAccess(){

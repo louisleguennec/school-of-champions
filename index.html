@@ -544,7 +544,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
             <option value="Intl">International</option>
           </select>
         </div>
-        <button onclick="saveMyProfile()" style="background:var(--blue);border:none;border-radius:10px;padding:10px;color:var(--white);font-family:var(--font-body);font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:4px">💾 Enregistrer</button>
+        <button onclick="saveMyProfile()" style="background:var(--gold);border:none;border-radius:10px;padding:10px;color:var(--white);font-family:var(--font-body);font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:4px">💾 Enregistrer</button>
       </div>
     </div>
     <div style="margin:0 1rem">
@@ -2729,7 +2729,7 @@ function buildBlockSelector(){
     const isActive = bid === currentBlock;
     const isArchived = b.readonly;
     const bg = isActive ? 'var(--gold)' : 'var(--surface)';
-    const col = isActive ? 'var(--navy)' : (isArchived?'var(--text3)':'var(--text2)');
+    const col = isActive ? 'var(--white)' : (isArchived?'var(--text3)':'var(--text2)');
     const border = isActive ? 'var(--gold)' : 'var(--border)';
     const icon = isArchived ? '📦 ' : (unlocked?'':'🔒 ');
     const tagArch = isArchived ? '<span style="font-size:9px;opacity:0.7;margin-left:6px">ARCHIVÉ</span>' : '';

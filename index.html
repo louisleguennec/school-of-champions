@@ -441,6 +441,24 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
         <div class="banner-dot" onclick="goSlide(2)"></div>
       </div>
     </div>
+    <!-- COACH MESSAGE -->
+    <div id="coachMsgBanner" style="display:none;margin:0 1rem 12px;background:linear-gradient(135deg,#003366,#0a4a8a);border-radius:12px;padding:12px 14px;color:#fff">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9db4cc;margin-bottom:4px">📣 Mot du coach</div>
+      <div id="coachMsgText" style="font-size:13px;line-height:1.5"></div>
+    </div>
+    <!-- COMMENT ÇA MARCHE -->
+    <div id="howtoCard" style="margin:0 1rem 12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+      <div onclick="toggleHowto()" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer">
+        <div style="font-family:var(--font-body);font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gold)">📘 Comment ça marche</div>
+        <span id="howtoChevron" style="color:var(--text3)">▾</span>
+      </div>
+      <div id="howtoBody" style="padding:0 14px 14px;font-size:13px;color:var(--text2);line-height:1.5">
+        <p style="margin-bottom:8px"><b>Autorégulation.</b> Chaque mouvement a un format fixe (séries × reps). C'est vous qui choisissez les charges selon la forme du jour.</p>
+        <p style="margin-bottom:8px"><b>Le comptage démarre à 50% du RM.</b> Tout ce qui est en dessous, c'est l'échauffement et ça ne compte pas dans les séries. Commencez léger, montez au ressenti, visez RPE 8-9 en fin de séance.</p>
+        <p style="margin-bottom:8px"><b>Les montées.</b> Barre qui bouge bien + technique propre → vous montez. Souci technique ou de vitesse → vous restez ou +quelques kg. Une série tentée compte comme faite ; un raté est décompté.</p>
+        <p style="margin-bottom:0"><b>Golden rule (sur les max).</b> Objectif : le moins de ratés possibles. Si vous ratez : re-tenter 1 fois, ou redescendre à 85% et remonter, ou stop. 2 ratés max.</p>
+      </div>
+    </div>
     <!-- BLOCK SELECTOR (Mai/Juin) -->
     <div id="blockSel" style="display:flex;gap:8px;padding:0 1rem;margin-bottom:10px;flex-wrap:wrap"></div>
     <!-- TOGGLE S4 MASTERS (visible uniquement quand juin S4 est sélectionnée) -->
@@ -1046,6 +1064,8 @@ async function showApp(){
   loadFatigue();
   renderProfile();
   initCarousel();
+  loadCoachMessage();
+  initHowto();
   loadActiveRMDefs().then(()=>loadRMsFromSupabase());
   loadSessionLogs().then(()=>{ renderDays(); updateTonnage(); });
 }
@@ -1795,6 +1815,7 @@ function saveActual(key,dIdx,val,rmKey,isLb){
 
 async function submitActualToLb(rmKey,weight){
   if(!rmKey||!athlete) return;
+  const isPR = celebratePR(rmKey, weight);
   try{
     await db('cycle_scores','POST',{athlete_id:athlete.id,movement:rmKey,weight:weight,cycle:currentBlock,week_num:currentWeek+1});
     const existing=await db('rm_records?athlete_id=eq.'+athlete.id+'&movement=eq.'+rmKey+'&select=weight,id');
@@ -1803,7 +1824,7 @@ async function submitActualToLb(rmKey,weight){
     } else if(weight>existing[0].weight){
       await db('rm_records?id=eq.'+existing[0].id,'PATCH',{weight:weight});
     }
-    toast('🏆 Score soumis au leaderboard !');
+    if(!isPR) toast('🏆 Score soumis au leaderboard !');
     loadLeaderboards();
   } catch(e){console.warn('LB submit failed',e);}
 }
@@ -2009,7 +2030,7 @@ function renderDays(){
                   </div>
                   ${actualWeights[k]?'<span style="font-size:10px;color:var(--green);font-weight:700">✓</span>':''}
                 </div>
-                ${(()=>{const prevKey=exId(currentWeek-1,dIdx,sIdx,eIdx);const prev=currentWeek>0&&actualWeights[prevKey];return prev?`<div style="font-size:10px;color:var(--text3);margin-top:3px;padding-left:2px">S. précédente : <span style="color:var(--gold);font-weight:700">${prev}kg</span>${actualWeights[k]&&parseFloat(actualWeights[k])>parseFloat(prev)?'<span style="color:var(--green);margin-left:4px">▲ +'+Math.round((parseFloat(actualWeights[k])-parseFloat(prev))*10)/10+'kg</span>':actualWeights[k]&&parseFloat(actualWeights[k])<parseFloat(prev)?'<span style="color:var(--red);margin-left:4px">▼ '+Math.round((parseFloat(actualWeights[k])-parseFloat(prev))*10)/10+'kg</span>':''}</div>`:'';})()}
+                ${prevWeekLine(dIdx,sIdx,eIdx)}
               </div>`:''}
             </div>
             ${sIdx===0?`<div class="rpe-row">
@@ -2173,7 +2194,8 @@ async function submitScore(){
   const ctx = {...scoreModalCtx};
   const rmKey = ctx.rmKey;
   const exName = ctx.exName||'';
-  toast('🏆 Score soumis !');
+  const isPR = celebratePR(rmKey, w);
+  if(!isPR) toast('🏆 Score soumis !');
   closeScoreModal();
   renderDays();
   if(athlete){
@@ -2806,6 +2828,78 @@ function closeMiniLb(){
 }
 
 // TOAST
+function rmLabel(key){
+  const all=[].concat(typeof RM_FIXED!=='undefined'?RM_FIXED:[], typeof RM_OPTIONAL!=='undefined'?RM_OPTIONAL:[]);
+  const f=all.find(r=>r.key===key); if(f) return f.label;
+  const l=(typeof LB_ALLTIME!=='undefined'?LB_ALLTIME:[]).find(m=>m.key===key); if(l) return l.label;
+  const extra={arr_plots:'Arraché des plots',dev_militaire:'Développé militaire',dev_nuque:'Développé nuque',thruster_nuque:'Thruster nuque'};
+  return extra[key]||key;
+}
+function celebratePR(movement,w){
+  w=parseFloat(w); if(!movement||!w||isNaN(w)) return false;
+  const prev=parseFloat(rmsAllTime[movement]||0);
+  if(w>prev){
+    const isFirst=!(prev>0);
+    rmsAllTime[movement]=w;
+    try{localStorage.setItem('soc_rms_alltime',JSON.stringify(rmsAllTime));}catch(e){}
+    if(!isFirst){
+      launchConfetti();
+      toast('🎉 Nouveau record '+rmLabel(movement)+' : '+w+'kg !');
+      return true;
+    }
+  }
+  return false;
+}
+function suggestNext(prevW,prevRPE){
+  const w=parseFloat(prevW); if(!w||isNaN(w)) return null;
+  let pct;
+  if(prevRPE>=5) pct=0.04; else if(prevRPE===4) pct=0.025; else if(prevRPE===3) pct=0.01;
+  else if(prevRPE===2) pct=0; else if(prevRPE===1) pct=-0.04; else pct=0.02;
+  return Math.round(w*(1+pct));
+}
+function prevWeekLine(dIdx,sIdx,eIdx){
+  if(currentWeek<=0) return '';
+  const prev=actualWeights[exId(currentWeek-1,dIdx,sIdx,eIdx)];
+  if(!prev) return '';
+  const cur=actualWeights[exId(currentWeek,dIdx,sIdx,eIdx)];
+  const pw=parseFloat(prev);
+  let delta='';
+  if(cur){
+    const d=Math.round((parseFloat(cur)-pw)*10)/10;
+    if(parseFloat(cur)>pw) delta='<span style="color:var(--green);margin-left:4px">▲ +'+d+'kg</span>';
+    else if(parseFloat(cur)<pw) delta='<span style="color:var(--red);margin-left:4px">▼ '+d+'kg</span>';
+  }
+  let sugg='';
+  if(sIdx===0 && !cur){
+    const prevRPE=rpeScores[exId(currentWeek-1,dIdx,0,eIdx)]||0;
+    const sv=suggestNext(pw,prevRPE);
+    if(sv) sugg='<div style="font-size:10px;color:var(--gold);margin-top:2px;padding-left:2px">💡 Suggéré cette semaine : <span style="font-weight:700">~'+sv+'kg</span></div>';
+  }
+  return '<div style="font-size:10px;color:var(--text3);margin-top:3px;padding-left:2px">S. précédente : <span style="color:var(--gold);font-weight:700">'+prev+'kg</span>'+delta+'</div>'+sugg;
+}
+async function loadCoachMessage(){
+  const banner=document.getElementById('coachMsgBanner');
+  if(!banner) return;
+  try{
+    const rows=await db('coach_messages?active=eq.true&select=message,cycle,athlete_id,created_at&order=created_at.desc') || [];
+    const mine=rows.filter(r=>(!r.cycle||r.cycle===currentBlock)&&(!r.athlete_id||(athlete&&r.athlete_id===athlete.id)));
+    if(mine.length){
+      document.getElementById('coachMsgText').textContent=mine[0].message;
+      banner.style.display='block';
+    } else { banner.style.display='none'; }
+  } catch(e){ banner.style.display='none'; }
+}
+function initHowto(){
+  try{ if(localStorage.getItem('soc_howto_collapsed')==='1'){ const b=document.getElementById('howtoBody'),c=document.getElementById('howtoChevron'); if(b) b.style.display='none'; if(c) c.textContent='▸'; } }catch(e){}
+}
+function toggleHowto(){
+  const b=document.getElementById('howtoBody'),c=document.getElementById('howtoChevron');
+  if(!b) return;
+  const open=b.style.display!=='none';
+  b.style.display=open?'none':'block';
+  if(c) c.textContent=open?'▸':'▾';
+  try{localStorage.setItem('soc_howto_collapsed',open?'1':'0');}catch(e){}
+}
 function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
@@ -2866,6 +2960,7 @@ function switchBlock(blockId){
   buildWeekSel();
   loadProgOverrides().then(()=>renderDays());
   loadFatigue();
+  loadCoachMessage();
 }
 
 function applyMastersFilter(){

@@ -329,14 +329,14 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 <!-- SPLASH -->
 <div id="splash">
   <div class="splash-logo">School of<br><em>Champions</em></div>
-  <div class="splash-sub">Cycle Septembre 2026</div>
+  <div class="splash-sub">Cycle Octobre 2026</div>
   <div class="splash-bar"><div class="splash-fill" id="splashFill"></div></div>
 </div>
 
 <!-- ACCESS CODE SCREEN -->
 <div id="accessScreen" style="position:fixed;inset:0;background:var(--bg);z-index:996;display:none;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;gap:1.5rem">
   <div style="font-family:var(--font-body);font-size:42px;font-weight:900;text-transform:uppercase;letter-spacing:3px;line-height:1">School of<br><em style="color:var(--gold)">Champions</em></div>
-  <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text2)">Cycle Septembre 2026</div>
+  <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text2)">Cycle Octobre 2026</div>
   <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px">
     <div style="font-size:13px;color:var(--text2);line-height:1.5">Entre ton email et le code d'accès reçu par email.</div>
     <input id="accessEmail" type="email" inputmode="email" placeholder="ton@email.com" style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-size:15px;outline:none;text-align:center">
@@ -414,7 +414,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
           <img src="https://cdn.shopify.com/s/files/1/0655/3413/2449/files/powercontest2.jpg?v=1788204335" alt="">
           <div class="banner-grad"></div>
           <div class="banner-text">
-            <div class="banner-eyebrow">Cycle Septembre 2026</div>
+            <div class="banner-eyebrow">Cycle Octobre 2026</div>
             <div class="banner-title">School of <em>Champions</em></div>
           </div>
         </div>
@@ -422,7 +422,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
           <img src="https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/IMG_3134.jpg" alt="">
           <div class="banner-grad"></div>
           <div class="banner-text">
-            <div class="banner-eyebrow">Cycle Septembre 2026</div>
+            <div class="banner-eyebrow">Cycle Octobre 2026</div>
             <div class="banner-title">School of <em>Champions</em></div>
           </div>
         </div>
@@ -430,7 +430,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
           <img src="https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/Capture%20d%E2%80%99e%CC%81cran%202024-09-12%20a%CC%80%2019.13.39.png" alt="">
           <div class="banner-grad"></div>
           <div class="banner-text">
-            <div class="banner-eyebrow">Cycle Septembre 2026</div>
+            <div class="banner-eyebrow">Cycle Octobre 2026</div>
             <div class="banner-title">School of <em>Champions</em></div>
           </div>
         </div>
@@ -736,7 +736,7 @@ function loadLocal(){
   // (sans préfixe de bloc) qui pouvaient mélanger mai et juin.
   // Le nouveau format est "bloc_w_d_s_e" → commence par "aout26_" ou "sept26_".
   if(!localStorage.getItem('soc_keymigr_v1')){
-    const isOld = k => !/^(aout26|sept26|reprise26)_/.test(k);
+    const isOld = k => !/^(aout26|sept26|reprise26|oct26)_/.test(k);
     [['checked',()=>checked],['rpeScores',()=>rpeScores],['actualWeights',()=>actualWeights]].forEach(([,getObj])=>{
       const obj=getObj();
       Object.keys(obj).forEach(k=>{ if(isOld(k)) delete obj[k]; });
@@ -845,7 +845,7 @@ async function loadSessionLogs(){
   if(!athlete) return;
   try{
     const logs = await db(`session_logs?athlete_id=eq.${athlete.id}&cycle=eq.${currentBlock}&select=key,value`) || [];
-    const isValidKey = k => /^(aout26|sept26|reprise26)_/.test(k);
+    const isValidKey = k => /^(aout26|sept26|reprise26|oct26)_/.test(k);
     const assignValid = (target, data) => {
       Object.keys(data||{}).forEach(k=>{ if(isValidKey(k)) target[k]=data[k]; });
     };
@@ -1068,6 +1068,9 @@ const RM_OPTIONAL=[
   {key:'ep_debout',label:'Épa. Debout'},
   {key:'ep',label:'Épaulé'},
   {key:'deadlift',label:'Deadlift'},
+  {key:'dev_militaire',label:'Dév. Militaire'},
+  {key:'dev_nuque',label:'Dév. Nuque'},
+  {key:'thruster_nuque',label:'Thruster Nuque'},
 ];
 let RM_DEFS=[
   {key:'arr',label:'Arraché'},
@@ -1551,7 +1554,172 @@ const BLOCK_REPRISE26_WEEKS = [
     {type:"main",label:"Vendredi",sub:"Arraché · Épaulé-jeté · Squat nuque",warmup:[],main:[{n:"Arraché",d:"RM du jour",rm:"arr",note:"2 échecs max",video:"https://www.youtube.com/shorts/9UtWOLkdGFY",isLb:true},{n:"Épaulé-jeté",d:"RM du jour",rm:"ej",note:"2 échecs max",video:"https://www.youtube.com/watch?v=MA1HYzA5qlQ",isLb:true},{n:"Squat nuque",d:"2RM du jour",rm:"squat",video:"https://www.youtube.com/watch?v=DU2Dl83uVaQ",isLb:true}],prepa:[]},
   ]},
 ];
+// ───── BLOC OCTOBRE 2026 — Méthode coréenne · autorégulation (3 semaines) ─────
+const O_ARR="https://www.youtube.com/watch?v=C1Mm4esCaIY";
+const O_ARR_PLOTS="https://youtube.com/shorts/P6tgLlFp7Io";
+const O_EP_DEB_JETE="https://www.youtube.com/watch?v=Sk1vhXhHO_A";
+const O_SNDL="https://www.youtube.com/watch?v=mp9gtX-JqB0";
+const O_EXTLOMB="https://www.youtube.com/watch?v=dEDjkzFKJ-0";
+const O_ABDOS="https://www.youtube.com/watch?v=1pbZ8mX2D1U";
+const O_DMIL="https://www.youtube.com/watch?v=yelXxVJYrww";
+const O_JETF="https://www.youtube.com/watch?v=ngjhO8CJvQg";
+const O_FS="https://www.youtube.com/watch?v=g8uV9X_KN_I";
+const O_THA="https://www.youtube.com/watch?v=sl7KRa4Px8E";
+const O_SOTS="https://www.youtube.com/watch?v=UrdNFJaTAnc";
+const O_TRAC="https://www.youtube.com/watch?v=pHtPSleYquw";
+const O_BOX="https://www.youtube.com/watch?v=4qKY6JLm-3s";
+const O_JETP="https://www.youtube.com/watch?v=Xo8lVPHq510";
+const O_APPEL="https://www.youtube.com/watch?v=If-TUuNGp5s";
+const O_ARRF="https://www.youtube.com/watch?v=ndJ3u4nH43E";
+const O_RDL="https://www.youtube.com/watch?v=baTRNgGaSVo";
+const O_SIDE="https://www.youtube.com/shorts/TDPOyEW_q3M";
+const O_EJ="https://www.youtube.com/watch?v=MA1HYzA5qlQ";
+const O_CLDL="https://www.youtube.com/watch?v=DJuxEEqXrmc";
+const O_BULG="https://www.youtube.com/shorts/_nXMctwsUAU";
+const O_ROW="https://www.youtube.com/watch?v=9OKXDJsv37g";
+const O_DNUQUE="https://www.youtube.com/watch?v=hY-_kXsJl3w";
+const O_THRU="https://www.youtube.com/shorts/HrqYbaiSJ5A";
+const O_SQ="https://www.youtube.com/watch?v=DU2Dl83uVaQ";
+const O_CHUTE="https://www.youtube.com/watch?v=8KKQTdnxWso";
+const O_DC="https://www.youtube.com/shorts/sLuDivCj3Sg";
+const O_GAIN="https://www.youtube.com/watch?v=1irD44DoxaY";
+const O_POIGN="https://www.youtube.com/watch?v=gsRwxD6SnSQ";
+
+const BLOCK_OCT26_WEEKS=[
+ {id:"w1",label:"S1 · 05/10",title:"Semaine 1",days:[
+   {type:"main",label:"Lundi",sub:"Arraché plots · épaulé debout",warmup:[],main:[
+     {n:"Arraché des plots (ou suspension)",d:"3×3, 3×2, 4×1",note:"Bien garder les épaules devant sur le départ !",rm:"arr_plots",video:O_ARR_PLOTS,isLb:true},
+     {n:"Épaulé debout + jeté",d:"3×(2+2), 3×(1+1)",note:"Pause fente 3'' sur la montée en charge",video:O_EP_DEB_JETE},
+     {n:"Snatch deadlift",d:"5×3",note:"Start à 50% du RM deadlift et monter à chaque série au ressenti",rm:"deadlift",video:O_SNDL}],
+    prepa:[
+     {n:"Extensions lombaires GHD ou Good morning",d:"2-3 × 8-10",note:"Barre nuque, amplitude complète en bas ET en haut",video:O_EXTLOMB},
+     {n:"Abdos à la roulette ou GHD sit-ups",d:"2-3 × 8-10",video:O_ABDOS}]},
+   {type:"opt",label:"Mardi",sub:"Presses · front squat",warmup:[],main:[
+     {n:"Développé militaire",d:"3×5, 3×3, 2×1",rm:"dev_militaire",video:O_DMIL},
+     {n:"Jeté force",d:"4×3, 3×2",note:"Redescendre à 50% du RM jeté force et remonter au fil des séries",rm:"jet_force",video:O_JETF},
+     {n:"Front squat",d:"3×5, 4×3, 3×1",note:"Redescendre à 50% du RM FS et remonter au fil des séries",rm:"fs",video:O_FS},
+     {n:"Tirage haut d'arraché suspension",d:"5×5 / 50-60% du RM arraché",note:"Suspension haute ou basse selon points faibles. Rythme et relâchement au contact",rm:"arr",video:O_THA}],
+    prepa:[
+     {n:"Sots press",d:"4×5",note:"RPE 6-7, travail de position / posture / mobilité",video:O_SOTS},
+     {n:"Tirage poulie haute ou tractions",d:"3×8",note:"Finir sur une série RPE 8 environ",video:O_TRAC}]},
+   {type:"opt",label:"Mercredi",sub:"Vitesse · jeté · arraché force",warmup:[],main:[
+     {n:"Jeté des plots",d:"6×3",note:"Monter au fil des séries tant que la technique est propre. Envoyer le pied avant loin devant !",rm:"jet",video:O_JETP},
+     {n:"Appel de jeté",d:"5×5 / 100+% du RM jeté",note:"Appel court et fluide",rm:"jet",video:O_APPEL},
+     {n:"Arraché force",d:"3×3, 3×2",note:"Monter au fil des séries et finir sur une série RPE 7-8",rm:"arr_force",video:O_ARRF}],
+    prepa:[
+     {n:"Box jumps",d:"2×5, 2×3, 2×2",note:"Hauteur progressive",video:O_BOX},
+     {n:"RDL",d:"3×8",note:"Excentrique contrôlé, dos parfaitement placé et gros étirement ischios",video:O_RDL},
+     {n:"Side bends (ou russian twists)",d:"2-3 × 8-10 / côté",note:"Gros étirement à chaque rep",video:O_SIDE}]},
+   {type:"rest",label:"Jeudi"},
+   {type:"main",label:"Vendredi",sub:"Arraché & épaulé-jeté (max)",warmup:[],main:[
+     {n:"Arraché",d:"2×3, 4×2, 3×1",note:"GOLDEN RULE",rm:"arr",video:O_ARR,isLb:true},
+     {n:"Épaulé-jeté",d:"3×(2+1), 4×(1+1)",note:"GOLDEN RULE",rm:"ej",video:O_EJ,isLb:true},
+     {n:"Clean deadlift",d:"4×3, 3×2",note:"Start à 50% du RM deadlift et monter à chaque série au ressenti",rm:"deadlift",video:O_CLDL}],
+    prepa:[
+     {n:"Squat bulgare",d:"3×6 / jambe",note:"Finir sur une série RPE 7-8 environ",video:O_BULG},
+     {n:"Rowing buste penché ou rowing planche",d:"3×8",note:"Finir sur une série RPE 8 environ",video:O_ROW}]},
+   {type:"main",label:"Samedi",sub:"Presses nuque · squats",warmup:[],main:[
+     {n:"Développé nuque",d:"3×5, 3×3",note:"Start à 50% et monter en charge à chaque série au ressenti",rm:"dev_nuque",video:O_DNUQUE},
+     {n:"Thruster nuque (back squat press)",d:"3×3, 3×2, 1×1",note:"Redescendre à 50% du RM thruster nuque et remonter au fil des séries",rm:"thruster_nuque",video:O_THRU},
+     {n:"Squat nuque",d:"3×5, 3×3, 2×2",note:"Redescendre à 50% du RM squat nuque et remonter au fil des séries",rm:"squat",video:O_SQ},
+     {n:"Chute d'arraché",d:"3×3, 3×2, 2×1",note:"Redescendre à 50% du RM arraché, voire moins si besoin, et remonter au fil des séries",rm:"arr",video:O_CHUTE}],
+    prepa:[
+     {n:"Développé couché ou dips",d:"3×8",note:"Finir sur une série RPE 8 environ",video:O_DC},
+     {n:"Gainage lesté",d:"2-3 × 30-45''",note:"Avec poids sur le bas du dos si possible",video:O_GAIN}]},
+ ]},
+ {id:"w2",label:"S2 · 12/10",title:"Semaine 2",days:[
+   {type:"main",label:"Lundi",sub:"Arraché plots & épaulé-jeté · intensité",warmup:[],main:[
+     {n:"Arraché des plots (ou suspension)",d:"3×3, 3×2, 4×1",note:"Bien garder les épaules devant sur le départ !",rm:"arr_plots",video:O_ARR_PLOTS,isLb:true},
+     {n:"Épaulé-jeté",d:"Doublés jusqu'à 80%, 3-5×1 plus lourd",rm:"ej",video:O_EJ},
+     {n:"Snatch deadlift",d:"2×3, 3×2, 3×1",note:"Montée sur une rep lourde RPE 8-9",rm:"deadlift",video:O_SNDL}],
+    prepa:[
+     {n:"Extensions lombaires GHD ou Good morning",d:"2-3 × 8-10",note:"Barre nuque, amplitude complète en bas ET en haut",video:O_EXTLOMB},
+     {n:"Abdos à la roulette ou GHD sit-ups",d:"2-3 × 8-10",video:O_ABDOS}]},
+   {type:"opt",label:"Mardi",sub:"Montées RM · squat léger",warmup:[],main:[
+     {n:"Développé militaire",d:"Montée sur un RM du jour",note:"Stop si échec",rm:"dev_militaire",video:O_DMIL},
+     {n:"Jeté force",d:"Montée sur un 2RM du jour",note:"Stop si échec",rm:"jet_force",video:O_JETF},
+     {n:"Front squat",d:"6×3 / 50-70% du RM FS",note:"Travail léger posture / vitesse",rm:"fs",video:O_FS},
+     {n:"Tirage haut d'arraché suspension",d:"5×5 / 50-70% du RM arraché",note:"Suspension haute ou basse selon points faibles. Rythme et relâchement au contact",rm:"arr",video:O_THA}],
+    prepa:[
+     {n:"Tirage poulie haute ou tractions",d:"3×8",note:"Finir sur une série RPE 8 environ",video:O_TRAC}]},
+   {type:"opt",label:"Mercredi",sub:"Vitesse · jeté · chute d'arraché",warmup:[],main:[
+     {n:"Jeté des plots",d:"6×3 / 60-80% (si bien, ×1 plus lourd)",note:"Pause fente si possible !",rm:"jet",video:O_JETP},
+     {n:"Appel de jeté",d:"5×5 / 100+% du RM jeté",note:"Appel court et fluide",rm:"jet",video:O_APPEL},
+     {n:"Chute d'arraché",d:"3×3, 3×2, 3×1",note:"Redescendre à 50% du RM arraché, voire moins si besoin, et remonter au fil des séries",rm:"arr",video:O_CHUTE}],
+    prepa:[
+     {n:"Box jumps",d:"2×5, 2×3, 2×2",note:"Hauteur progressive",video:O_BOX},
+     {n:"RDL",d:"3×8",note:"Excentrique contrôlé, dos parfaitement placé et gros étirement ischios",video:O_RDL}]},
+   {type:"rest",label:"Jeudi"},
+   {type:"main",label:"Vendredi",sub:"Arraché & épaulé-jeté (singles)",warmup:[],main:[
+     {n:"Arraché",d:"Doublés jusqu'à 80%, 3-5×1 plus lourd",note:"GOLDEN RULE",rm:"arr",video:O_ARR,isLb:true},
+     {n:"Épaulé-jeté",d:"Doublés jusqu'à 80%, 3-5×1 plus lourd",note:"GOLDEN RULE",rm:"ej",video:O_EJ,isLb:true},
+     {n:"Snatch deadlift",d:"5×3",note:"Start à 50% du RM deadlift et monter à chaque série au ressenti",rm:"deadlift",video:O_SNDL}],
+    prepa:[
+     {n:"Rowing buste penché ou rowing planche",d:"3×8",note:"Finir sur une série RPE 8 environ",video:O_ROW},
+     {n:"Side bends (ou russian twists)",d:"2-3 × 8-10 / côté",note:"Gros étirement à chaque rep",video:O_SIDE}]},
+   {type:"main",label:"Samedi",sub:"Presses · front squat",warmup:[],main:[
+     {n:"Développé militaire",d:"3×5, 3×3, 2×1",note:"Start à 50% et monter en charge à chaque série au ressenti",rm:"dev_militaire",video:O_DMIL},
+     {n:"Jeté force",d:"4×3, 3×2",note:"Redescendre à 50% du RM jeté force et remonter au fil des séries",rm:"jet_force",video:O_JETF},
+     {n:"Front squat",d:"3×5, 4×3, 3×1",note:"Redescendre à 50% du RM FS et remonter au fil des séries",rm:"fs",video:O_FS},
+     {n:"Tirage haut d'arraché suspension",d:"5×5 / 50-60% du RM arraché",note:"Suspension haute ou basse selon points faibles. Rythme et relâchement au contact",rm:"arr",video:O_THA}],
+    prepa:[
+     {n:"Développé couché ou dips",d:"3×8",note:"Finir sur une série RPE 8 environ",video:O_DC},
+     {n:"Flexions / extensions de poignets à la barre",d:"3×15-20 de chaque",video:O_POIGN}]},
+ ]},
+ {id:"w3",label:"S3 · 19/10",title:"Semaine 3",days:[
+   {type:"main",label:"Lundi",sub:"Arraché plots & épaulé-jeté",warmup:[],main:[
+     {n:"Arraché des plots (ou suspension)",d:"3×3, 3×2, 4×1",note:"Bien garder les épaules devant sur le départ !",rm:"arr_plots",video:O_ARR_PLOTS,isLb:true},
+     {n:"Épaulé-jeté",d:"Doublés jusqu'à 80%, 3-5×1 plus lourd",note:"Pause fente 3'' sur la montée en charge",rm:"ej",video:O_EJ},
+     {n:"Clean deadlift",d:"4×3, 3×2",note:"Start à 50% du RM deadlift et monter à chaque série au ressenti",rm:"deadlift",video:O_CLDL}],
+    prepa:[
+     {n:"Extensions lombaires GHD ou Good morning",d:"2-3 × 8-10",note:"Barre nuque, amplitude complète en bas ET en haut",video:O_EXTLOMB},
+     {n:"Abdos à la roulette ou GHD sit-ups",d:"2-3 × 8-10",video:O_ABDOS}]},
+   {type:"opt",label:"Mardi",sub:"Presses nuque · squat · technique",warmup:[],main:[
+     {n:"Développé nuque",d:"3×5, 3×3",note:"Start à 50% et monter en charge à chaque série au ressenti",rm:"dev_nuque",video:O_DNUQUE},
+     {n:"Thruster nuque (back squat press)",d:"3×3, 2×2, 3×1",note:"Redescendre à 50% du RM thruster nuque et remonter au fil des séries",rm:"thruster_nuque",video:O_THRU},
+     {n:"Squat nuque",d:"2×5, 3×3, 1×2, 2×1",note:"Redescendre à 50% du RM squat nuque et remonter au fil des séries",rm:"squat",video:O_SQ},
+     {n:"Chute d'arraché",d:"2×3, 3×2, 4×1",note:"Redescendre à 50% du RM arraché, voire moins si besoin, et remonter au fil des séries",rm:"arr",video:O_CHUTE}],
+    prepa:[
+     {n:"Sots press",d:"4×5",note:"RPE 6-7, travail de position / posture / mobilité",video:O_SOTS}]},
+   {type:"opt",label:"Mercredi",sub:"Vitesse · jeté · arraché force (light)",warmup:[],main:[
+     {n:"Jeté des plots",d:"6×3 / 60-80% (si bien, ×1 plus lourd)",note:"Pause fente si possible !",rm:"jet",video:O_JETP},
+     {n:"Appel de jeté",d:"5×5 / 100+% du RM jeté",note:"Appel court et fluide",rm:"jet",video:O_APPEL},
+     {n:"Arraché force",d:"6×3 / 50-70% du RM arraché force",note:"Light",rm:"arr_force",video:O_ARRF}],
+    prepa:[
+     {n:"Box jumps",d:"2×5, 2×3, 2×2",note:"Hauteur progressive",video:O_BOX},
+     {n:"RDL",d:"3×8",note:"Excentrique contrôlé, dos parfaitement placé et gros étirement ischios",video:O_RDL}]},
+   {type:"rest",label:"Jeudi"},
+   {type:"main",label:"Vendredi",sub:"Arraché & épaulé-jeté (singles)",warmup:[],main:[
+     {n:"Arraché",d:"Doublés jusqu'à 80%, 3-5×1 plus lourd",note:"GOLDEN RULE",rm:"arr",video:O_ARR,isLb:true},
+     {n:"Épaulé-jeté",d:"Doublés jusqu'à 80%, 3-5×1 plus lourd",note:"GOLDEN RULE",rm:"ej",video:O_EJ,isLb:true},
+     {n:"Snatch deadlift",d:"2×3, 3×2, 3×1",note:"Montée sur une rep lourde RPE 8-9",rm:"deadlift",video:O_SNDL}],
+    prepa:[
+     {n:"Rowing buste penché ou rowing planche",d:"3×8",note:"Finir sur une série RPE 8 environ",video:O_ROW},
+     {n:"Flexions / extensions de poignets à la barre",d:"3×15-20 de chaque",video:O_POIGN}]},
+   {type:"main",label:"Samedi",sub:"Presses · front squat · avant-bras",warmup:[],main:[
+     {n:"Développé militaire",d:"3×5, 3×3, 2×1",rm:"dev_militaire",video:O_DMIL},
+     {n:"Jeté force",d:"4×3, 3×2",note:"Redescendre à 50% du RM jeté force et remonter au fil des séries",rm:"jet_force",video:O_JETF},
+     {n:"Front squat",d:"3×5, 4×3, 3×1",note:"Redescendre à 50% du RM FS et remonter au fil des séries",rm:"fs",video:O_FS}],
+    prepa:[
+     {n:"Développé couché ou dips",d:"3×8",note:"Finir sur une série RPE 8 environ",video:O_DC},
+     {n:"Flexions / extensions de poignets à la barre",d:"3×15-20 de chaque",video:O_POIGN}]},
+ ]},
+];
+
 const BLOCKS = {
+  oct26: {
+    id: 'oct26',
+    label: 'Octobre 2026',
+    short: 'Oct',
+    weeks: BLOCK_OCT26_WEEKS,
+    starts: [
+      new Date(2026, 9, 5),  // S1 — 5 oct
+      new Date(2026, 9, 12), // S2 — 12 oct
+      new Date(2026, 9, 19), // S3 — 19 oct
+    ],
+    readonly: false,
+    code: 'SCHOOLOCT',
+  },
   sept26: {
     id: 'sept26',
     label: 'Août 2026',
@@ -2672,6 +2840,7 @@ function isBlockUnlocked(blockId){
 
 function chooseDefaultBlock(){
   // Priorité décroissante : on prend le bloc actif le plus récent débloqué.
+  if(isBlockUnlocked('oct26')) return 'oct26';
   if(isBlockUnlocked('reprise26')) return 'reprise26';
   return 'sept26';
 }
@@ -2722,7 +2891,7 @@ function applyMastersFilter(){
 function buildBlockSelector(){
   const el = document.getElementById('blockSel');
   if(!el) return;
-  const blockIds = ['reprise26','sept26'];
+  const blockIds = ['oct26','reprise26','sept26'];
   el.innerHTML = blockIds.map(bid => {
     const b = BLOCKS[bid];
     const unlocked = isBlockUnlocked(bid);
@@ -2809,6 +2978,7 @@ function updateMastersToggle(){
 
 // ACCESS CODES — chaque code débloque l'app + le bloc correspondant
 const VALID_CODES = {
+  'SCHOOLOCT': 'oct26',
   'ENDSEASON': 'sept26',
   'SOCSEPT': 'reprise26',
 };

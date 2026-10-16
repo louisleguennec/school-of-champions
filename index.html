@@ -1817,7 +1817,14 @@ async function submitActualToLb(rmKey,weight){
   if(!rmKey||!athlete) return;
   const isPR = celebratePR(rmKey, weight);
   try{
-    await db('cycle_scores','POST',{athlete_id:athlete.id,movement:rmKey,weight:weight,cycle:currentBlock,week_num:currentWeek+1});
+    // cycle_scores : garde la meilleure valeur du cycle sans empiler de doublons
+    const cs=await db(`cycle_scores?athlete_id=eq.${athlete.id}&movement=eq.${rmKey}&cycle=eq.${currentBlock}&week_num=eq.${currentWeek+1}&select=id,weight`);
+    if(cs && cs.length){
+      if(weight>cs[0].weight) await db(`cycle_scores?id=eq.${cs[0].id}`,'PATCH',{weight:weight});
+      for(let i=1;i<cs.length;i++){ await db(`cycle_scores?id=eq.${cs[i].id}`,'DELETE'); }
+    } else {
+      await db('cycle_scores','POST',{athlete_id:athlete.id,movement:rmKey,weight:weight,cycle:currentBlock,week_num:currentWeek+1});
+    }
     const existing=await db('rm_records?athlete_id=eq.'+athlete.id+'&movement=eq.'+rmKey+'&select=weight,id');
     if(!existing||existing.length===0){
       await db('rm_records','POST',{athlete_id:athlete.id,movement:rmKey,weight:weight,cycle:currentBlock});
@@ -1932,11 +1939,22 @@ const RPE_EMOJIS=['😵','😓','😐','💪','🔥'];
 const RPE_COLORS=['var(--red)','var(--gold-soft)','var(--text2)','var(--green)','var(--green)'];
 
 function setRPE(key,val,el){
-  rpeScores[key]=val;
-  saveRPE();
   const row=el.closest('.rpe-row');
   const stars=el.closest('.rpe-stars').querySelectorAll('.rpe-star');
-  stars.forEach(s=>{s.classList.toggle('on',parseInt(s.dataset.v)<=val);});
+  // Re-clic sur l'emoji déjà choisi : on annule le ressenti
+  if(rpeScores[key]===val){
+    delete rpeScores[key];
+    saveRPE();
+    stars.forEach(s=>s.classList.remove('on'));
+    const lbl=row.querySelector('.rpe-label');
+    if(lbl) lbl.remove();
+    if(athlete) clearRPEInDb(key);
+    return;
+  }
+  // Choix unique : un seul emoji allumé
+  rpeScores[key]=val;
+  saveRPE();
+  stars.forEach(s=>{s.classList.toggle('on',parseInt(s.dataset.v)===val);});
   let lbl=row.querySelector('.rpe-label');
   if(!lbl){lbl=document.createElement('span');lbl.className='rpe-label';row.appendChild(lbl);}
   lbl.textContent=RPE_LABELS[val-1];
@@ -1949,11 +1967,26 @@ async function submitRPEToDb(key,val){
   if(BLOCKS[currentBlock]?.readonly) return;
   try{
     const parts=key.split('_');
-    await db('exercise_feelings','POST',{
-      athlete_id:athlete.id,exercise_key:key,cycle:currentBlock,
-      week_num:parseInt(parts[0])+1,day_num:parseInt(parts[1])+1,score:val
-    });
+    const existing=await db(`exercise_feelings?athlete_id=eq.${athlete.id}&exercise_key=eq.${encodeURIComponent(key)}&select=id`);
+    if(existing && existing.length){
+      // Met a jour la ligne existante au lieu d'en creer une nouvelle
+      await db(`exercise_feelings?id=eq.${existing[0].id}`,'PATCH',{score:val});
+      // Nettoie d'eventuels doublons historiques
+      for(let i=1;i<existing.length;i++){ await db(`exercise_feelings?id=eq.${existing[i].id}`,'DELETE'); }
+    } else {
+      await db('exercise_feelings','POST',{
+        athlete_id:athlete.id,exercise_key:key,cycle:currentBlock,
+        week_num:parseInt(parts[0])+1,day_num:parseInt(parts[1])+1,score:val
+      });
+    }
   } catch(e){console.warn('RPE save failed',e);}
+}
+
+async function clearRPEInDb(key){
+  if(BLOCKS[currentBlock]?.readonly) return;
+  try{
+    await db(`exercise_feelings?athlete_id=eq.${athlete.id}&exercise_key=eq.${encodeURIComponent(key)}`,'DELETE');
+  } catch(e){console.warn('RPE clear failed',e);}
 }
 
 function renderDays(){
@@ -2000,7 +2033,7 @@ function renderDays(){
         const rpeVal=rpeScores[k]||0;
         // RPE stars avec emojis et couleurs claires
         const starsHtml=[1,2,3,4,5].map(v=>{
-          const isOn=rpeVal>=v;
+          const isOn=rpeVal===v;
           return `<span class="rpe-star${isOn?' on':''}" data-v="${v}"
             onclick="setRPE('${k}',${v},this)" 
             title="${RPE_LABELS[v-1]}">${RPE_EMOJIS[v-1]}</span>`;
@@ -2200,12 +2233,21 @@ async function submitScore(){
   renderDays();
   if(athlete){
     try{
-      await db('cycle_scores','POST',{athlete_id:athlete.id,movement:rmKey,weight:w,cycle:currentBlock,week_num:currentWeek+1,exercise_name:exName});
+      // cycle_scores : met a jour l'entree du cycle au lieu d'empiler une nouvelle ligne
+      const cs=await db(`cycle_scores?athlete_id=eq.${athlete.id}&movement=eq.${rmKey}&cycle=eq.${currentBlock}&week_num=eq.${currentWeek+1}&select=id`);
+      if(cs && cs.length){
+        await db(`cycle_scores?id=eq.${cs[0].id}`,'PATCH',{weight:w,exercise_name:exName});
+        for(let i=1;i<cs.length;i++){ await db(`cycle_scores?id=eq.${cs[i].id}`,'DELETE'); }
+      } else {
+        await db('cycle_scores','POST',{athlete_id:athlete.id,movement:rmKey,weight:w,cycle:currentBlock,week_num:currentWeek+1,exercise_name:exName});
+      }
+      // rm_records : une soumission manuelle fait foi (correction prise en compte, vers le haut OU le bas)
       const existing=await db(`rm_records?athlete_id=eq.${athlete.id}&movement=eq.${rmKey}&select=weight,id`);
       if(!existing||existing.length===0){
         await db('rm_records','POST',{athlete_id:athlete.id,movement:rmKey,weight:w,cycle:currentBlock});
-      } else if(w>existing[0].weight){
+      } else {
         await db(`rm_records?id=eq.${existing[0].id}`,'PATCH',{weight:w});
+        for(let i=1;i<existing.length;i++){ await db(`rm_records?id=eq.${existing[i].id}`,'DELETE'); }
       }
       await loadLeaderboards();
       openFullLb(rmKey, exName);

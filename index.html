@@ -2063,7 +2063,7 @@ function renderDays(){
                   </div>
                   ${actualWeights[k]?'<span style="font-size:10px;color:var(--green);font-weight:700">✓</span>':''}
                 </div>
-                ${prevWeekLine(dIdx,sIdx,eIdx)}
+                ${prevWeekLine(dIdx,sIdx,eIdx,ex.n)}
               </div>`:''}
             </div>
             ${sIdx===0?`<div class="rpe-row">
@@ -2905,10 +2905,26 @@ function suggestNext(prevW,prevRPE){
   else if(prevRPE===2) pct=0; else if(prevRPE===1) pct=-0.04; else pct=0.02;
   return Math.round(w*(1+pct));
 }
-function prevWeekLine(dIdx,sIdx,eIdx){
-  if(currentWeek<=0) return '';
-  const prev=actualWeights[exId(currentWeek-1,dIdx,sIdx,eIdx)];
-  if(!prev) return '';
+function prevWeekLine(dIdx,sIdx,eIdx,exName){
+  if(currentWeek<=0 || !exName) return '';
+  // Chercher la charge de la semaine précédente pour LE MÊME exercice (par nom),
+  // dans le même jour, peu importe sa position. Si le mouvement a changé
+  // (back squat -> front squat...), on n'affiche rien plutôt qu'une mauvaise référence.
+  const prevDay = WEEKS[currentWeek-1] && WEEKS[currentWeek-1].days[dIdx];
+  if(!prevDay) return '';
+  let prev=null, mS=-1, mI=-1;
+  const scan=(arr,sec)=>{
+    if(prev!=null || !arr) return;
+    for(let i=0;i<arr.length;i++){
+      const e=arr[i];
+      if(e && e.n===exName){
+        const w=actualWeights[exId(currentWeek-1,dIdx,sec,i)];
+        if(w){ prev=w; mS=sec; mI=i; return; }
+      }
+    }
+  };
+  scan(prevDay.main,0); scan(prevDay.prepa,1);
+  if(prev==null) return '';
   const cur=actualWeights[exId(currentWeek,dIdx,sIdx,eIdx)];
   const pw=parseFloat(prev);
   let delta='';
@@ -2919,7 +2935,7 @@ function prevWeekLine(dIdx,sIdx,eIdx){
   }
   let sugg='';
   if(sIdx===0 && !cur){
-    const prevRPE=rpeScores[exId(currentWeek-1,dIdx,0,eIdx)]||0;
+    const prevRPE = (mS===0 ? (rpeScores[exId(currentWeek-1,dIdx,0,mI)]||0) : 0);
     const sv=suggestNext(pw,prevRPE);
     if(sv) sugg='<div style="font-size:10px;color:var(--gold);margin-top:2px;padding-left:2px">💡 Suggéré cette semaine : <span style="font-weight:700">~'+sv+'kg</span></div>';
   }

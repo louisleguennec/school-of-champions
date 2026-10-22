@@ -457,12 +457,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
       <button id="mastersBtn" class="toggle-switch" onclick="toggleMasters()" aria-label="Changer de variante"></button>
     </div>
     <div class="week-sel" id="weekSel"></div>
-    <div class="prog-stats" id="progStats">
-      <div class="pstat"><div class="pstat-val" id="statDays">5</div><div class="pstat-label">Jours</div></div>
-      <div class="pstat"><div class="pstat-val" id="statTotal">—</div><div class="pstat-label">Exercices</div></div>
-      <div class="pstat"><div class="pstat-val" id="statDone">0</div><div class="pstat-label">Complétés</div></div>
-    </div>
-    
+
     <!-- WEEKLY FATIGUE -->
     <div id="fatigueWidget" style="margin:0 1rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;display:none">
       <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px" id="fatigueTitle">Fatigue de début de semaine</div>
@@ -2196,8 +2191,8 @@ function renderDays(){
     wrap.appendChild(card);
   });
 
-  document.getElementById('statTotal').textContent=totalEx;
-  document.getElementById('statDone').textContent=totalDone;
+  const _st=document.getElementById('statTotal'); if(_st)_st.textContent=totalEx;
+  const _sd=document.getElementById('statDone'); if(_sd)_sd.textContent=totalDone;
   document.getElementById('fab').className='fab'+(openDay!==null?' show':'');
 }
 
@@ -2223,7 +2218,7 @@ function toggleCheck(key,el,dIdx){
     const all=[...(dy.main||[]).map((_,i)=>exId(currentWeek,di,0,i)),...(dy.prepa||[]).map((_,i)=>exId(currentWeek,di,1,i))];
     t+=all.length;d+=all.filter(k=>checked[k]).length;
   });
-  document.getElementById('statDone').textContent=d;
+  const _sd2=document.getElementById('statDone'); if(_sd2)_sd2.textContent=d;
 }
 
 function launchConfetti(){

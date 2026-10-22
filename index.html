@@ -55,7 +55,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 /* SPLASH */
 #splash{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;transition:opacity 0.5s}
 #splash.out{opacity:0;pointer-events:none}
-.splash-logo{font-family:var(--font-title);font-size:56px;font-weight:400;text-transform:uppercase;letter-spacing:4px;text-align:center;line-height:0.95}
+.splash-logo{font-family:var(--font-title);font-size:56px;font-weight:900;text-transform:uppercase;letter-spacing:4px;text-align:center;line-height:0.95}
 .splash-logo em{color:var(--gold);font-style:normal}
 .splash-sub{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text2)}
 .splash-bar{width:160px;height:2px;background:var(--border);border-radius:1px;overflow:hidden}
@@ -103,7 +103,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .panel.active{display:block}
 
 /* BANNER */
-.banner{width:100%;height:220px;overflow:hidden;position:relative;background:var(--navy)}
+.banner{width:100%;height:140px;overflow:hidden;position:relative;background:var(--navy)}
 .banner-slides{display:flex;width:100%;height:100%;transition:transform 0.8s cubic-bezier(0.4,0,0.2,1)}
 .banner-slide{flex-shrink:0;width:100%;height:100%;position:relative}
 .banner-slide img{width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(0.65) contrast(1.05)}
@@ -446,19 +446,6 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
       <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9db4cc;margin-bottom:4px">📣 Mot du coach</div>
       <div id="coachMsgText" style="font-size:13px;line-height:1.5"></div>
     </div>
-    <!-- COMMENT ÇA MARCHE -->
-    <div id="howtoCard" style="margin:0 1rem 12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
-      <div onclick="toggleHowto()" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer">
-        <div style="font-family:var(--font-body);font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gold)">📘 Comment ça marche</div>
-        <span id="howtoChevron" style="color:var(--text3)">▾</span>
-      </div>
-      <div id="howtoBody" style="padding:0 14px 14px;font-size:13px;color:var(--text2);line-height:1.5">
-        <p style="margin-bottom:8px"><b>Autorégulation.</b> Chaque mouvement a un format fixe (séries × reps). C'est vous qui choisissez les charges selon la forme du jour.</p>
-        <p style="margin-bottom:8px"><b>Le comptage démarre à 50% du RM.</b> Tout ce qui est en dessous, c'est l'échauffement et ça ne compte pas dans les séries. Commencez léger, montez au ressenti, visez RPE 8-9 en fin de séance.</p>
-        <p style="margin-bottom:8px"><b>Les montées.</b> Barre qui bouge bien + technique propre → vous montez. Souci technique ou de vitesse → vous restez ou +quelques kg. Une série tentée compte comme faite ; un raté est décompté.</p>
-        <p style="margin-bottom:0"><b>Golden rule (sur les max).</b> Objectif : le moins de ratés possibles. Si vous ratez : re-tenter 1 fois, ou redescendre à 85% et remonter, ou stop. 2 ratés max.</p>
-      </div>
-    </div>
     <!-- BLOCK SELECTOR (Mai/Juin) -->
     <div id="blockSel" style="display:flex;gap:8px;padding:0 1rem;margin-bottom:10px;flex-wrap:wrap"></div>
     <!-- TOGGLE VARIANTE S4 (visible uniquement quand la S4 d'un bloc à variante est sélectionnée) -->
@@ -707,8 +694,9 @@ const SUPA_KEY = 'sb_publishable_Lq6BcamJ5LTSKnR5t7Y2wQ_RhPv_YKX';
 // CYCLE legacy : remplacé par la variable globale `currentBlock` définie plus bas dans BLOCKS
 
 // ─── SINCLAIR ─────────────────────────────────────────────
-const SINCLAIR_M = {A:0.722762521,b:175.508};
-const SINCLAIR_F = {A:0.787004341,b:153.655};
+// Coefficients Sinclair officiels IWF (cycle 2021-2024, en vigueur tant qu'aucun set 2025-2028 n'est publié)
+const SINCLAIR_M = {A:0.722762521,b:193.609910};
+const SINCLAIR_F = {A:0.787004341,b:153.757052};
 function calcSinclair(total,bw,gender){
   if(!total||!bw||total<=0||bw<=0) return 0;
   const c=gender==='F'?SINCLAIR_F:SINCLAIR_M;
@@ -1047,7 +1035,7 @@ async function showApp(){
   await loadUnlockedBlocks();
   const stored = localStorage.getItem('soc_current_block');
   let desired = (stored && isBlockUnlocked(stored) && BLOCKS[stored]) ? stored : chooseDefaultBlock();
-  if(!BLOCKS[desired]) desired = 'sept26';   // garde-fou : jamais de bloc inexistant
+  if(!BLOCKS[desired]) desired = 'oct26';   // garde-fou : jamais de bloc inexistant
   currentBlock = desired;
   WEEKS = BLOCKS[currentBlock].weeks;
   WEEK_STARTS = BLOCKS[currentBlock].starts;
@@ -1065,7 +1053,6 @@ async function showApp(){
   renderProfile();
   initCarousel();
   loadCoachMessage();
-  initHowto();
   loadActiveRMDefs().then(()=>loadRMsFromSupabase());
   loadSessionLogs().then(()=>{ renderDays(); updateTonnage(); });
 }
@@ -1825,20 +1812,6 @@ const BLOCKS = {
     readonly: false,
     code: 'SCHOOLOCT',
   },
-  sept26: {
-    id: 'sept26',
-    label: 'Août 2026',
-    short: 'Août',
-    weeks: BLOCK_SEPT26_WEEKS,
-    starts: [
-      new Date(2026, 7, 10), // S9 — 10 août
-      new Date(2026, 7, 17), // S10 — 17 août
-      new Date(2026, 7, 24), // S11 — 24 août
-      new Date(2026, 7, 31), // S12 — 31 août
-    ],
-    readonly: true,     // archivé mais accessible librement
-    code: 'ENDSEASON',
-  },
   reprise26: {
     id: 'reprise26',
     label: 'Septembre 2026',
@@ -1856,9 +1829,9 @@ const BLOCKS = {
 };
 
 // Variables globales liées au bloc affiché — réassignées par switchBlock()
-let currentBlock = 'sept26';
-let WEEKS = BLOCKS.sept26.weeks;
-let WEEK_STARTS = BLOCKS.sept26.starts;
+let currentBlock = 'oct26';
+let WEEKS = BLOCKS.oct26.weeks;
+let WEEK_STARTS = BLOCKS.oct26.starts;
 
 // Préférence S4 vs S4 Masters pour le bloc juin (par athlète, en localStorage)
 let useS4Masters = localStorage.getItem('soc_use_s4masters') === '1';
@@ -1877,7 +1850,7 @@ function s4VariantCfg(blockId){
 }
 
 // Liste des blocs débloqués pour l'athlète courant (rempli au login)
-let unlockedBlocks = new Set(['sept26']); // août archivé en lecture libre
+let unlockedBlocks = new Set(); // débloqué uniquement via code d'accès
 
 
 const LB_ALLTIME=[
@@ -2459,7 +2432,6 @@ function renderLb(){
     const sincStr = (a.displayScore && !isNaN(a.displayScore)) ? a.displayScore.toFixed(1) : '—';
     return `<div class="lb-row ${rc} ${a.isMe?'is-me':''}">
       <div class="lb-rank ${rc}">${medal}</div>
-      <div class="lb-avatar ${a.gender==='F'?'f':'m'}">${getInitials(a.name)}</div>
       <div class="lb-info">
         <div class="lb-name">${a.name}${a.level?` <span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:rgba(0,51,102,0.4);color:var(--gold)">${levelLabels[a.level]||''}</span>`:''}</div>
         <div class="lb-meta">${a.rawWeight}kg${a.bw?` · ${a.bw}kg poids de corps`:' · poids de corps non renseigné'}${clubStr}</div>
@@ -3051,17 +3023,6 @@ async function loadCoachMessage(){
     } else { banner.style.display='none'; }
   } catch(e){ banner.style.display='none'; }
 }
-function initHowto(){
-  try{ if(localStorage.getItem('soc_howto_collapsed')==='1'){ const b=document.getElementById('howtoBody'),c=document.getElementById('howtoChevron'); if(b) b.style.display='none'; if(c) c.textContent='▸'; } }catch(e){}
-}
-function toggleHowto(){
-  const b=document.getElementById('howtoBody'),c=document.getElementById('howtoChevron');
-  if(!b) return;
-  const open=b.style.display!=='none';
-  b.style.display=open?'none':'block';
-  if(c) c.textContent=open?'▸':'▾';
-  try{localStorage.setItem('soc_howto_collapsed',open?'1':'0');}catch(e){}
-}
 function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
@@ -3070,8 +3031,7 @@ function toast(msg){
 
 // ─── BLOCS (Mai / Juin) ─────────────────────────────────────
 async function loadUnlockedBlocks(){
-  // aout26 archivé : toujours dispo en consultation
-  unlockedBlocks = new Set(['sept26']);
+  unlockedBlocks = new Set();
   // Lecture local d'abord (toujours dispo, persiste même si DB plante)
   try {
     const local = JSON.parse(localStorage.getItem('soc_unlocked_blocks')||'[]');
@@ -3083,7 +3043,7 @@ async function loadUnlockedBlocks(){
     const rows = await db(`athlete_blocks?athlete_id=eq.${athlete.id}&select=block_id`) || [];
     rows.forEach(r => unlockedBlocks.add(r.block_id));
     // Re-synchroniser le local avec ce qu'on a trouvé en DB
-    const all = Array.from(unlockedBlocks).filter(b => b !== 'sept26');
+    const all = Array.from(unlockedBlocks);
     localStorage.setItem('soc_unlocked_blocks', JSON.stringify(all));
   } catch(e){
     console.warn('[blocks] DB unavailable, fallback localStorage.', e);
@@ -3098,7 +3058,7 @@ function chooseDefaultBlock(){
   // Priorité décroissante : on prend le bloc actif le plus récent débloqué.
   if(isBlockUnlocked('oct26')) return 'oct26';
   if(isBlockUnlocked('reprise26')) return 'reprise26';
-  return 'sept26';
+  return 'oct26';
 }
 
 function switchBlock(blockId){
@@ -3146,7 +3106,7 @@ function applyMastersFilter(){
 function buildBlockSelector(){
   const el = document.getElementById('blockSel');
   if(!el) return;
-  const blockIds = ['oct26','reprise26','sept26'];
+  const blockIds = ['oct26','reprise26'];
   el.innerHTML = blockIds.map(bid => {
     const b = BLOCKS[bid];
     const unlocked = isBlockUnlocked(bid);
@@ -3242,7 +3202,6 @@ function updateMastersToggle(){
 // ACCESS CODES — chaque code débloque l'app + le bloc correspondant
 const VALID_CODES = {
   'SCHOOLOCT': 'oct26',
-  'ENDSEASON': 'sept26',
   'SOCSEPT': 'reprise26',
 };
 

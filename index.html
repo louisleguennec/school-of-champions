@@ -22,27 +22,28 @@
   --navy:#003366;--navy-2:#00294f;--navy-3:#001d3a;--navy-4:#0a3f73;
   --paper:#f0ede7;--gold:#003366;--gold-soft:#0a4a8a;--gold-deep:#00284d;
   --black:#1a1a1a;--white:#ffffff;
-  /* Tokens (clair dominant) */
-  --bg:var(--white);
-  --surface:#f5f7fa;
-  --surface2:#eaeef4;
-  --surface3:#dde4ee;
-  --border:rgba(0,51,102,0.15);
-  --border2:rgba(0,51,102,0.3);
-  --text:#12233a;
-  --text2:#4a5a6e;
-  --text3:#8394a6;
+  /* Tokens (mode nuit : noir / blanc / bleu) */
+  --bg:#0a0e14;
+  --surface:#141a23;
+  --surface2:#1d2630;
+  --surface3:#27323f;
+  --border:rgba(255,255,255,0.12);
+  --border2:rgba(255,255,255,0.24);
+  --text:#ffffff;
+  --text2:#b9c3d0;
+  --text3:#7f8b9a;
+  /* Accent principal = bleu (token historiquement nommé --gold) */
+  --gold:#4a9dff;--gold-soft:#7ab6ff;--gold-deep:#2f6fd0;
+  --gold-dim:rgba(74,157,255,0.14);--gold-glow:rgba(74,157,255,0.32);
   /* Accents */
-  --red:#d62828;--red-dim:rgba(214,40,40,0.10);--red-glow:rgba(214,40,40,0.18);
-  --green:#2e9e5b;--green-dim:rgba(46,158,91,0.12);
+  --red:#ff4d4d;--red-dim:rgba(255,77,77,0.12);--red-glow:rgba(255,77,77,0.22);
+  --green:#3ec37a;--green-dim:rgba(62,195,122,0.14);
   --yellow:#e8c468;
-  /* Or = accent principal */
-  --gold-dim:rgba(0,51,102,0.12);--gold-glow:rgba(0,51,102,0.25);
-  --silver:#6b7787;--bronze:#8a6a3a;
-  --silver-dim:rgba(184,194,209,0.1);--bronze-dim:rgba(168,137,90,0.12);
-  /* Bleu (anciens accents) -> on les bascule sur or pour cohérence */
-  --blue-bg:rgba(0,51,102,0.08);
-  --blue-border:rgba(0,51,102,0.3);
+  --silver:#c3ccd6;--bronze:#cd9b5e;
+  --silver-dim:rgba(195,204,214,0.12);--bronze-dim:rgba(205,155,94,0.14);
+  /* Bleu (anciens accents) -> alias de l'accent principal */
+  --blue-bg:rgba(74,157,255,0.10);
+  --blue-border:rgba(74,157,255,0.3);
   --blue-text:var(--gold);
   /* Fonts */
   --font-title:'Barlow Condensed',sans-serif;
@@ -91,7 +92,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .magic-btn{padding:12px 28px;border-radius:10px;border:none;background:var(--gold);color:var(--white);font-family:var(--font-body);font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
 
 /* BOTTOM NAV */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom,0px);z-index:100}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,14,20,0.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom,0px);z-index:100}
 .bottom-nav-inner{display:flex;height:56px}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;color:var(--text3);transition:color 0.15s}
 .nav-item.active{color:var(--gold)}
@@ -117,7 +118,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .banner-dot.active{background:#fff}
 
 /* WEEK SELECTOR */
-.week-sel{display:flex;gap:8px;padding:1rem 1rem 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.week-sel{display:flex;gap:8px;padding:1rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .week-sel::-webkit-scrollbar{display:none}
 .week-btn{flex-shrink:0;font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all 0.15s;white-space:nowrap}
 .week-btn.active{background:var(--gold);color:var(--white);border-color:var(--gold)}

@@ -4,33 +4,33 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SOC Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  /* Brand */
-  --navy:#000d1f;--navy-2:#061a36;--navy-3:#0d2747;
-  --paper:#f0ede7;--gold:#c9a96e;--gold-soft:#d9bd86;
+  /* Brand — premium navy (match PDF) */
+  --navy:#0b1d33;--navy-2:#102a45;--navy-3:#16344f;
+  --paper:#f0ede7;--gold:#6f9ec9;--gold-soft:#9ec3e4;
   --black:#1a1a1a;--white:#ffffff;
-  /* Tokens (sombre = dominant) */
-  --bg:var(--navy);
-  --surface:var(--navy-2);
-  --surface2:var(--navy-3);
-  --surface3:#143055;
-  --border:rgba(201,169,110,0.15);
-  --border2:rgba(201,169,110,0.3);
+  /* Tokens (gradient bleu nuit = dominant) */
+  --bg:radial-gradient(130% 130% at 72% 12%, #14293f 0%, #07111d 100%);
+  --surface:#0f2742;
+  --surface2:#16314f;
+  --surface3:#1e3c5c;
+  --border:rgba(111,158,201,0.16);
+  --border2:rgba(111,158,201,0.34);
   --text:var(--white);
-  --text2:#b8c2d1;
-  --text3:#7a8699;
+  --text2:#b9c7d6;
+  --text3:#8295a9;
   /* Accents */
   --blue:var(--gold);--blue-light:var(--gold-soft);
   --red:#e85a5a;--green:#5fc788;--yellow:#e8c468;
   /* Fonts */
-  --font-title:'Bebas Neue',sans-serif;
+  --font-title:'Barlow Condensed','Barlow',sans-serif;
   --font-body:'Barlow Condensed','Barlow',sans-serif;
   --font-ui:'Inter',sans-serif;
 }
-html{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;-webkit-font-smoothing:antialiased}
+html{background:var(--bg);background-attachment:fixed;color:var(--text);font-family:var(--font-body);font-size:15px;-webkit-font-smoothing:antialiased}
 body{min-height:100vh}
 
 /* LOGIN */
@@ -86,13 +86,13 @@ tr:hover td{background:var(--surface2)}
 .badge{font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:4px;display:inline-block}
 .badge.active{background:rgba(34,197,94,0.15);color:var(--green)}
 .badge.inactive{background:var(--surface3);color:var(--text3)}
-.badge.m{background:rgba(201,169,110,0.15);color:var(--gold)}
+.badge.m{background:rgba(111,158,201,0.15);color:var(--gold)}
 .badge.f{background:rgba(232,196,104,0.15);color:#e8c468}
 .action-btn{font-family:var(--font-ui);font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:5px 10px;border-radius:5px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer;transition:all 0.15s}
 .action-btn:hover{background:var(--surface3);color:var(--text)}
 .action-btn.danger{border-color:rgba(224,48,48,0.3);color:var(--red)}
 .action-btn.danger:hover{background:rgba(224,48,48,0.1)}
-.action-btn.primary{border-color:var(--gold);color:var(--gold);background:rgba(201,169,110,0.12)}
+.action-btn.primary{border-color:var(--gold);color:var(--gold);background:rgba(111,158,201,0.12)}
 
 /* CHARTS */
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}

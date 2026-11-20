@@ -12,16 +12,16 @@
   --navy:#0b1d33;--navy-2:#102a45;--navy-3:#16344f;
   --paper:#f0ede7;--gold:#6f9ec9;--gold-soft:#9ec3e4;
   --black:#1a1a1a;--white:#ffffff;
-  /* Tokens (gradient bleu nuit = dominant) */
-  --bg:radial-gradient(130% 130% at 72% 12%, #14293f 0%, #07111d 100%);
-  --surface:#0f2742;
-  --surface2:#16314f;
-  --surface3:#1e3c5c;
-  --border:rgba(111,158,201,0.16);
-  --border2:rgba(111,158,201,0.34);
+  /* Tokens (ardoise neutre = dominant) */
+  --bg:radial-gradient(130% 130% at 72% 10%, #141c26 0%, #05080c 100%);
+  --surface:#11181f;
+  --surface2:#19212b;
+  --surface3:#232e3a;
+  --border:rgba(162,176,196,0.13);
+  --border2:rgba(162,176,196,0.26);
   --text:var(--white);
-  --text2:#b9c7d6;
-  --text3:#8295a9;
+  --text2:#c2cad4;
+  --text3:#8a94a1;
   /* Accents */
   --blue:var(--gold);--blue-light:var(--gold-soft);
   --red:#e85a5a;--green:#5fc788;--yellow:#e8c468;
@@ -246,7 +246,7 @@ tr:hover td{background:var(--surface2)}
     </div>
         <div class="page" id="pageFatigue">
       <div class="page-title">Fatigue hebdomadaire</div>
-      <div class="page-sub">Moyennes des scores · 1=épuisé · 10=en forme</div>
+      <div class="page-sub">Moyennes des scores · 1=épuisé · 5=en pleine forme</div>
       <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
         <select id="fatigueBlock" onchange="loadFatigueAdmin()" style="background:var(--surface);border:1px solid var(--gold);border-radius:8px;padding:6px 12px;color:var(--text);font-family:var(--font-ui,sans-serif);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;outline:none;cursor:pointer">
           <option value="aout26">Juil/Août 2026</option>
@@ -566,10 +566,10 @@ async function loadDashboard(){
     fatigueEl.innerHTML = sortedWeeks.map(w => {
       const d = weeks[w];
       const avgE = d.end.length ? Math.round(d.end.reduce((a,b)=>a+b,0)/d.end.length*10)/10 : null;
-      const colorE = avgE==null?'var(--text3)':avgE<5?'var(--red)':avgE<7?'var(--yellow)':'var(--green)';
+      const colorE = avgE==null?'var(--text3)':avgE<2.5?'var(--red)':avgE<3.5?'var(--yellow)':'var(--green)';
       return `<div class="bar-row">
           <span class="bar-label">S${w} — Fin</span>
-          <div class="bar-track"><div class="bar-fill" style="width:${avgE?avgE*10:0}%;background:${colorE}"></div></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${avgE?avgE*20:0}%;background:${colorE}"></div></div>
           <span class="bar-val">${avgE!=null?avgE:'—'}</span>
         </div>`;
     }).join('') || '<div style="color:var(--text3);font-size:13px">Aucune donnée pour ce cycle</div>';
@@ -893,7 +893,7 @@ async function loadFatigueAdmin(){
       if(f.athlete_id) weeks[f.week_num].athletes.add(f.athlete_id);
     });
 
-    const colorFor = v => v==null?'var(--text3)':v<=3?'var(--red)':v<=6?'var(--yellow)':'var(--green)';
+    const colorFor = v => v==null?'var(--text3)':v<=2?'var(--red)':v<=3.5?'var(--yellow)':'var(--green)';
     const avgOf = arr => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : null;
     const fmt = v => v==null?'—':v.toFixed(1);
 
@@ -908,7 +908,7 @@ async function loadFatigueAdmin(){
         </div>
         <div style="text-align:center;padding:10px 0">
           <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Fin de semaine</div>
-          <div style="font-family:var(--font-body);font-size:42px;font-weight:900;color:${colorFor(aEnd)};line-height:1">${fmt(aEnd)}<span style="font-size:18px;color:var(--text3);font-weight:700">/10</span></div>
+          <div style="font-family:var(--font-body);font-size:42px;font-weight:900;color:${colorFor(aEnd)};line-height:1">${fmt(aEnd)}<span style="font-size:18px;color:var(--text3);font-weight:700">/5</span></div>
           <div style="font-size:11px;color:var(--text3);margin-top:6px">${d.ends.length} réponse${d.ends.length>1?'s':''}</div>
         </div>
       </div>`;

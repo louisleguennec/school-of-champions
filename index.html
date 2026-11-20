@@ -22,16 +22,16 @@
   --navy:#003366;--navy-2:#00294f;--navy-3:#001d3a;--navy-4:#0a3f73;
   --paper:#f0ede7;--gold:#003366;--gold-soft:#0a4a8a;--gold-deep:#00284d;
   --black:#1a1a1a;--white:#ffffff;
-  /* Tokens (mode nuit : gradient bleu nuit, match PDF) */
-  --bg:radial-gradient(130% 130% at 72% 12%, #14293f 0%, #07111d 100%);
-  --surface:#0f2742;
-  --surface2:#16314f;
-  --surface3:#1e3c5c;
-  --border:rgba(111,158,201,0.16);
-  --border2:rgba(111,158,201,0.32);
+  /* Tokens (mode nuit : ardoise neutre, accent bleu) */
+  --bg:radial-gradient(130% 130% at 72% 10%, #141c26 0%, #05080c 100%);
+  --surface:#11181f;
+  --surface2:#19212b;
+  --surface3:#232e3a;
+  --border:rgba(162,176,196,0.13);
+  --border2:rgba(162,176,196,0.26);
   --text:#ffffff;
-  --text2:#b9c7d6;
-  --text3:#8295a9;
+  --text2:#c2cad4;
+  --text3:#8a94a1;
   /* Accent principal = bleu acier (token historiquement nommé --gold) */
   --gold:#6f9ec9;--gold-soft:#9ec3e4;--gold-deep:#2f6fd0;
   --gold-dim:rgba(111,158,201,0.14);--gold-glow:rgba(111,158,201,0.32);
@@ -134,16 +134,16 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 .pstat-label{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#888;margin-top:2px}
 
 /* DAY CARDS */
-.days-wrap{display:flex;flex-direction:column;gap:10px;padding:0 1rem 1rem}
+.days-wrap{display:flex;flex-direction:column;gap:14px;padding:0 1rem 1rem}
 .day-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color 0.2s}
 .day-card.open{border-color:var(--border2)}
 .day-prog-bar{height:3px;background:var(--border)}
 .day-prog-fill{height:100%;background:var(--gold);transition:width 0.3s}
-.day-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none}
+.day-hdr{display:flex;align-items:center;gap:14px;padding:16px;cursor:pointer;user-select:none}
 .day-hdr.main{background:var(--blue-bg)}
 .day-hdr.rest{background:rgba(0,51,102,0.05)}
 .day-hdr.opt{background:var(--surface2)}
-.day-type{font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;width:52px;flex-shrink:0}
+.day-type{font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;width:72px;flex-shrink:0;line-height:1.3}
 .day-type.main{color:var(--blue-text)}
 .day-type.opt{color:var(--text3)}
 .day-name{flex:1}
@@ -330,14 +330,14 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 <!-- SPLASH -->
 <div id="splash">
   <div class="splash-logo">School of<br><em>Champions</em></div>
-  <div class="splash-sub">Cycle Octobre 2026</div>
+  <div class="splash-sub cyc">Cycle de Novembre</div>
   <div class="splash-bar"><div class="splash-fill" id="splashFill"></div></div>
 </div>
 
 <!-- ACCESS CODE SCREEN -->
 <div id="accessScreen" style="position:fixed;inset:0;background:var(--bg);z-index:996;display:none;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;gap:1.5rem">
   <div style="font-family:var(--font-body);font-size:42px;font-weight:900;text-transform:uppercase;letter-spacing:3px;line-height:1">School of<br><em style="color:var(--gold)">Champions</em></div>
-  <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text2)">Cycle Octobre 2026</div>
+  <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text2)" class="cyc">Cycle de Novembre</div>
   <div style="width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px">
     <div style="font-size:13px;color:var(--text2);line-height:1.5">Entre ton email et le code d'accès reçu par email.</div>
     <input id="accessEmail" type="email" inputmode="email" placeholder="ton@email.com" style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-size:15px;outline:none;text-align:center">
@@ -415,7 +415,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
           <img src="https://cdn.shopify.com/s/files/1/0655/3413/2449/files/powercontest2.jpg?v=1788204335" alt="">
           <div class="banner-grad"></div>
           <div class="banner-text">
-            <div class="banner-eyebrow">Cycle Octobre 2026</div>
+            <div class="banner-eyebrow cyc">Cycle de Novembre</div>
             <div class="banner-title">School of <em>Champions</em></div>
           </div>
         </div>
@@ -423,7 +423,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
           <img src="https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/IMG_3134.jpg" alt="">
           <div class="banner-grad"></div>
           <div class="banner-text">
-            <div class="banner-eyebrow">Cycle Octobre 2026</div>
+            <div class="banner-eyebrow cyc">Cycle de Novembre</div>
             <div class="banner-title">School of <em>Champions</em></div>
           </div>
         </div>
@@ -431,7 +431,7 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
           <img src="https://raw.githubusercontent.com/louisleguennec/school-of-champions/main/Capture%20d%E2%80%99e%CC%81cran%202024-09-12%20a%CC%80%2019.13.39.png" alt="">
           <div class="banner-grad"></div>
           <div class="banner-text">
-            <div class="banner-eyebrow">Cycle Octobre 2026</div>
+            <div class="banner-eyebrow cyc">Cycle de Novembre</div>
             <div class="banner-title">School of <em>Champions</em></div>
           </div>
         </div>
@@ -461,8 +461,8 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 
     <!-- WEEKLY FATIGUE -->
     <div id="fatigueWidget" style="margin:0 1rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;display:none">
-      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px" id="fatigueTitle">Fatigue de début de semaine</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Note ta fatigue générale sur 10 <span style="color:var(--text3)">(1=épuisé · 10=en forme)</span></div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:10px" id="fatigueTitle">Niveau de forme</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Note ton niveau de forme <span style="color:var(--text3)">(1=épuisé · 5=en pleine forme)</span></div>
       <div style="display:flex;gap:6px;flex-wrap:wrap" id="fatigueButtons"></div>
       <div style="font-size:11px;color:var(--green);margin-top:8px;display:none" id="fatigueSaved">✓ Fatigue enregistrée</div>
     </div>
@@ -687,6 +687,8 @@ body{min-height:100vh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)
 <script>
 const SUPA_URL = 'https://sexokzggfinzvgroqnes.supabase.co';
 const SUPA_KEY = 'sb_publishable_Lq6BcamJ5LTSKnR5t7Y2wQ_RhPv_YKX';
+// ⚠️⚠️ LIBELLÉ DU CYCLE AFFICHÉ EN HAUT — À CHANGER CHAQUE MOIS (une seule ligne) ⚠️⚠️
+const CYCLE_LABEL = 'Cycle de Novembre';
 // CYCLE legacy : remplacé par la variable globale `currentBlock` définie plus bas dans BLOCKS
 
 // ─── SINCLAIR ─────────────────────────────────────────────
@@ -3513,7 +3515,7 @@ async function loadFatigue(){
   // Widget visible uniquement à partir du vendredi (jours 5=ven, 6=sam, 0=dim)
   const isEnd = day===5 || day===6 || day===0;
   if(!isEnd){ widget.style.display='none'; return; }
-  title.textContent='Fatigue de fin de semaine';
+  title.textContent='Niveau de forme (fin de semaine)';
   const field='score_end';
   try{
     const existing=await db(`weekly_fatigue?athlete_id=eq.${athlete.id}&cycle=eq.${currentBlock}&week_num=eq.${currentWeek+1}&select=score_start,score_end`);
@@ -3523,10 +3525,10 @@ async function loadFatigue(){
     let sel = currentScore;
     let hasRow = !!(existing && existing.length);
     const paint=(v)=>{ btns.querySelectorAll('button').forEach((b,j)=>{const on=(j+1)===v;b.style.background=on?'var(--gold)':'var(--surface2)';b.style.color=on?'#fff':'var(--text2)';}); };
-    for(let i=1;i<=10;i++){
+    for(let i=1;i<=5;i++){
       const btn=document.createElement('button');
       btn.textContent=i;
-      btn.style.cssText=`width:32px;height:32px;border-radius:6px;border:1px solid var(--border2);background:${currentScore===i?'var(--gold)':'var(--surface2)'};color:${currentScore===i?'#fff':'var(--text2)'};font-family:var(--font-body);font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s`;
+      btn.style.cssText=`flex:1;height:44px;border-radius:8px;border:1px solid var(--border2);background:${currentScore===i?'var(--gold)':'var(--surface2)'};color:${currentScore===i?'#fff':'var(--text2)'};font-family:var(--font-body);font-size:18px;font-weight:700;cursor:pointer;transition:all 0.15s`;
       btn.onclick=async()=>{
         const newVal = (sel===i) ? null : i;  // re-clic sur le meme chiffre : on efface
         paint(newVal);
@@ -4226,6 +4228,8 @@ function initCarousel(){
 
 // INIT
 loadLocal();
+// Libellé du cycle (haut de l'app) depuis la variable unique CYCLE_LABEL
+document.querySelectorAll('.cyc').forEach(e=>{ e.textContent = CYCLE_LABEL; });
 const splashFill=document.getElementById('splashFill');
 splashFill.style.width='100%';
 setTimeout(()=>{

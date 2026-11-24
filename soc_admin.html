@@ -202,7 +202,8 @@ tr:hover td{background:var(--surface2)}
           <option value="aout26">Juil/Août 2026</option>
           <option value="sept26">Août 2026</option>
           <option value="reprise26">Septembre 2026</option>
-          <option value="nov26" selected>Novembre 2026</option>
+          <option value="dec26" selected>Décembre 2026</option>
+          <option value="nov26">Novembre 2026</option>
           <option value="oct26">Octobre 2026</option>
         </select>
         <input id="accessSearch" type="text" placeholder="🔎 Rechercher pseudo, email, club..." oninput="renderAccessList(this.value)" class="table-search" style="flex:1;min-width:220px">
@@ -229,7 +230,8 @@ tr:hover td{background:var(--surface2)}
           <option value="aout26">Juil/Août 2026</option>
           <option value="sept26">Août 2026</option>
           <option value="reprise26">Septembre 2026</option>
-          <option value="nov26" selected>Novembre 2026</option>
+          <option value="dec26" selected>Décembre 2026</option>
+          <option value="nov26">Novembre 2026</option>
           <option value="oct26">Octobre 2026</option>
         </select>
         <select id="feelingsWeek" onchange="loadFeelings()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none">
@@ -254,7 +256,8 @@ tr:hover td{background:var(--surface2)}
           <option value="aout26">Juil/Août 2026</option>
           <option value="sept26">Août 2026</option>
           <option value="reprise26">Septembre 2026</option>
-          <option value="nov26" selected>Novembre 2026</option>
+          <option value="dec26" selected>Décembre 2026</option>
+          <option value="nov26">Novembre 2026</option>
           <option value="oct26">Octobre 2026</option>
         </select>
       </div>
@@ -371,7 +374,8 @@ tr:hover td{background:var(--surface2)}
           <option value="aout26">Juil/Août 2026</option>
           <option value="sept26">Août 2026</option>
           <option value="reprise26">Septembre 2026</option>
-          <option value="nov26" selected>Novembre 2026</option>
+          <option value="dec26" selected>Décembre 2026</option>
+          <option value="nov26">Novembre 2026</option>
           <option value="oct26">Octobre 2026</option>
         </select>
         <select id="progWeekSel" onchange="onProgWeekChange()" style="background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none"></select>
@@ -391,7 +395,8 @@ tr:hover td{background:var(--surface2)}
               <option value="aout26">Juil/Août 2026</option>
           <option value="sept26">Août 2026</option>
           <option value="reprise26">Septembre 2026</option>
-          <option value="nov26" selected>Novembre 2026</option>
+          <option value="dec26" selected>Décembre 2026</option>
+          <option value="nov26">Novembre 2026</option>
           <option value="oct26">Octobre 2026</option>
           </select>
         </div>
@@ -419,7 +424,8 @@ tr:hover td{background:var(--surface2)}
             <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:5px">Bloc concerné</div>
             <select id="coachScopeBlock" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none">
               <option value="">Tous les blocs</option>
-              <option value="nov26" selected>Novembre 2026</option>
+              <option value="dec26" selected>Décembre 2026</option>
+          <option value="nov26">Novembre 2026</option>
           <option value="oct26">Octobre 2026</option>
               <option value="reprise26">Septembre 2026</option>
               <option value="sept26">Août 2026</option>
@@ -492,9 +498,9 @@ tr:hover td{background:var(--surface2)}
 const SUPA_URL = 'https://sexokzggfinzvgroqnes.supabase.co';
 const SUPA_KEY = 'sb_publishable_Lq6BcamJ5LTSKnR5t7Y2wQ_RhPv_YKX';
 const ADMIN_PWD = 'M!WA77s$';
-const CYCLE = 'nov26';
-const CYCLE_LABEL = 'Novembre 2026'; // affichage humain
-const CYCLE_CODE = 'SCHOOLNOV26'; // code mensuel courant (doit matcher VALID_CODE dans index.html)
+const CYCLE = 'dec26';
+const CYCLE_LABEL = 'Décembre 2026'; // affichage humain
+const CYCLE_CODE = 'DECEMBRE2026'; // code mensuel courant (doit matcher VALID_CODE dans index.html)
 
 const SINCLAIR_M = {A:0.722762521,b:175.508};
 const SINCLAIR_F = {A:0.787004341,b:153.655};
@@ -2611,7 +2617,1011 @@ const BLOCK_NOV26_WEEKS = [
  {id:"w4n",label:"S4 · 23/11",title:"Semaine 4 — Critérium",days:NOV_S4_C_DAYS}
 ]
 
+const BLOCK_DEC26_WEEKS = [
+ {
+  "id": "w1",
+  "label": "S1 · 30/11",
+  "title": "Semaine 1",
+  "days": [
+   {
+    "type": "main",
+    "label": "Jour 1",
+    "sub": "Squat nuque · Arraché + arraché suspension sous les genoux · Jeté force",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Squat nuque",
+      "d": "5x3 / 70% (sans équipement)",
+      "video": "https://youtu.be/DU2Dl83uVaQ",
+      "rm": "squat"
+     },
+     {
+      "n": "Arraché + arraché suspension sous les genoux",
+      "d": "1x(1+2) / 60%, 1×(1+2) / 70%, 3×(1+2) / 75-80% (du RM arraché)",
+      "video": "https://youtu.be/ZJxwRfQ-TBo",
+      "rm": "arr"
+     },
+     {
+      "n": "Jeté force",
+      "d": "1×4 / 50%, 1×4 / 55%, 1×4 / 58%, 1×4 / 60%, 1×3 / 65% (du RM jeté)",
+      "video": "https://youtu.be/ngjhO8CJvQg",
+      "rm": "jet"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Abdos suspendus ou GHD sit-ups",
+      "d": "3x10-15 reps",
+      "video": "https://youtu.be/pMaETAZqkGM"
+     },
+     {
+      "n": "RDL 1 jambe",
+      "d": "3x8 / jambe - tempo lent",
+      "video": "https://youtu.be/3jBOfVoCBsY"
+     },
+     {
+      "n": "Dips",
+      "d": "4x10-15 reps - grosse amplitude",
+      "video": "https://youtu.be/SxI0kjVu-3w"
+     }
+    ]
+   },
+   {
+    "type": "opt",
+    "label": "Jour 2",
+    "sub": "Développé fente · Jeté · Arraché debout",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Développé fente",
+      "d": "4x5 / 50-60% (du RM développé) - bien fléchir la jambe arrière et ne pas bouger",
+      "video": "https://youtu.be/q0tbSFAdFrg",
+      "rm": "dev_militaire"
+     },
+     {
+      "n": "Jeté",
+      "d": "1x3 / 60%, 1x3 / 70%, 2×3 / 75%, 1×2 / 80%, 1×2 / 85% (du RM jeté)",
+      "video": "https://youtu.be/Xo8lVPHq510",
+      "rm": "jet"
+     },
+     {
+      "n": "Arraché debout",
+      "d": "2×3 / 60%, 2×3 / 65%, 1×3 / 70% (du RM arraché)",
+      "video": "https://youtu.be/szLFnjevo4k",
+      "rm": "arr"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Leg extensions (ou sissy squats)",
+      "d": "4x10-15 reps",
+      "video": "https://youtu.be/rCJNVrpvWeI"
+     },
+     {
+      "n": "Tractions (delestées si besoin)",
+      "d": "4x10 reps",
+      "video": "https://youtu.be/pHtPSleYquw"
+     },
+     {
+      "n": "Oiseau au GHD",
+      "d": "4x10 reps",
+      "video": "https://youtu.be/0C6HlzNa_2o"
+     }
+    ]
+   },
+   {
+    "type": "main",
+    "label": "Jour 3",
+    "sub": "Front squat · Épaulé · Tirage prise épaulé",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Front squat (pause 2'')",
+      "d": "1x1 / 70%, 1x1 / 75%, 1x1 / 80% puis 3x3 / 70% sans pause (du RM FS)",
+      "video": "https://youtu.be/eogx9F57JJ0",
+      "rm": "fs"
+     },
+     {
+      "n": "Épaulé",
+      "d": "1x3 / 60%, 2×3 / 70%, 1×3 / 75%, 1×3 / 80% (du RM épaulé)",
+      "video": "https://youtu.be/Ty14ogq_Vok",
+      "rm": "ep"
+     },
+     {
+      "n": "Tirage prise épaulé",
+      "d": "3×4 / 80%, 1×4 / 90% (du RM épaulé) (si vous ne vous entraînez que 3 fois cette semaine, remplacez par le jeté de J2)",
+      "video": "https://youtu.be/eRRbAvwybrE",
+      "rm": "ep"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Barbell rotations",
+      "d": "3x10 aller / retours",
+      "video": "https://youtu.be/e5DP6961WEk"
+     },
+     {
+      "n": "Leg curl",
+      "d": "3x20 reps",
+      "video": "https://youtu.be/n6qRAUu16vc"
+     },
+     {
+      "n": "Gainage copenhague ou machine adducteurs",
+      "d": "3x30'' / jambe ou 3x15-20 reps",
+      "video": "https://youtu.be/kXTHTV6--Bo"
+     }
+    ]
+   },
+   {
+    "type": "main",
+    "label": "Jour 4",
+    "sub": "Arraché force + OHS · Arraché · Épaulé-jeté · si vous ne faites pas de J5, remplacez les tractions par le squat de J5",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Arraché force + OHS",
+      "d": "5x(2+2) / 40-50% (du RM arraché) - Pause 3'' en bas sur chaque OHS",
+      "video": "https://youtu.be/PQUyWDd0HbY",
+      "rm": "arr"
+     },
+     {
+      "n": "Arraché",
+      "d": "2×3 / 70%  ·  1×3 / 75%  ·  1×3 / 80% (du RM arraché)",
+      "video": "https://youtu.be/9UtWOLkdGFY",
+      "rm": "arr"
+     },
+     {
+      "n": "Épaulé-jeté",
+      "d": "2×3 / 70%  ·  1×3 / 75%  ·  1×3 / 80% (du RM EJ)",
+      "video": "https://youtu.be/MA1HYzA5qlQ",
+      "rm": "ej"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Tractions nuque ou tirage nuque poulie haute",
+      "d": "3x8-12 reps",
+      "video": "https://youtu.be/kdEoc9x5Pf4"
+     },
+     {
+      "n": "Tirage poulie basse ou ring rows",
+      "d": "3x15 reps",
+      "video": "https://youtu.be/wNEKpum3Bcs"
+     },
+     {
+      "n": "Extensions lombaires au GHD",
+      "d": "3x10 reps + 10'' hold dernière rep",
+      "video": "https://youtu.be/dEDjkzFKJ-0"
+     }
+    ]
+   },
+   {
+    "type": "opt",
+    "label": "Jour 5",
+    "sub": "Squat nuque · force / prépa physique",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Squat nuque",
+      "d": "1×3 / 70%, 1x3 / 75%, 1x3 / 80%, 1x3 / 85%, 2x5 / 70% (du RM squat) - Pas d'équipement sur les drop-sets",
+      "video": "https://youtu.be/DU2Dl83uVaQ",
+      "rm": "squat"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "CMJ lesté",
+      "d": "4x2 (DB dans les mains, poids total 25-30% du pdc)",
+      "video": "https://youtu.be/l0H7Qd1CYSo"
+     },
+     {
+      "n": "CMJ (saut vertical)",
+      "d": "3x5 intensité max, récup complète entre les séries",
+      "video": "https://youtu.be/RgdJdh19emU"
+     },
+     {
+      "n": "Russian twists (au GHD si possible)",
+      "d": "3x10 aller-retours",
+      "video": "https://youtu.be/IB5jHPLjj3M"
+     },
+     {
+      "n": "Clamshell ou machine abducteurs",
+      "d": "3x15 reps / jambe ou 3x10 reps (hold 2'' en ouverture)",
+      "video": "https://youtu.be/XoxHNiqtVPM"
+     },
+     {
+      "n": "Cardio basse intensité",
+      "d": "20 minutes"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "w2",
+  "label": "S2 · 07/12",
+  "title": "Semaine 2 — Sans compétition",
+  "days": [
+   {
+    "type": "main",
+    "label": "Jour 1",
+    "sub": "Squat nuque · Jeté fente · Arraché",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Squat nuque",
+      "d": "1x3 / 60%, 1x3 / 70%, 4x3 / 75% (sans équipement)",
+      "video": "https://youtu.be/DU2Dl83uVaQ",
+      "rm": "squat"
+     },
+     {
+      "n": "Jeté fente",
+      "d": "1x3 / 60%, 1x2 / 70%, 2×2 / 80%, 3×2 / 85-90% (du RM jeté)",
+      "video": "https://youtu.be/Xo8lVPHq510",
+      "rm": "jet"
+     },
+     {
+      "n": "Arraché",
+      "d": "1x3 / 60%, 1x3 / 70%, 2×3 / 75%, 2×3 / 80%, 1×3 / 83% (du RM arraché)",
+      "video": "https://youtu.be/9UtWOLkdGFY",
+      "rm": "arr"
+     },
+     {
+      "n": "Tirage prise arraché",
+      "d": "2×4 / 80%, 1×4 / 85%, 1×4 / 90% (du RM arraché) - le plus haut possible",
+      "video": "https://youtu.be/Dqr52cwYdfY",
+      "rm": "arr"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Ring rows (avec leste au niveau des hanches si possible)",
+      "d": "4x12-15 reps",
+      "video": "https://youtu.be/B90sF7dbP04"
+     },
+     {
+      "n": "Abdos suspendus ou GHD sit-ups",
+      "d": "3x10-15 reps",
+      "video": "https://youtu.be/pMaETAZqkGM"
+     }
+    ]
+   },
+   {
+    "type": "main",
+    "label": "Jour 2",
+    "sub": "Arraché debout + arraché suspension debout · EJ · Chute d'arraché",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Arraché debout + arraché suspension debout",
+      "d": "1×(1+2) / 60%, 1×(1+2) / 65%, 1×(1+2) / 70%, 2x(1+2) / 75% (du RM arraché)",
+      "video": "https://youtu.be/szLFnjevo4k",
+      "rm": "arr"
+     },
+     {
+      "n": "EJ",
+      "d": "1x2 / 60%, 1x2 / 70%, 1×2 / 75%, 1×2 / 80%, 2×2 / 85% (du RM EJ)",
+      "video": "https://youtu.be/MA1HYzA5qlQ",
+      "rm": "ej"
+     },
+     {
+      "n": "Chute d'arraché",
+      "d": "5×3 / 75-85% (du RM arraché)",
+      "video": "https://youtu.be/GTj9pliPP8E",
+      "rm": "arr"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Leg extensions (ou sissy squats)",
+      "d": "4x10-15 reps",
+      "video": "https://youtu.be/rCJNVrpvWeI"
+     },
+     {
+      "n": "Squat cossack",
+      "d": "3x8 par jambe (KB en goblet - posture +++)",
+      "video": "https://youtu.be/J5rAhhGVLUA"
+     },
+     {
+      "n": "Leg curl",
+      "d": "4x15-20 reps",
+      "video": "https://youtu.be/n6qRAUu16vc"
+     }
+    ]
+   },
+   {
+    "type": "opt",
+    "label": "Jour 3",
+    "sub": "Front squat · Jeté force · Épaulé des plots sous les genoux",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Front squat (pause 2'')",
+      "d": "1x1 / 70%, 1x1 / 75%, 1x1 / 80%, 1x1 / 85% puis 3x2 / 75% sans pause (du RM FS)",
+      "video": "https://youtu.be/eogx9F57JJ0",
+      "rm": "fs"
+     },
+     {
+      "n": "Jeté force",
+      "d": "2×3 / 60%, 2×3 / 65%, 1×3 / 70% (du RM jeté)",
+      "video": "https://youtu.be/ngjhO8CJvQg",
+      "rm": "jet"
+     },
+     {
+      "n": "Épaulé des plots sous les genoux",
+      "d": "1x3 / 60%, 1×3 / 70%, 1×3 / 75%, 1×3 / 80%, 1×3 / 85% (du RM épaulé)",
+      "video": "https://youtu.be/lL-Ae_D2IXk",
+      "rm": "ep"
+     },
+     {
+      "n": "Tirage prise épaulé",
+      "d": "2×3 / 80%, 2×3 / 85%, 1×3 / 90% (du RM épaulé)",
+      "video": "https://youtu.be/eRRbAvwybrE",
+      "rm": "ep"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Dips",
+      "d": "4x10-15 reps",
+      "video": "https://youtu.be/SxI0kjVu-3w"
+     },
+     {
+      "n": "Cardio 20 min basse intensité",
+      "d": ""
+     }
+    ]
+   },
+   {
+    "type": "opt",
+    "label": "Jour 4",
+    "sub": "Arraché force + OHS · Arraché · EJ",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Arraché force + OHS",
+      "d": "2×(3+2) / 50%, 2×(3+2) / 55%, 1×(3+2) / 60% (du RM arraché)",
+      "video": "https://youtu.be/PQUyWDd0HbY",
+      "rm": "arr"
+     },
+     {
+      "n": "Arraché",
+      "d": "1x3 / 60%, 1x3 / 70%, 1×3 / 75%, 1×3 / 80%, 1×3 / 83%, 1×3 / 85% - un triplé bonus si bien (88-90%) (du RM arraché)",
+      "video": "https://youtu.be/9UtWOLkdGFY",
+      "rm": "arr"
+     },
+     {
+      "n": "EJ",
+      "d": "1x2 / 60%, 1x2 / 70%, 2×2 / 75%, 1×2 / 80%, 1×2 / 85% - un doublé bonus si bien (88-90%) (du RM EJ)",
+      "video": "https://youtu.be/MA1HYzA5qlQ",
+      "rm": "ej"
+     },
+     {
+      "n": "Tirage prise arraché",
+      "d": "3×5 / 75%, 2x5 / 85% (du RM arraché) - le plus haut possible",
+      "video": "https://youtu.be/Dqr52cwYdfY",
+      "rm": "arr"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Russian twists (au GHD si possible)",
+      "d": "3x10-15 aller-retours",
+      "video": "https://youtu.be/IB5jHPLjj3M"
+     },
+     {
+      "n": "Clamshell ou machine abducteurs",
+      "d": "3x15 reps / jambe ou 3x20 reps",
+      "video": "https://youtu.be/XoxHNiqtVPM"
+     }
+    ]
+   },
+   {
+    "type": "main",
+    "label": "Jour 5",
+    "sub": "Squat nuque · Arraché des plots au-dessus des genoux · Développé fente",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Squat nuque",
+      "d": "1x3 / 60%, 1x3 / 70%, 1×3 / 80%, 1×3 / 85%, 1x3 / 88-90%, 1x5 / 70% (du RM squat) - Pas d'équipement sur les drop-sets",
+      "video": "https://youtu.be/DU2Dl83uVaQ",
+      "rm": "squat"
+     },
+     {
+      "n": "Arraché des plots au-dessus des genoux",
+      "d": "1x3 / 60%, 1x3 / 70%, 1×3 / 75%, 2×3 / 80%, 1×3 / 85% - un triplé bonus si bien (88-90%) (du RM arraché)",
+      "video": "https://youtu.be/P6tgLlFp7Io",
+      "rm": "arr"
+     },
+     {
+      "n": "Développé fente",
+      "d": "4x5 / 60-70% (du RM développé) - bien fléchir la jambe arrière et ne pas bouger",
+      "video": "https://youtu.be/q0tbSFAdFrg",
+      "rm": "dev_militaire"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "CMJ",
+      "d": "4x5 hauteur max - récup complète entre les séries",
+      "video": "https://youtu.be/RgdJdh19emU"
+     },
+     {
+      "n": "Oiseau au GHD",
+      "d": "4x10 reps",
+      "video": "https://youtu.be/0C6HlzNa_2o"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "w3",
+  "label": "S3 · 14/12",
+  "title": "Semaine 3",
+  "days": [
+   {
+    "type": "main",
+    "label": "Jour 1",
+    "sub": "Squat nuque · Arraché debout + arraché debout suspension basse · Épaulé-jeté",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Squat nuque",
+      "d": "1x3 / 60%, 1x3 / 70%, 1x3 / 74%, 3x3 / 77% (sans équipement)",
+      "video": "https://youtu.be/DU2Dl83uVaQ",
+      "rm": "squat"
+     },
+     {
+      "n": "Arraché debout + arraché debout suspension basse",
+      "d": "1x(1+3) / 60%, 1×(1+2) / 65%, 1×(1+1) / 70%, 2×(1+1) / 75-80% (du RM arraché)",
+      "video": "https://youtu.be/72-Xo145S7Q",
+      "rm": "arr"
+     },
+     {
+      "n": "Épaulé-jeté",
+      "d": "1x2 / 60%, 1x2 / 70%, 1×2 / 75%, 1×2 / 80%, 2×2 / 85% (du RM EJ)",
+      "video": "https://youtu.be/MA1HYzA5qlQ",
+      "rm": "ej"
+     },
+     {
+      "n": "Tirage prise épaulé",
+      "d": "2×3 / 80%, 2×3 / 90% (du RM épaulé)",
+      "video": "https://youtu.be/eRRbAvwybrE",
+      "rm": "ep"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Tirage nuque prise large (ou tractions nuque)",
+      "d": "4x 8-10 reps",
+      "video": "https://youtu.be/kdEoc9x5Pf4"
+     },
+     {
+      "n": "Gainage copenhague ou machine adducteurs",
+      "d": "3x30'' / jambe ou 3x15-20 reps",
+      "video": "https://youtu.be/kXTHTV6--Bo"
+     }
+    ]
+   },
+   {
+    "type": "opt",
+    "label": "Jour 2",
+    "sub": "Arraché · Tirage prise arraché · Chute d'arraché",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Arraché",
+      "d": "1x3 / 60%, 2x2 / 70%, 1×2 / 75%, 1×2 / 80%, 1×2 / 85% (du RM arraché)",
+      "video": "https://youtu.be/9UtWOLkdGFY",
+      "rm": "arr"
+     },
+     {
+      "n": "Tirage prise arraché",
+      "d": "1×3 / 75%, 1×3 / 80%, 1×3 / 85%, 2x3 / 90% (du RM arraché)",
+      "video": "https://youtu.be/Dqr52cwYdfY",
+      "rm": "arr"
+     },
+     {
+      "n": "Chute d'arraché",
+      "d": "1x3 / 60%, 1x3 / 70%, 2×2 / 80%, 1×2 / 85%, 1×2 / 90% (du RM arraché)",
+      "video": "https://youtu.be/GTj9pliPP8E",
+      "rm": "arr"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "CMJ lesté",
+      "d": "4x2 (DB dans les mains, poids total 25-35% du pdc)",
+      "video": "https://youtu.be/l0H7Qd1CYSo"
+     },
+     {
+      "n": "Rowing 1 bras",
+      "d": "4x8 par bras (lourd !)",
+      "video": "https://youtu.be/xl1YiqQY2vA"
+     },
+     {
+      "n": "Abdos suspendus ou GHD sit-ups",
+      "d": "3x15 reps",
+      "video": "https://youtu.be/pMaETAZqkGM"
+     }
+    ]
+   },
+   {
+    "type": "main",
+    "label": "Jour 3",
+    "sub": "Front squat · Épaulé des plots sous les genoux · Développé fente",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Front squat",
+      "d": "1x2 / 60%, 1x2 / 70%, 1x2 / 80%, 1x1 / 85%, 1x1 / 90% (du RM FS)",
+      "video": "https://youtu.be/eogx9F57JJ0",
+      "rm": "fs"
+     },
+     {
+      "n": "Épaulé des plots sous les genoux",
+      "d": "1x3 / 60%, 1×2 / 70%, 1×2 / 75%, 1×2 / 80%, 2x2 / 85% (du RM épaulé)",
+      "video": "https://youtu.be/lL-Ae_D2IXk",
+      "rm": "ep"
+     },
+     {
+      "n": "Développé fente",
+      "d": "4x5 / 50-60% (du RM développé) - bien fléchir la jambe arrière et ne pas bouger",
+      "video": "https://youtu.be/q0tbSFAdFrg",
+      "rm": "dev_militaire"
+     },
+     {
+      "n": "Jeté",
+      "d": "1x3 / 60%, 1x3 / 70%, 1×2 / 80%, 1×2 / 85%, 3x2 / 88-93% (du RM jeté)",
+      "video": "https://youtu.be/Xo8lVPHq510",
+      "rm": "jet"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Leg curl",
+      "d": "4x10 reps",
+      "video": "https://youtu.be/n6qRAUu16vc"
+     },
+     {
+      "n": "Leg extension",
+      "d": "4x20 reps light (RPE 6)",
+      "video": "https://youtu.be/rCJNVrpvWeI"
+     }
+    ]
+   },
+   {
+    "type": "main",
+    "label": "Jour 4",
+    "sub": "Arraché force · Arraché · Épaulé-jeté · si vous ne faites pas de J5, remplacez le tirage d'épaulé par le squat de J5",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Arraché force",
+      "d": "2×2 / 50%, 1×2 / 55%, 3×2 / 60-65% (du RM arraché)",
+      "video": "https://youtu.be/nJmtGVutszE",
+      "rm": "arr"
+     },
+     {
+      "n": "Arraché",
+      "d": "1x3 / 60%, 1x3 / 70%, 1x2 / 75%, 1×2 / 80%, 1×2 / 83%, 1×2 / 86%, 1×2 / 88%, 1×2 / 90%, 2RM si bien (du RM arraché)",
+      "video": "https://youtu.be/9UtWOLkdGFY",
+      "rm": "arr",
+      "isLb": true
+     },
+     {
+      "n": "Épaulé-jeté",
+      "d": "1x2 / 60%, 1x2 / 70%, 1×2 / 80%, 1×2 / 85%, 1×2 / 88%, 1×2 / 90%, 2RM si bien (du RM EJ)",
+      "video": "https://youtu.be/MA1HYzA5qlQ",
+      "rm": "ej",
+      "isLb": true
+     },
+     {
+      "n": "Tirage prise épaulé",
+      "d": "2×5 / 80%, 2×5 / 85% (du RM épaulé)",
+      "video": "https://youtu.be/eRRbAvwybrE",
+      "rm": "ep"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "CMJ (saut vertical)",
+      "d": "4x2 (récup 2 minutes entre les séries)",
+      "video": "https://youtu.be/RgdJdh19emU"
+     }
+    ]
+   },
+   {
+    "type": "opt",
+    "label": "Jour 5",
+    "sub": "Squat nuque · Jeté force · Arraché des plots au-dessus des genoux",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Squat nuque",
+      "d": "1x3 / 60%, 1x3 / 70%, 1×3 / 80%, 1×3 / 85%, puis 1x3 RPE 9 (du RM squat) - Pas d'échec !",
+      "video": "https://youtu.be/DU2Dl83uVaQ",
+      "rm": "squat"
+     },
+     {
+      "n": "Jeté force",
+      "d": "1×3 / 60%, 1×3 / 65%, 1×3 / 70%, 1×3 / 75% (du RM jeté)",
+      "video": "https://youtu.be/ngjhO8CJvQg",
+      "rm": "jet"
+     },
+     {
+      "n": "Arraché des plots au-dessus des genoux",
+      "d": "1x3 / 60%, 1x3 / 70%, 2×2 / 75%, 1×2 / 80%, 1×2 / 85%, 2×2 / 88-90% (du RM arraché)",
+      "video": "https://youtu.be/P6tgLlFp7Io",
+      "rm": "arr"
+     },
+     {
+      "n": "Tirage prise arraché",
+      "d": "2×5 / 80%, 3×5 / 85% (du RM arraché) - le plus haut possible",
+      "video": "https://youtu.be/Dqr52cwYdfY",
+      "rm": "arr"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Russian twists (au GHD si possible)",
+      "d": "4x10-15 aller-retours",
+      "video": "https://youtu.be/IB5jHPLjj3M"
+     },
+     {
+      "n": "Squat cossack",
+      "d": "3x8 par jambe (KB en goblet - posture +++)",
+      "video": "https://youtu.be/J5rAhhGVLUA"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "w4",
+  "label": "S4 · 21/12",
+  "title": "Semaine 4 — Noël (deload squat)",
+  "days": [
+   {
+    "type": "main",
+    "label": "Jour 1",
+    "sub": "Squat nuque · Arraché + arraché suspension sous les genoux · Tirage arraché",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Squat nuque",
+      "d": "1x2 / 60%, 1x2 / 70%, 3x2 / 75% (sans équipement) - DELOAD SQUAT",
+      "video": "https://youtu.be/DU2Dl83uVaQ",
+      "rm": "squat"
+     },
+     {
+      "n": "Arraché + arraché suspension sous les genoux",
+      "d": "1x(1+2) / 60%, 1×(1+2) / 70%, 1×(1+2) / 75%, 1×(1+2) / 80%, 1×(1+1) / 85% (du RM arraché)",
+      "video": "https://youtu.be/ZJxwRfQ-TBo",
+      "rm": "arr"
+     },
+     {
+      "n": "Tirage arraché",
+      "d": "5×3 / 80% (du RM arraché) - Le plus haut possible",
+      "video": "https://youtu.be/Dqr52cwYdfY",
+      "rm": "arr"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Rowing planche",
+      "d": "4x8 reps",
+      "video": "https://youtu.be/ZsG8J2qV78k"
+     },
+     {
+      "n": "Gainage planche lestée ou gainage swiss ball",
+      "d": "3x45''",
+      "video": "https://youtu.be/P3FR4GUl2QM"
+     },
+     {
+      "n": "Extensions lombaires au GHD",
+      "d": "3x10 reps + 10'' hold dernière rep",
+      "video": "https://youtu.be/dEDjkzFKJ-0"
+     }
+    ]
+   },
+   {
+    "type": "opt",
+    "label": "Jour 2",
+    "sub": "Développé militaire · Arraché debout · Arraché no hook / no feet",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Développé militaire",
+      "d": "5x3 / 75-85% (du RM développé)",
+      "video": "https://youtu.be/yelXxVJYrww",
+      "rm": "dev_militaire"
+     },
+     {
+      "n": "Arraché debout",
+      "d": "1×3 / 60%, 2×2 / 65%, 1×2 / 70%, 1×2 / 75% (du RM arraché)",
+      "video": "https://youtu.be/szLFnjevo4k",
+      "rm": "arr"
+     },
+     {
+      "n": "Arraché no hook / no feet",
+      "d": "6x3 / 50% light / technique",
+      "video": "https://youtu.be/x7tN_An5i1s",
+      "rm": "arr"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Drop jump",
+      "d": "4x4 reps - contact court au sol ! Hauteur de départ MAX 40cm",
+      "video": "https://youtu.be/u16MYBMfsdU"
+     },
+     {
+      "n": "Hip thrust 1 jambe",
+      "d": "3x (10 reps + 20'' hold) / jambe",
+      "video": "https://youtu.be/UrkkB10bzr8"
+     },
+     {
+      "n": "Tractions (lestées si possible)",
+      "d": "4x6 reps",
+      "video": "https://youtu.be/xcT6MpgyUX0"
+     }
+    ]
+   },
+   {
+    "type": "main",
+    "label": "Jour 3",
+    "sub": "Front squat · Épaulé-jeté · Tirage prise arraché",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Front squat",
+      "d": "3x3 / 70% (du RM FS) - DELOAD SQUAT",
+      "video": "https://youtu.be/eogx9F57JJ0",
+      "rm": "fs"
+     },
+     {
+      "n": "Épaulé-jeté",
+      "d": "1×2 / 60%, 1x2 / 70%, 1x2 / 75%, 1x2 / 80%, 1x2 / 85% (du RM EJ)",
+      "video": "https://youtu.be/MA1HYzA5qlQ",
+      "rm": "ej"
+     },
+     {
+      "n": "Tirage prise arraché",
+      "d": "3×3 / 80%, 2×3 / 85% (du RM arraché) - Le plus haut possible",
+      "video": "https://youtu.be/Dqr52cwYdfY",
+      "rm": "arr"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Barbell rotations",
+      "d": "4x10 aller / retours",
+      "video": "https://youtu.be/e5DP6961WEk"
+     },
+     {
+      "n": "Oiseau au GHD",
+      "d": "4x10 reps",
+      "video": "https://youtu.be/0C6HlzNa_2o"
+     },
+     {
+      "n": "Dips",
+      "d": "4x10 reps (lestées si possible)",
+      "video": "https://youtu.be/SxI0kjVu-3w"
+     }
+    ]
+   },
+   {
+    "type": "main",
+    "label": "Jour 4",
+    "sub": "Squat nuque · Jeté force · Arraché",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Squat nuque",
+      "d": "5x3 / 75% (du RM squat) - DELOAD SQUAT",
+      "video": "https://youtu.be/DU2Dl83uVaQ",
+      "rm": "squat"
+     },
+     {
+      "n": "Jeté force",
+      "d": "2×4 / 55%, 1×3 / 60%, 1×3 / 65% (du RM jeté)",
+      "video": "https://youtu.be/ngjhO8CJvQg",
+      "rm": "jet"
+     },
+     {
+      "n": "Arraché",
+      "d": "1×3 / 60%, 1x3 / 70%, 4x3 / 75-85% (du RM arraché)",
+      "video": "https://youtu.be/9UtWOLkdGFY",
+      "rm": "arr"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Abdos suspendus ou GHD sit-ups",
+      "d": "3x15 reps",
+      "video": "https://youtu.be/pMaETAZqkGM"
+     },
+     {
+      "n": "Leg extension",
+      "d": "4x20 reps",
+      "video": "https://youtu.be/rCJNVrpvWeI"
+     },
+     {
+      "n": "Leg curl",
+      "d": "4x20 reps",
+      "video": "https://youtu.be/n6qRAUu16vc"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "w2c",
+  "label": "S2 · 07/12",
+  "title": "Semaine 2 — Avec compétition",
+  "days": [
+   {
+    "type": "main",
+    "label": "Jour 1",
+    "sub": "Épaulé-jeté · Front squat",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Épaulé-jeté",
+      "d": "1x2 / 60%, 1x2 / 70%, 1×2 / 75%, 1×2 / 80%, 1x1 / 85%, 1x1 / 88-90% (du RM EJ)",
+      "video": "https://youtu.be/MA1HYzA5qlQ",
+      "rm": "ej"
+     },
+     {
+      "n": "Front squat",
+      "d": "1x3 / 60%, 1x3 / 70%, 1×3 / 80%, 1×3 / 85%, 1×3 / 90%, 1×3 / 95% (du RM EJ)",
+      "video": "https://youtu.be/eogx9F57JJ0",
+      "rm": "ej"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Tractions ou tirage poulie haute",
+      "d": "4x 8-12 reps",
+      "video": "https://youtu.be/pHtPSleYquw"
+     },
+     {
+      "n": "Leg extension",
+      "d": "4x15 reps",
+      "video": "https://youtu.be/rCJNVrpvWeI"
+     }
+    ]
+   },
+   {
+    "type": "main",
+    "label": "Jour 2",
+    "sub": "Jeté · Arraché · Tirage prise arraché",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Jeté",
+      "d": "1x3 / 60%, 1x3 / 70%, 2×2 / 80%, 2×1 / 85%, 1×1 / 90%, 1×1 / 95% (du RM jeté)",
+      "video": "https://youtu.be/Xo8lVPHq510",
+      "rm": "jet"
+     },
+     {
+      "n": "Arraché",
+      "d": "1x3 / 60%, 1x2 / 70%, 2×2 / 75%, 2×2 / 80%, 1×1 / 85%, 1x1 / 88-90% (du RM arraché)",
+      "video": "https://youtu.be/9UtWOLkdGFY",
+      "rm": "arr"
+     },
+     {
+      "n": "Tirage prise arraché",
+      "d": "2×3 / 80%, 2×3 / 90%, 1×3 / 95% (du RM arraché)",
+      "video": "https://youtu.be/Dqr52cwYdfY",
+      "rm": "arr"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Side bends",
+      "d": "3x10-15 reps / côté",
+      "video": "https://youtu.be/TDPOyEW_q3M"
+     },
+     {
+      "n": "Abdos suspendus ou GHD sit-ups",
+      "d": "3x15 reps",
+      "video": "https://youtu.be/pMaETAZqkGM"
+     }
+    ]
+   },
+   {
+    "type": "opt",
+    "label": "Jour 3",
+    "sub": "Épaulé force + développé militaire · Tirage prise épaulé · Squat",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Épaulé force + développé militaire",
+      "d": "1×3 / 30%, 1×3 / 35%, 1×3 / 40% (du RM EJ)",
+      "video": "https://youtu.be/eQVhEn7eS1M",
+      "rm": "ej"
+     },
+     {
+      "n": "Tirage prise épaulé",
+      "d": "2×3 / 80%, 2×3 / 90%, 1×3 / 95% (du RM épaulé)",
+      "video": "https://youtu.be/eRRbAvwybrE",
+      "rm": "ep"
+     },
+     {
+      "n": "Squat",
+      "d": "1×3 / 65%, 1×3 / 70%, 1×3 / 75%, 1×3 / 80% (du RM squat)",
+      "video": "https://youtu.be/DU2Dl83uVaQ",
+      "rm": "squat"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Rowing planche",
+      "d": "3x6 reps",
+      "video": "https://youtu.be/ZsG8J2qV78k"
+     },
+     {
+      "n": "Tractions",
+      "d": "3x6-10 reps",
+      "video": "https://youtu.be/pHtPSleYquw"
+     },
+     {
+      "n": "Leg curl",
+      "d": "4x15 reps light (RPE 6)",
+      "video": "https://youtu.be/n6qRAUu16vc"
+     }
+    ]
+   },
+   {
+    "type": "opt",
+    "label": "Jour 4",
+    "sub": "Arraché debout · Jeté force",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Arraché debout",
+      "d": "1×2 / 60%, 1×2 / 65%, 1×2 / 70%, 1×2 / 75% (du RM arraché)",
+      "video": "https://youtu.be/szLFnjevo4k",
+      "rm": "arr"
+     },
+     {
+      "n": "Jeté force",
+      "d": "2×2 / 60%, 2×2 / 65%, 1×2 / 70%, Bonus : 1×2 / 75% (du RM jeté)",
+      "video": "https://youtu.be/ngjhO8CJvQg",
+      "rm": "jet"
+     }
+    ],
+    "prepa": [
+     {
+      "n": "Extensions lombaires",
+      "d": "3x10 barre à vide",
+      "video": "https://youtu.be/1LYVupsjZT0"
+     }
+    ]
+   },
+   {
+    "type": "main",
+    "label": "Jour 5",
+    "sub": "Compétition",
+    "warmup": [],
+    "main": [
+     {
+      "n": "Jour de compétition",
+      "d": "Jour de compétition. Échauffement classique, ouvertures maîtrisées, Golden Rule sur les tentatives. Bonne compét !"
+     }
+    ],
+    "prepa": []
+   }
+  ]
+ }
+];
+
 const PROG_BLOCKS = {
+  dec26: { label:'Décembre 2026', weeks: BLOCK_DEC26_WEEKS },
   nov26: { label:'Novembre 2026', weeks: BLOCK_NOV26_WEEKS },
   aout26: { label:'Juil/Août 2026', weeks: BLOCK_AOUT26_WEEKS },
   sept26: { label:'Août 2026', weeks: BLOCK_SEPT26_WEEKS },

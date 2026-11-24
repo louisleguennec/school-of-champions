@@ -3725,7 +3725,7 @@ const BLOCKS = {
       new Date(2026, 9, 19), // S3 — 19 oct
       new Date(2026, 9, 26), // S4 — 26 oct
     ],
-    readonly: false,
+    readonly: true,
     code: 'SCHOOLOCT',
   },
 };
@@ -5008,7 +5008,7 @@ function applyMastersFilter(){
 function buildBlockSelector(){
   const el = document.getElementById('blockSel');
   if(!el) return;
-  const blockIds = ['dec26','nov26','oct26'];
+  const blockIds = ['dec26','nov26'];
   el.innerHTML = blockIds.map(bid => {
     const b = BLOCKS[bid];
     const unlocked = isBlockUnlocked(bid);
